@@ -10,8 +10,7 @@ export * from "./src/DidiServerApiClient";
 export * from "./src/TrustGraphClient";
 
 export * from "./src/protocol/parseJWT";
-export * from "./src/protocol/createDisclosureResponse";
-export * from "./src/protocol/submitDisclosureResponse";
+export * from "./src/protocol/SelectiveDisclosureResponse";
 
 export * from "./src/util/ErrorData";
 export * from "./src/util/DecodeErrorReporter";

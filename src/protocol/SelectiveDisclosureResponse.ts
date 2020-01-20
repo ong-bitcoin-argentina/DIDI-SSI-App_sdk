@@ -1,11 +1,20 @@
+import Credentials from "uport-credentials/lib/Credentials";
+
 import { JSONObject } from "../util/JSON";
-import TypedObject from "../util/TypedObject";
+import { VerifiableSpecIssuerSelector } from "./common/SelectiveDisclosureSpecs";
 
 import { ClaimData } from "../model/Claim";
 import { CredentialDocument } from "../model/CredentialDocument";
 import { Identity } from "../model/Identity";
+import { RequestDocument } from "../model/RequestDocument";
 
-import { SelectiveDisclosureRequest, VerifiableSpecIssuerSelector } from "./packets/SelectiveDisclosureRequest";
+import { SelectiveDisclosureRequest } from "./packets/SelectiveDisclosureRequest";
+
+export interface DisclosureResponseContent {
+	request: RequestDocument;
+	ownClaims: JSONObject;
+	verifiedClaims: string[];
+}
 
 function selectOwnClaims(
 	request: SelectiveDisclosureRequest,
@@ -107,17 +116,36 @@ function selectVerifiedClaims(
 	return { verifiedClaims, missingRequired };
 }
 
-export function getResponseClaims(
-	request: SelectiveDisclosureRequest,
-	documents: CredentialDocument[],
-	identity: Identity
-): { missingRequired: string[]; ownClaims: JSONObject; verifiedClaims: CredentialDocument[] } {
-	const verified = selectVerifiedClaims(request, documents);
-	const own = selectOwnClaims(request, identity);
+export const SelectiveDisclosureResponse = {
+	getResponseClaims(
+		request: SelectiveDisclosureRequest,
+		documents: CredentialDocument[],
+		identity: Identity
+	): { missingRequired: string[]; ownClaims: JSONObject; verifiedClaims: CredentialDocument[] } {
+		const verified = selectVerifiedClaims(request, documents);
+		const own = selectOwnClaims(request, identity);
 
-	return {
-		missingRequired: [...own.missingRequired, ...verified.missingRequired],
-		ownClaims: own.ownClaims,
-		verifiedClaims: verified.verifiedClaims
-	};
-}
+		return {
+			missingRequired: [...own.missingRequired, ...verified.missingRequired],
+			ownClaims: own.ownClaims,
+			verifiedClaims: verified.verifiedClaims
+		};
+	},
+
+	async signJWT(credentials: Credentials, content: DisclosureResponseContent): Promise<string> {
+		return credentials.createDisclosureResponse({
+			req: content.request.jwt,
+			own: content.ownClaims,
+			verified: content.verifiedClaims
+		});
+	},
+
+	async submit(args: { callback: string; token: string }) {
+		return fetch(args.callback, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json; charset=utf-8"
+			}
+		});
+	}
+};

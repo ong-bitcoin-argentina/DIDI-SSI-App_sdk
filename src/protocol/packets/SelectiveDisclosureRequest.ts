@@ -1,20 +1,9 @@
 import * as t from "io-ts";
 
 import TypedObject from "../../util/TypedObject";
+import { UserInfoSpecCodec, VerifiableSpecCodec } from "../common/SelectiveDisclosureSpecs";
 
 import { EthrDID } from "../../model/EthrDID";
-
-const VerifiableSpecCodec = t.partial({
-	essential: t.boolean,
-	iss: t.array(t.intersection([t.type({ did: EthrDID.codec }, ""), t.partial({ url: t.string }, "")], "")),
-	reason: t.string
-});
-export type VerifiableSpecIssuerSelector = typeof VerifiableSpecCodec._A["iss"];
-
-const UserInfoSpecCodec = t.partial({
-	essential: t.boolean,
-	reason: t.string
-});
 
 const SelectiveDisclosureRequestInnerCodec = t.intersection(
 	[
@@ -22,7 +11,6 @@ const SelectiveDisclosureRequestInnerCodec = t.intersection(
 			{
 				type: t.literal("SelectiveDisclosureRequest"),
 				issuer: EthrDID.codec,
-				callback: t.string,
 				verifiedClaims: t.record(t.string, VerifiableSpecCodec),
 				ownClaims: t.record(t.string, UserInfoSpecCodec)
 			},
@@ -31,7 +19,8 @@ const SelectiveDisclosureRequestInnerCodec = t.intersection(
 		t.partial(
 			{
 				issuedAt: t.number,
-				expireAt: t.number
+				expireAt: t.number,
+				callback: t.string
 			},
 			""
 		)
@@ -44,8 +33,7 @@ const SelectiveDisclosureRequestOuterCodec = t.intersection([
 	t.type(
 		{
 			type: t.literal("shareReq"),
-			iss: EthrDID.codec,
-			callback: t.string
+			iss: EthrDID.codec
 		},
 		"SelectiveDisclosureRequest"
 	),
@@ -58,7 +46,8 @@ const SelectiveDisclosureRequestOuterCodec = t.intersection([
 			requested: t.array(t.string),
 			verified: t.array(t.string),
 			iat: t.number,
-			exp: t.number
+			exp: t.number,
+			callback: t.string
 		},
 		"SelectiveDisclosureRequest"
 	)

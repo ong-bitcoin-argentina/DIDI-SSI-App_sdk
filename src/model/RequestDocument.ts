@@ -4,7 +4,7 @@ import { EthrDID } from "./EthrDID";
 export interface RequestDocument extends DidiDocument {
 	type: "RequestDocument";
 
-	callback: string;
+	callback?: string;
 	ownClaims: {
 		[x: string]: {
 			essential?: boolean;
