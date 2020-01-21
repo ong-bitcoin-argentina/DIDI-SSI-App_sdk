@@ -5,7 +5,7 @@ import { DidiDocument } from "./DidiDocument";
 import { EthrDID } from "./EthrDID";
 import { SpecialCredentialFlag } from "./SpecialCredential";
 
-export type DocumentFilterType = "livingPlace" | "identity" | "other";
+export type DocumentFilterType = "education" | "livingPlace" | "finance" | "identity";
 
 export interface CredentialDocument extends DidiDocument {
 	type: "CredentialDocument";
@@ -14,7 +14,7 @@ export interface CredentialDocument extends DidiDocument {
 	title: string;
 	data: ClaimData;
 	preview?: { type: number; fields: string[] };
-	category: DocumentFilterType;
+	category?: DocumentFilterType;
 
 	nested: CredentialDocument[];
 	specialFlag?: SpecialCredentialFlag;

@@ -20,7 +20,12 @@ const VerifiedClaimOuterCodec = t.intersection([
 							{
 								data: ClaimData.codec,
 								wrapped: t.record(t.string, t.string),
-								category: t.string,
+								category: t.keyof({
+									education: null,
+									livingPlace: null,
+									finance: null,
+									identity: null
+								}),
 								preview: t.type({
 									type: t.number,
 									fields: t.array(t.string)
@@ -63,7 +68,7 @@ export const VerifiedClaimCodec = VerifiedClaimOuterCodec.pipe(
 				issuedAt: i.iat,
 				title: i.vc.credentialSubject.key,
 				preview: i.vc.credentialSubject.value.preview,
-				category: i.vc.credentialSubject.value.category === "identity" ? "identity" : "other",
+				category: i.vc.credentialSubject.value.category,
 				data: i.vc.credentialSubject.value.data ?? {},
 				wrapped: i.vc.credentialSubject.value.wrapped ?? {}
 			}),
@@ -83,7 +88,7 @@ export const VerifiedClaimCodec = VerifiedClaimOuterCodec.pipe(
 							data: a.data,
 							preview: a.preview,
 							wrapped: a.wrapped,
-							...(a.category === "identity" ? { category: "identity" } : {})
+							category: a.category
 						}
 					}
 				}
