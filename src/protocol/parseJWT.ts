@@ -111,7 +111,6 @@ export function unverifiedParseJWT(jwt: string): JWTParseResult {
 
 export async function parseJWT(jwt: string, ethrUri: string): Promise<JWTParseResult> {
 	const unverifiedContent = unverifiedParseJWT(jwt);
-	return unverifiedContent;
 	if (isLeft(unverifiedContent)) {
 		return unverifiedContent;
 	}
