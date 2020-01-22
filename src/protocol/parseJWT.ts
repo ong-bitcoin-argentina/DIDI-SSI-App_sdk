@@ -14,8 +14,8 @@ import { ProposalDocument, RequestDocument } from "../model/DisclosureDocuments"
 import { SpecialCredentialFlag } from "../model/SpecialCredential";
 
 import { ForwardedRequestCodec } from "./packets/ForwardedRequest";
-import { SelectiveDisclosureProposalCodec } from "./packets/SelectiveDisclosureProposal";
-import { SelectiveDisclosureRequestCodec } from "./packets/SelectiveDisclosureRequest";
+import { SelectiveDisclosureProposal } from "./packets/SelectiveDisclosureProposal";
+import { SelectiveDisclosureRequest } from "./packets/SelectiveDisclosureRequest";
 import { VerifiedClaim, VerifiedClaimCodec } from "./packets/VerifiedClaim";
 
 // This is required by verifyJWT
@@ -25,7 +25,7 @@ if (typeof Buffer === "undefined") {
 }
 
 const PublicCodec = t.union(
-	[SelectiveDisclosureRequestCodec, SelectiveDisclosureProposalCodec, VerifiedClaimCodec],
+	[SelectiveDisclosureRequest.codec, SelectiveDisclosureProposal.codec, VerifiedClaimCodec],
 	"___"
 );
 const ParseCodec = t.union([PublicCodec, ForwardedRequestCodec], "___");
@@ -111,6 +111,7 @@ export function unverifiedParseJWT(jwt: string): JWTParseResult {
 
 export async function parseJWT(jwt: string, ethrUri: string): Promise<JWTParseResult> {
 	const unverifiedContent = unverifiedParseJWT(jwt);
+	return unverifiedContent;
 	if (isLeft(unverifiedContent)) {
 		return unverifiedContent;
 	}

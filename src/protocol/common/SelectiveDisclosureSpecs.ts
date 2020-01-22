@@ -9,6 +9,7 @@ const VerifiableSpecCodec = t.partial({
 	iss: t.array(t.intersection([t.type({ did: EthrDID.codec }, ""), t.partial({ url: t.string }, "")], "")),
 	reason: t.string
 });
+export type VerifiableSpecSelector = typeof VerifiableSpecCodec._A;
 export type VerifiableSpecIssuerSelector = typeof VerifiableSpecCodec._A["iss"];
 
 const UserInfoSpecCodec = t.partial({

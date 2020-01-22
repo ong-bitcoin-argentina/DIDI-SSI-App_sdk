@@ -11,6 +11,8 @@ export * from "./src/TrustGraphClient";
 
 export * from "./src/protocol/parseJWT";
 export * from "./src/protocol/SelectiveDisclosureResponse";
+export * from "./src/protocol/packets/SelectiveDisclosureProposal";
+export * from "./src/protocol/packets/SelectiveDisclosureRequest";
 
 export * from "./src/util/ErrorData";
 export * from "./src/util/DecodeErrorReporter";
