@@ -7,6 +7,7 @@ import { EthrDID } from "../../model/EthrDID";
 const VerifiableSpecCodec = t.partial({
 	essential: t.boolean,
 	iss: t.array(t.intersection([t.type({ did: EthrDID.codec }, ""), t.partial({ url: t.string }, "")], "")),
+	jwt: t.string,
 	reason: t.string
 });
 export type VerifiableSpecSelector = typeof VerifiableSpecCodec._A;

@@ -104,7 +104,10 @@ function selectVerifiedClaims(
 
 	Object.entries(request.verifiedClaims).forEach(([title, selector]) => {
 		const selected = documents.find(
-			document => title === document.title && matchesIssuerSelector(document, selector.iss)
+			document =>
+				title === document.title &&
+				(selector.jwt === undefined || selector.jwt === document.jwt) &&
+				matchesIssuerSelector(document, selector.iss)
 		);
 		if (selected) {
 			verifiedClaims.push(selected);
