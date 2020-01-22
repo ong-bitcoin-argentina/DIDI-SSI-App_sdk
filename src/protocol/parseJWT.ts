@@ -10,10 +10,11 @@ import JWTDecode from "jwt-decode";
 import TypedArray from "../util/TypedArray";
 
 import { CredentialDocument } from "../model/CredentialDocument";
-import { RequestDocument } from "../model/RequestDocument";
+import { ProposalDocument, RequestDocument } from "../model/DisclosureDocuments";
 import { SpecialCredentialFlag } from "../model/SpecialCredential";
 
 import { ForwardedRequestCodec } from "./packets/ForwardedRequest";
+import { SelectiveDisclosureProposalCodec } from "./packets/SelectiveDisclosureProposal";
 import { SelectiveDisclosureRequestCodec } from "./packets/SelectiveDisclosureRequest";
 import { VerifiedClaim, VerifiedClaimCodec } from "./packets/VerifiedClaim";
 
@@ -23,7 +24,10 @@ if (typeof Buffer === "undefined") {
 	global.Buffer = require("buffer").Buffer;
 }
 
-const PublicCodec = t.union([SelectiveDisclosureRequestCodec, VerifiedClaimCodec], "___");
+const PublicCodec = t.union(
+	[SelectiveDisclosureRequestCodec, SelectiveDisclosureProposalCodec, VerifiedClaimCodec],
+	"___"
+);
 const ParseCodec = t.union([PublicCodec, ForwardedRequestCodec], "___");
 
 export type JWTParseError =
@@ -47,7 +51,7 @@ export type JWTParseError =
 			type: "RESOLVER_CREATION_ERROR";
 	  };
 
-export type JWTParseResult = Either<JWTParseError, RequestDocument | CredentialDocument>;
+export type JWTParseResult = Either<JWTParseError, RequestDocument | ProposalDocument | CredentialDocument>;
 
 function extractIoError(errors: t.Errors): string {
 	function getContextPath(context: t.Context): string {
@@ -86,6 +90,8 @@ export function unverifiedParseJWT(jwt: string): JWTParseResult {
 			switch (unverified.type) {
 				case "SelectiveDisclosureRequest":
 					return right({ ...unverified, type: "RequestDocument", jwt });
+				case "SelectiveDisclosureProposal":
+					return right({ ...unverified, type: "ProposalDocument", jwt });
 				case "ForwardedRequest":
 					return unverifiedParseJWT(unverified.forwarded);
 				case "VerifiedClaim":
@@ -131,6 +137,8 @@ export async function parseJWT(jwt: string, ethrUri: string): Promise<JWTParseRe
 			switch (verified.type) {
 				case "SelectiveDisclosureRequest":
 					return right({ ...verified, type: "RequestDocument", jwt });
+				case "SelectiveDisclosureProposal":
+					return right({ ...verified, type: "ProposalDocument", jwt });
 				case "ForwardedRequest":
 					return parseJWT(verified.forwarded, ethrUri);
 				case "VerifiedClaim":
@@ -150,7 +158,7 @@ export async function parseJWT(jwt: string, ethrUri: string): Promise<JWTParseRe
 }
 
 function extractCredentials(
-	items: Array<RequestDocument | CredentialDocument>
+	items: Array<RequestDocument | ProposalDocument | CredentialDocument>
 ): Either<JWTParseError, CredentialDocument[]> {
 	if (items.every(x => x.type === "CredentialDocument")) {
 		return right(items as CredentialDocument[]);

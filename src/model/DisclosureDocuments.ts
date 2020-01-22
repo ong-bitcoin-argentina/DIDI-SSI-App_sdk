@@ -1,9 +1,7 @@
 import { DidiDocument } from "./DidiDocument";
 import { EthrDID } from "./EthrDID";
 
-export interface RequestDocument extends DidiDocument {
-	type: "RequestDocument";
-
+interface DisclosureDocuments extends DidiDocument {
 	callback?: string;
 	ownClaims: {
 		[x: string]: {
@@ -23,4 +21,12 @@ export interface RequestDocument extends DidiDocument {
 	};
 }
 
+export interface RequestDocument extends DisclosureDocuments {
+	type: "RequestDocument";
+}
 export const RequestDocument = DidiDocument;
+
+export interface ProposalDocument extends DisclosureDocuments {
+	type: "ProposalDocument";
+}
+export const ProposalDocument = DidiDocument;

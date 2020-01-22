@@ -5,8 +5,8 @@ import { VerifiableSpecIssuerSelector } from "./common/SelectiveDisclosureSpecs"
 
 import { ClaimData } from "../model/Claim";
 import { CredentialDocument } from "../model/CredentialDocument";
+import { RequestDocument } from "../model/DisclosureDocuments";
 import { Identity } from "../model/Identity";
-import { RequestDocument } from "../model/RequestDocument";
 
 import { SelectiveDisclosureRequest } from "./packets/SelectiveDisclosureRequest";
 
