@@ -1,20 +1,84 @@
+import * as t from "io-ts";
 import Credentials from "uport-credentials/lib/Credentials";
 
-import { JSONObject } from "../util/JSON";
 import { VerifiableSpecIssuerSelector } from "./common/SelectiveDisclosureSpecs";
 
 import { ClaimData } from "../model/Claim";
 import { CredentialDocument } from "../model/CredentialDocument";
-import { RequestDocument } from "../model/DisclosureDocuments";
+import { RequestDocument } from "../model/DisclosureRequestDocuments";
+import { EthrDID } from "../model/EthrDID";
 import { Identity } from "../model/Identity";
 
 import { SelectiveDisclosureRequest } from "./packets/SelectiveDisclosureRequest";
 
-export interface DisclosureResponseContent {
-	request: RequestDocument;
-	ownClaims: JSONObject;
-	verifiedClaims: string[];
-}
+const SelectiveDisclosureResponseInnerCodec = t.intersection([
+	t.type({
+		type: t.literal("SelectiveDisclosureResponse"),
+		issuer: EthrDID.codec,
+		subject: EthrDID.codec,
+		requestToken: t.string,
+		ownClaims: ClaimData.codec,
+		verifiedClaims: t.array(t.string)
+	}),
+	t.partial({
+		issuedAt: t.number,
+		expireAt: t.number
+	})
+]);
+export type SelectiveDisclosureResponse = typeof SelectiveDisclosureResponseInnerCodec._A;
+
+const SelectiveDisclosureResponseOuterCodec = t.intersection([
+	t.type(
+		{
+			type: t.literal("shareResp"),
+			iss: EthrDID.codec,
+			sub: EthrDID.codec,
+			req: t.string,
+			own: ClaimData.codec,
+			verified: t.array(t.string)
+		},
+		"SelectiveDisclosureResponse"
+	),
+	t.partial(
+		{
+			iat: t.number,
+			exp: t.number
+		},
+		"SelectiveDisclosureResponse"
+	)
+]);
+type SelectiveDisclosureResponseTransport = typeof SelectiveDisclosureResponseOuterCodec._A;
+
+const codec = SelectiveDisclosureResponseOuterCodec.pipe(
+	new t.Type<SelectiveDisclosureResponse, SelectiveDisclosureResponseTransport, SelectiveDisclosureResponseTransport>(
+		"SelectiveDisclosureResponse_In",
+		SelectiveDisclosureResponseInnerCodec.is,
+		(i, c) =>
+			t.success<SelectiveDisclosureResponse>({
+				type: "SelectiveDisclosureResponse",
+				issuer: i.iss,
+				subject: i.sub,
+				requestToken: i.req,
+				ownClaims: i.own,
+				verifiedClaims: i.verified,
+				expireAt: i.exp,
+				issuedAt: i.iat
+			}),
+		a => {
+			return {
+				type: "shareResp",
+				iss: a.issuer,
+				sub: a.subject,
+				req: a.requestToken,
+				own: a.ownClaims,
+				verified: a.verifiedClaims,
+				exp: a.expireAt,
+				iat: a.issuedAt
+			};
+		}
+	),
+	"___"
+);
 
 function selectOwnClaims(
 	request: SelectiveDisclosureRequest,
@@ -124,7 +188,7 @@ export const SelectiveDisclosureResponse = {
 		request: SelectiveDisclosureRequest,
 		documents: CredentialDocument[],
 		identity: Identity
-	): { missingRequired: string[]; ownClaims: JSONObject; verifiedClaims: CredentialDocument[] } {
+	): { missingRequired: string[]; ownClaims: ClaimData; verifiedClaims: CredentialDocument[] } {
 		const verified = selectVerifiedClaims(request, documents);
 		const own = selectOwnClaims(request, identity);
 
@@ -135,11 +199,17 @@ export const SelectiveDisclosureResponse = {
 		};
 	},
 
-	async signJWT(credentials: Credentials, content: DisclosureResponseContent): Promise<string> {
+	async signJWT(
+		credentials: Credentials,
+		request: RequestDocument,
+		ownClaims: ClaimData,
+		verifiedClaims: CredentialDocument[]
+	): Promise<string> {
 		return credentials.createDisclosureResponse({
-			req: content.request.jwt,
-			own: content.ownClaims,
-			verified: content.verifiedClaims
+			sub: request.issuer.did(),
+			req: request.jwt,
+			own: ownClaims,
+			verified: verifiedClaims.map(doc => doc.jwt)
 		});
 	},
 
@@ -151,5 +221,7 @@ export const SelectiveDisclosureResponse = {
 			},
 			body: JSON.stringify({ access_token: args.token })
 		});
-	}
+	},
+
+	codec
 };

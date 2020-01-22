@@ -10,13 +10,16 @@ import JWTDecode from "jwt-decode";
 import TypedArray from "../util/TypedArray";
 
 import { CredentialDocument } from "../model/CredentialDocument";
-import { ProposalDocument, RequestDocument } from "../model/DisclosureDocuments";
+import { DisclosureDocument } from "../model/DisclosureDocument";
+import { ProposalDocument, RequestDocument } from "../model/DisclosureRequestDocuments";
+import { EthrDID } from "../model/EthrDID";
 import { SpecialCredentialFlag } from "../model/SpecialCredential";
 
 import { ForwardedRequestCodec } from "./packets/ForwardedRequest";
 import { SelectiveDisclosureProposal } from "./packets/SelectiveDisclosureProposal";
 import { SelectiveDisclosureRequest } from "./packets/SelectiveDisclosureRequest";
 import { VerifiedClaim, VerifiedClaimCodec } from "./packets/VerifiedClaim";
+import { SelectiveDisclosureResponse } from "./SelectiveDisclosureResponse";
 
 // This is required by verifyJWT
 if (typeof Buffer === "undefined") {
@@ -25,7 +28,12 @@ if (typeof Buffer === "undefined") {
 }
 
 const PublicCodec = t.union(
-	[SelectiveDisclosureRequest.codec, SelectiveDisclosureProposal.codec, VerifiedClaimCodec],
+	[
+		SelectiveDisclosureResponse.codec,
+		SelectiveDisclosureRequest.codec,
+		SelectiveDisclosureProposal.codec,
+		VerifiedClaimCodec
+	],
 	"___"
 );
 const ParseCodec = t.union([PublicCodec, ForwardedRequestCodec], "___");
@@ -51,7 +59,10 @@ export type JWTParseError =
 			type: "RESOLVER_CREATION_ERROR";
 	  };
 
-export type JWTParseResult = Either<JWTParseError, RequestDocument | ProposalDocument | CredentialDocument>;
+export type JWTParseResult = Either<
+	JWTParseError,
+	DisclosureDocument | RequestDocument | ProposalDocument | CredentialDocument
+>;
 
 function extractIoError(errors: t.Errors): string {
 	function getContextPath(context: t.Context): string {
@@ -88,6 +99,8 @@ export function unverifiedParseJWT(jwt: string): JWTParseResult {
 			return left({ type: "BEFORE_IAT", expected: unverified.issuedAt, current: now });
 		} else {
 			switch (unverified.type) {
+				case "SelectiveDisclosureResponse":
+					return right({ ...unverified, type: "DisclosureDocument", jwt });
 				case "SelectiveDisclosureRequest":
 					return right({ ...unverified, type: "RequestDocument", jwt });
 				case "SelectiveDisclosureProposal":
@@ -109,7 +122,7 @@ export function unverifiedParseJWT(jwt: string): JWTParseResult {
 	}
 }
 
-export async function parseJWT(jwt: string, ethrUri: string): Promise<JWTParseResult> {
+export async function parseJWT(jwt: string, ethrUri: string, audience?: EthrDID): Promise<JWTParseResult> {
 	const unverifiedContent = unverifiedParseJWT(jwt);
 	if (isLeft(unverifiedContent)) {
 		return unverifiedContent;
@@ -126,7 +139,7 @@ export async function parseJWT(jwt: string, ethrUri: string): Promise<JWTParseRe
 		try {
 			const { payload } = await (unverifiedContent.right.type === "CredentialDocument"
 				? verifyCredential(jwt, resolver)
-				: verifyJWT(jwt, { resolver }));
+				: verifyJWT(jwt, { resolver, audience: audience?.did() }));
 
 			const parsed = ParseCodec.decode(payload);
 			if (isLeft(parsed)) {
@@ -135,12 +148,14 @@ export async function parseJWT(jwt: string, ethrUri: string): Promise<JWTParseRe
 
 			const verified = parsed.right;
 			switch (verified.type) {
+				case "SelectiveDisclosureResponse":
+					return right({ ...verified, type: "DisclosureDocument", jwt });
 				case "SelectiveDisclosureRequest":
 					return right({ ...verified, type: "RequestDocument", jwt });
 				case "SelectiveDisclosureProposal":
 					return right({ ...verified, type: "ProposalDocument", jwt });
 				case "ForwardedRequest":
-					return parseJWT(verified.forwarded, ethrUri);
+					return parseJWT(verified.forwarded, ethrUri, audience);
 				case "VerifiedClaim":
 					const nested = await parseNestedInVerified(verified, ethrUri);
 					if (isLeft(nested)) {
@@ -158,7 +173,7 @@ export async function parseJWT(jwt: string, ethrUri: string): Promise<JWTParseRe
 }
 
 function extractCredentials(
-	items: Array<RequestDocument | ProposalDocument | CredentialDocument>
+	items: Array<DisclosureDocument | RequestDocument | ProposalDocument | CredentialDocument>
 ): Either<JWTParseError, CredentialDocument[]> {
 	if (items.every(x => x.type === "CredentialDocument")) {
 		return right(items as CredentialDocument[]);

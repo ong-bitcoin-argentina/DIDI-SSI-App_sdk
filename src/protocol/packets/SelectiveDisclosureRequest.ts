@@ -3,7 +3,7 @@ import Credentials from "uport-credentials/lib/Credentials";
 
 import { SelectiveDisclosureSpecCodec } from "../common/SelectiveDisclosureSpecs";
 
-import { ProposalDocument } from "../../model/DisclosureDocuments";
+import { ProposalDocument } from "../../model/DisclosureRequestDocuments";
 
 const outerType = t.type({
 	type: t.literal("shareReq")
