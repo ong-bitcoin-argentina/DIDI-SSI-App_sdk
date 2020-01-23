@@ -1,6 +1,7 @@
+import { Either, isLeft, isRight, right } from "fp-ts/lib/Either";
 import * as t from "io-ts";
 
-import { commonServiceRequest } from "./util/commonServiceRequest";
+import { commonServiceRequest, CommonServiceRequestError } from "./util/commonServiceRequest";
 
 import { EthrDID } from "./model/EthrDID";
 
@@ -30,7 +31,9 @@ const responseCodecs = {
 			t.type({ status: t.literal("Successful") }),
 			t.intersection([t.type({ status: t.literal("Falied") }), t.partial({ errorMessage: t.string })])
 		])
-	])
+	]),
+
+	issuerName: t.string
 };
 
 export type ValidateDniResponseData = typeof responseCodecs.validateDni._A;
@@ -218,5 +221,20 @@ export class DidiServerApiClient {
 			validationCode,
 			cellPhoneNumber: phoneNumber
 		});
+	}
+
+	async getIssuerData(did: EthrDID): Promise<Either<CommonServiceRequestError, { did: EthrDID; name: string | null }>> {
+		const response = await commonServiceRequest("GET", `${this.baseUrl}/issuer`, responseCodecs.issuerName, {
+			did: did.did()
+		});
+
+		// Distinguish between failure and a successfully received absence of a name
+		if (isRight(response)) {
+			return right({ did, name: response.right });
+		} else if (response.left.type === "SERVER_ERROR" && response.left.error.errorCode === "IS_INVALID") {
+			return right({ did, name: null });
+		} else {
+			return response;
+		}
 	}
 }
