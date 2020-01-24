@@ -160,6 +160,7 @@ function matchesIssuerSelector(document: CredentialDocument, selector: Verifiabl
 }
 
 function selectVerifiedClaims(
+	ownDid: EthrDID,
 	request: SelectiveDisclosureRequest,
 	documents: CredentialDocument[]
 ): { verifiedClaims: CredentialDocument[]; missingRequired: string[] } {
@@ -167,7 +168,10 @@ function selectVerifiedClaims(
 	const missingRequired: string[] = [];
 
 	Object.entries(request.verifiedClaims).forEach(([title, selector]) => {
-		const candidates = documents.map(doc => [doc, ...doc.nested]).reduce((acc, curr) => [...acc, ...curr], []);
+		const candidates = documents
+			.filter(doc => doc.subject.did() === ownDid.did())
+			.map(doc => [doc, ...doc.nested])
+			.reduce((acc, curr) => [...acc, ...curr], []);
 		const selected = candidates.find(
 			document =>
 				title === document.title &&
@@ -186,11 +190,12 @@ function selectVerifiedClaims(
 
 export const SelectiveDisclosureResponse = {
 	getResponseClaims(
+		ownDid: EthrDID,
 		request: SelectiveDisclosureRequest,
 		documents: CredentialDocument[],
 		identity: Identity
 	): { missingRequired: string[]; ownClaims: ClaimData; verifiedClaims: CredentialDocument[] } {
-		const verified = selectVerifiedClaims(request, documents);
+		const verified = selectVerifiedClaims(ownDid, request, documents);
 		const own = selectOwnClaims(request, identity);
 
 		return {
