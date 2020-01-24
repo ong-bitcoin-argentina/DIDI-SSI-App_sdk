@@ -167,7 +167,8 @@ function selectVerifiedClaims(
 	const missingRequired: string[] = [];
 
 	Object.entries(request.verifiedClaims).forEach(([title, selector]) => {
-		const selected = documents.find(
+		const candidates = documents.map(doc => [doc, ...doc.nested]).reduce((acc, curr) => [...acc, ...curr], []);
+		const selected = candidates.find(
 			document =>
 				title === document.title &&
 				(selector.jwt === undefined || selector.jwt === document.jwt) &&
