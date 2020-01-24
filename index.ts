@@ -3,6 +3,7 @@ export * from "./src/model/CredentialDocument";
 export * from "./src/model/DidiDocument";
 export * from "./src/model/EthrDID";
 export * from "./src/model/Identity";
+export * from "./src/model/IssuerDescriptor";
 export * from "./src/model/DisclosureRequestDocuments";
 export * from "./src/model/SpecialCredential";
 

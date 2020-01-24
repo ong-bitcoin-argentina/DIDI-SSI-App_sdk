@@ -4,6 +4,7 @@ import * as t from "io-ts";
 import { commonServiceRequest, CommonServiceRequestError } from "./util/commonServiceRequest";
 
 import { EthrDID } from "./model/EthrDID";
+import { IssuerDescriptor } from "./model/IssuerDescriptor";
 
 export interface DidiServerApiClientConfiguration {
 	/**
@@ -223,10 +224,13 @@ export class DidiServerApiClient {
 		});
 	}
 
-	async getIssuerData(did: EthrDID): Promise<Either<CommonServiceRequestError, { did: EthrDID; name: string | null }>> {
-		const response = await commonServiceRequest("GET", `${this.baseUrl}/issuer`, responseCodecs.issuerName, {
-			did: did.did()
-		});
+	async getIssuerData(did: EthrDID): Promise<Either<CommonServiceRequestError, IssuerDescriptor>> {
+		const response = await commonServiceRequest(
+			"GET",
+			`${this.baseUrl}/issuer/${did.did()}`,
+			responseCodecs.issuerName,
+			{}
+		);
 
 		// Distinguish between failure and a successfully received absence of a name
 		if (isRight(response)) {
