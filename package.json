@@ -2,11 +2,8 @@
 	"name": "didi-sdk",
 	"version": "0.0.1",
 	"description": "",
-	"main": "index.ts",
+	"main": "index.js",
 	"types": "src/index.d.ts",
-	"files": [
-		"src"
-	],
 	"keywords": [],
 	"scripts": {
 		"test": "jest",
