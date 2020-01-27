@@ -96,11 +96,11 @@ function selectOwnClaims(
 	Object.entries(request.ownClaims).forEach(([key, data]) => {
 		switch (key.toLowerCase()) {
 			case "nombre":
-			case "firstNames":
+			case "firstnames":
 				insert(key, identity.personalData.firstNames);
 				break;
 			case "apellido":
-			case "lastNames":
+			case "lastnames":
 				insert(key, identity.personalData.lastNames);
 				break;
 			case "document":
@@ -119,14 +119,14 @@ function selectOwnClaims(
 			case "nationality":
 				insert(key, identity.personalData.nationality);
 				break;
-			case "cellPhone":
+			case "cellphone":
 			case "phone":
 				insert(key, identity.personalData.cellPhone);
 				break;
 			case "street":
 				insert(key, identity.address.street);
 				break;
-			case "addressNumber":
+			case "addressnumber":
 				insert(key, identity.address.number);
 				break;
 			case "department":
@@ -138,7 +138,7 @@ function selectOwnClaims(
 			case "neighborhood":
 				insert(key, identity.address.neighborhood);
 				break;
-			case "postCode":
+			case "postcode":
 				insert(key, identity.address.postCode);
 				break;
 			default:
