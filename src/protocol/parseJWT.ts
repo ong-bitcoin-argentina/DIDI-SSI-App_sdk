@@ -82,6 +82,12 @@ function extractIoError(errors: t.Errors): string {
 		.join("\n\n");
 }
 
+/**
+ * Extrae la data contenida en un JWT en formato didi. No verifica que la firma
+ * sea correcta o que corresponda con el issuer, solo que la data este bien
+ * formada.
+ * @see parseJWT
+ */
 export function unverifiedParseJWT(jwt: string): JWTParseResult {
 	try {
 		const decoded = JWTDecode(jwt);
@@ -122,6 +128,11 @@ export function unverifiedParseJWT(jwt: string): JWTParseResult {
 	}
 }
 
+/**
+ * Extrae la data contenida en un JWT en formato didi, verificando que la firma
+ * sea correcta y corresponda con el issuer.
+ * @see unverifiedParseJWT
+ */
 export async function parseJWT(jwt: string, ethrUri: string, audience?: EthrDID): Promise<JWTParseResult> {
 	const unverifiedContent = unverifiedParseJWT(jwt);
 	if (isLeft(unverifiedContent)) {

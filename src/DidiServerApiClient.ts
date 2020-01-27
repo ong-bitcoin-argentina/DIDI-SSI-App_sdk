@@ -39,6 +39,11 @@ const responseCodecs = {
 
 export type ValidateDniResponseData = typeof responseCodecs.validateDni._A;
 
+/**
+ * Cliente del servidor didi-server, el cual contiene la base de datos de
+ * usuarios, emite credenciales relacionadas y contiene el registro de emisores
+ * conocidos.
+ */
 export class DidiServerApiClient {
 	private baseUrl: string;
 

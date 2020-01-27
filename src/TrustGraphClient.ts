@@ -10,6 +10,10 @@ export interface TrustGraphClientConfiguration {
 	credentials: Credentials;
 }
 
+/**
+ * Cliente del servidor TrustGraph (tambien conocido como Mouro, por la
+ * implementacion usada), el cual contiene los jwt asociados a cada usuario.
+ */
 export class TrustGraphClient {
 	private credentials: Credentials;
 	private client: ApolloClient<unknown>;
