@@ -1,0 +1,9 @@
+import * as t from "io-ts";
+
+import { ErrorData } from "../util/ErrorData";
+
+export type CommonServiceRequestError =
+	| { type: "FETCH_ERROR"; error: any }
+	| { type: "JSON_ERROR"; error: any }
+	| { type: "DECODE_ERROR"; error: t.Errors }
+	| { type: "SERVER_ERROR"; error: ErrorData };

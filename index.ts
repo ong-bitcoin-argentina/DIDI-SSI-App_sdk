@@ -5,6 +5,7 @@ export * from "./src/model/EthrDID";
 export * from "./src/model/Identity";
 export * from "./src/model/IssuerDescriptor";
 export * from "./src/model/DisclosureRequestDocuments";
+export * from "./src/model/DisclosureDocument";
 export * from "./src/model/SpecialCredential";
 
 export * from "./src/DidiServerApiClient";
@@ -17,3 +18,4 @@ export * from "./src/protocol/packets/SelectiveDisclosureRequest";
 
 export * from "./src/util/ErrorData";
 export * from "./src/util/DecodeErrorReporter";
+export * from "./src/util/CommonServiceRequestError";

@@ -1,7 +1,8 @@
 import { Either, isLeft, isRight, right } from "fp-ts/lib/Either";
 import * as t from "io-ts";
 
-import { commonServiceRequest, CommonServiceRequestError } from "./util/commonServiceRequest";
+import { commonServiceRequest } from "./util/commonServiceRequest";
+import { CommonServiceRequestError } from "./util/CommonServiceRequestError";
 
 import { EthrDID } from "./model/EthrDID";
 import { IssuerDescriptor } from "./model/IssuerDescriptor";

@@ -4,11 +4,7 @@ import * as t from "io-ts";
 import { ErrorData } from "../util/ErrorData";
 import { JSONObject } from "../util/JSON";
 
-export type CommonServiceRequestError =
-	| { type: "FETCH_ERROR"; error: any }
-	| { type: "JSON_ERROR"; error: any }
-	| { type: "DECODE_ERROR"; error: t.Errors }
-	| { type: "SERVER_ERROR"; error: ErrorData };
+import { CommonServiceRequestError } from "./CommonServiceRequestError";
 
 export type HTTPMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
