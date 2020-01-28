@@ -17,6 +17,7 @@ interface DisclosureDocuments extends DidiDocument {
 				url?: string;
 			}>;
 			reason?: string;
+			jwt?: string;
 		};
 	};
 }

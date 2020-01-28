@@ -25,7 +25,7 @@ const SelectiveDisclosureResponseInnerCodec = t.intersection([
 		expireAt: t.number
 	})
 ]);
-export type SelectiveDisclosureResponse = typeof SelectiveDisclosureResponseInnerCodec._A;
+type SelectiveDisclosureResponse = typeof SelectiveDisclosureResponseInnerCodec._A;
 
 const SelectiveDisclosureResponseOuterCodec = t.intersection([
 	t.type(
@@ -81,7 +81,7 @@ const codec = SelectiveDisclosureResponseOuterCodec.pipe(
 );
 
 function selectOwnClaims(
-	request: SelectiveDisclosureRequest,
+	request: RequestDocument,
 	identity: Identity
 ): { ownClaims: ClaimData; missingRequired: string[] } {
 	const ownClaims: ClaimData = {};
@@ -167,7 +167,7 @@ function matchesIssuerSelector(document: CredentialDocument, selector: Verifiabl
 
 function selectVerifiedClaims(
 	ownDid: EthrDID,
-	request: SelectiveDisclosureRequest,
+	request: RequestDocument,
 	documents: CredentialDocument[]
 ): { verifiedClaims: CredentialDocument[]; missingRequired: string[] } {
 	const verifiedClaims: CredentialDocument[] = [];
@@ -197,7 +197,7 @@ function selectVerifiedClaims(
 export const SelectiveDisclosureResponse = {
 	getResponseClaims(
 		ownDid: EthrDID,
-		request: SelectiveDisclosureRequest,
+		request: RequestDocument,
 		documents: CredentialDocument[],
 		identity: Identity
 	): { missingRequired: string[]; ownClaims: ClaimData; verifiedClaims: CredentialDocument[] } {
