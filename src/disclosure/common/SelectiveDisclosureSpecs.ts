@@ -2,7 +2,29 @@ import * as t from "io-ts";
 
 import TypedObject from "../../util/TypedObject";
 
+import { DidiDocument } from "../../model/DidiDocument";
 import { EthrDID } from "../../model/EthrDID";
+
+export interface SelectiveDisclosureSpecs extends DidiDocument {
+	callback?: string;
+	ownClaims: {
+		[x: string]: {
+			essential?: boolean;
+			reason?: string;
+		};
+	};
+	verifiedClaims: {
+		[x: string]: {
+			essential?: boolean;
+			iss?: Array<{
+				did: EthrDID;
+				url?: string;
+			}>;
+			reason?: string;
+			jwt?: string;
+		};
+	};
+}
 
 const VerifiableSpecCodec = t.partial({
 	essential: t.boolean,
@@ -18,7 +40,7 @@ const UserInfoSpecCodec = t.partial({
 	reason: t.string
 });
 
-function SelectiveDisclosureSpecInnerCodec<InnerTypeLabel extends string>(innerType: InnerTypeLabel) {
+function SelectiveDisclosureSpecsInnerCodec<InnerTypeLabel extends string>(innerType: InnerTypeLabel) {
 	return t.intersection(
 		[
 			t.type(
@@ -43,14 +65,14 @@ function SelectiveDisclosureSpecInnerCodec<InnerTypeLabel extends string>(innerT
 	);
 }
 
-function SelectiveDisclosureSpecOuterCodec<OuterTypeLabel extends string>(outerType: OuterTypeLabel) {
+function SelectiveDisclosureSpecsOuterCodec<OuterTypeLabel extends string>(outerType: OuterTypeLabel) {
 	return t.intersection([
 		t.type(
 			{
 				type: t.literal(outerType),
 				iss: EthrDID.codec
 			},
-			"SelectiveDisclosureSpec"
+			"SelectiveDisclosureSpecs"
 		),
 		t.partial(
 			{
@@ -64,21 +86,21 @@ function SelectiveDisclosureSpecOuterCodec<OuterTypeLabel extends string>(outerT
 				exp: t.number,
 				callback: t.string
 			},
-			"SelectiveDisclosureSpec"
+			"SelectiveDisclosureSpecs"
 		)
 	]);
 }
 
-export function SelectiveDisclosureSpecCodec<InnerTypeLabel extends string, OuterTypeLabel extends string>(
+export function SelectiveDisclosureSpecsCodec<InnerTypeLabel extends string, OuterTypeLabel extends string>(
 	innerType: InnerTypeLabel,
 	outerType: OuterTypeLabel
 ) {
-	const outer = SelectiveDisclosureSpecOuterCodec(outerType);
-	const inner = SelectiveDisclosureSpecInnerCodec(innerType);
+	const outer = SelectiveDisclosureSpecsOuterCodec(outerType);
+	const inner = SelectiveDisclosureSpecsInnerCodec(innerType);
 
-	return SelectiveDisclosureSpecOuterCodec(outerType).pipe(
+	return SelectiveDisclosureSpecsOuterCodec(outerType).pipe(
 		new t.Type<typeof inner._A, typeof outer._A, typeof outer._A>(
-			"SelectiveDisclosureSpec_In",
+			"SelectiveDisclosureSpecs_In",
 			inner.is,
 			(i, c) =>
 				t.success({

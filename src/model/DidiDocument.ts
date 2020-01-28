@@ -7,6 +7,8 @@ export interface DidiDocument {
 	expireAt?: number;
 }
 
+export type WithoutJWT<T> = Omit<T, "jwt">;
+
 export const DidiDocument = {
 	isValidAt: (document: DidiDocument, date: Date): boolean => {
 		const timestamp = date.getTime() / 1000;

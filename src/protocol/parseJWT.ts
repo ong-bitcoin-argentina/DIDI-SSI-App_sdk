@@ -9,18 +9,15 @@ import JWTDecode from "jwt-decode";
 
 import TypedArray from "../util/TypedArray";
 
+import { SelectiveDisclosureProposal } from "../disclosure/SelectiveDisclosureProposal";
+import { SelectiveDisclosureRequest } from "../disclosure/SelectiveDisclosureRequest";
+import { SelectiveDisclosureResponse } from "../disclosure/SelectiveDisclosureResponse";
 import { CredentialDocument } from "../model/CredentialDocument";
-import { DisclosureDocument } from "../model/DisclosureDocument";
 import { EthrDID } from "../model/EthrDID";
-import { ProposalDocument } from "../model/ProposalDocument";
-import { RequestDocument } from "../model/RequestDocument";
 import { SpecialCredentialFlag } from "../model/SpecialCredential";
 
 import { ForwardedRequestCodec } from "./packets/ForwardedRequest";
-import { SelectiveDisclosureProposal } from "./packets/SelectiveDisclosureProposal";
-import { SelectiveDisclosureRequest } from "./packets/SelectiveDisclosureRequest";
 import { VerifiedClaim, VerifiedClaimCodec } from "./packets/VerifiedClaim";
-import { SelectiveDisclosureResponse } from "./SelectiveDisclosureResponse";
 
 // This is required by verifyJWT
 if (typeof Buffer === "undefined") {
@@ -62,7 +59,7 @@ export type JWTParseError =
 
 export type JWTParseResult = Either<
 	JWTParseError,
-	DisclosureDocument | RequestDocument | ProposalDocument | CredentialDocument
+	SelectiveDisclosureResponse | SelectiveDisclosureRequest | SelectiveDisclosureProposal | CredentialDocument
 >;
 
 function extractIoError(errors: t.Errors): string {
@@ -107,11 +104,11 @@ export function unverifiedParseJWT(jwt: string): JWTParseResult {
 		} else {
 			switch (unverified.type) {
 				case "SelectiveDisclosureResponse":
-					return right({ ...unverified, type: "DisclosureDocument", jwt });
+					return right({ ...unverified, type: "SelectiveDisclosureResponse", jwt });
 				case "SelectiveDisclosureRequest":
-					return right({ ...unverified, type: "RequestDocument", jwt });
+					return right({ ...unverified, type: "SelectiveDisclosureRequest", jwt });
 				case "SelectiveDisclosureProposal":
-					return right({ ...unverified, type: "ProposalDocument", jwt });
+					return right({ ...unverified, jwt });
 				case "ForwardedRequest":
 					return unverifiedParseJWT(unverified.forwarded);
 				case "VerifiedClaim":
@@ -161,11 +158,11 @@ export async function parseJWT(jwt: string, ethrUri: string, audience?: EthrDID)
 			const verified = parsed.right;
 			switch (verified.type) {
 				case "SelectiveDisclosureResponse":
-					return right({ ...verified, type: "DisclosureDocument", jwt });
+					return right({ ...verified, type: "SelectiveDisclosureResponse", jwt });
 				case "SelectiveDisclosureRequest":
-					return right({ ...verified, type: "RequestDocument", jwt });
+					return right({ ...verified, type: "SelectiveDisclosureRequest", jwt });
 				case "SelectiveDisclosureProposal":
-					return right({ ...verified, type: "ProposalDocument", jwt });
+					return right({ ...verified, jwt });
 				case "ForwardedRequest":
 					return parseJWT(verified.forwarded, ethrUri, audience);
 				case "VerifiedClaim":
@@ -185,7 +182,9 @@ export async function parseJWT(jwt: string, ethrUri: string, audience?: EthrDID)
 }
 
 function extractCredentials(
-	items: Array<DisclosureDocument | RequestDocument | ProposalDocument | CredentialDocument>
+	items: Array<
+		SelectiveDisclosureResponse | SelectiveDisclosureRequest | SelectiveDisclosureProposal | CredentialDocument
+	>
 ): Either<JWTParseError, CredentialDocument[]> {
 	if (items.every(x => x.type === "CredentialDocument")) {
 		return right(items as CredentialDocument[]);

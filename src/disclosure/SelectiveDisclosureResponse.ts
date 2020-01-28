@@ -5,9 +5,11 @@ import { VerifiableSpecIssuerSelector } from "./common/SelectiveDisclosureSpecs"
 
 import { ClaimData } from "../model/Claim";
 import { CredentialDocument } from "../model/CredentialDocument";
+import { DidiDocument, WithoutJWT } from "../model/DidiDocument";
 import { EthrDID } from "../model/EthrDID";
 import { Identity } from "../model/Identity";
-import { RequestDocument } from "../model/RequestDocument";
+
+import { SelectiveDisclosureRequest } from "./SelectiveDisclosureRequest";
 
 const SelectiveDisclosureResponseInnerCodec = t.intersection([
 	t.type({
@@ -23,7 +25,6 @@ const SelectiveDisclosureResponseInnerCodec = t.intersection([
 		expireAt: t.number
 	})
 ]);
-type SelectiveDisclosureResponse = typeof SelectiveDisclosureResponseInnerCodec._A;
 
 const SelectiveDisclosureResponseOuterCodec = t.intersection([
 	t.type(
@@ -47,12 +48,24 @@ const SelectiveDisclosureResponseOuterCodec = t.intersection([
 ]);
 type SelectiveDisclosureResponseTransport = typeof SelectiveDisclosureResponseOuterCodec._A;
 
+export interface SelectiveDisclosureResponse extends DidiDocument {
+	type: "SelectiveDisclosureResponse";
+	subject: EthrDID;
+	requestToken: string;
+	ownClaims: ClaimData;
+	verifiedClaims: string[];
+}
+
 const codec = SelectiveDisclosureResponseOuterCodec.pipe(
-	new t.Type<SelectiveDisclosureResponse, SelectiveDisclosureResponseTransport, SelectiveDisclosureResponseTransport>(
+	new t.Type<
+		WithoutJWT<SelectiveDisclosureResponse>,
+		SelectiveDisclosureResponseTransport,
+		SelectiveDisclosureResponseTransport
+	>(
 		"SelectiveDisclosureResponse_In",
 		SelectiveDisclosureResponseInnerCodec.is,
 		(i, c) =>
-			t.success<SelectiveDisclosureResponse>({
+			t.success<WithoutJWT<SelectiveDisclosureResponse>>({
 				type: "SelectiveDisclosureResponse",
 				issuer: i.iss,
 				subject: i.sub,
@@ -79,7 +92,7 @@ const codec = SelectiveDisclosureResponseOuterCodec.pipe(
 );
 
 function selectOwnClaims(
-	request: RequestDocument,
+	request: SelectiveDisclosureRequest,
 	identity: Identity
 ): { ownClaims: ClaimData; missingRequired: string[] } {
 	const ownClaims: ClaimData = {};
@@ -165,7 +178,7 @@ function matchesIssuerSelector(document: CredentialDocument, selector: Verifiabl
 
 function selectVerifiedClaims(
 	ownDid: EthrDID,
-	request: RequestDocument,
+	request: SelectiveDisclosureRequest,
 	documents: CredentialDocument[]
 ): { verifiedClaims: CredentialDocument[]; missingRequired: string[] } {
 	const verifiedClaims: CredentialDocument[] = [];
@@ -193,9 +206,11 @@ function selectVerifiedClaims(
 }
 
 export const SelectiveDisclosureResponse = {
+	...DidiDocument,
+
 	getResponseClaims(
 		ownDid: EthrDID,
-		request: RequestDocument,
+		request: SelectiveDisclosureRequest,
 		documents: CredentialDocument[],
 		identity: Identity
 	): { missingRequired: string[]; ownClaims: ClaimData; verifiedClaims: CredentialDocument[] } {
@@ -211,7 +226,7 @@ export const SelectiveDisclosureResponse = {
 
 	async signJWT(
 		credentials: Credentials,
-		request: RequestDocument,
+		request: SelectiveDisclosureRequest,
 		ownClaims: ClaimData,
 		verifiedClaims: CredentialDocument[]
 	): Promise<string> {

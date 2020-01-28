@@ -1,13 +1,24 @@
 import Credentials from "uport-credentials/lib/Credentials";
 
-import TypedObject from "../../util/TypedObject";
-import { SelectiveDisclosureSpecCodec, VerifiableSpecSelector } from "../common/SelectiveDisclosureSpecs";
+import TypedObject from "../util/TypedObject";
+import {
+	SelectiveDisclosureSpecs,
+	SelectiveDisclosureSpecsCodec,
+	VerifiableSpecSelector
+} from "./common/SelectiveDisclosureSpecs";
 
-import { CredentialDocument } from "../../model/CredentialDocument";
+import { CredentialDocument } from "../model/CredentialDocument";
+import { DidiDocument } from "../model/DidiDocument";
 
-const codec = SelectiveDisclosureSpecCodec("SelectiveDisclosureProposal", "shareProposal");
+export interface SelectiveDisclosureProposal extends SelectiveDisclosureSpecs {
+	type: "SelectiveDisclosureProposal";
+}
+
+const codec = SelectiveDisclosureSpecsCodec("SelectiveDisclosureProposal", "shareProposal");
 
 export const SelectiveDisclosureProposal = {
+	...DidiDocument,
+
 	offering(credentials: Credentials, offer: CredentialDocument[]): Promise<string> {
 		const verifiedClaims = TypedObject.mapValues(
 			TypedObject.fromEntries(offer.map(doc => [doc.title, doc])),
