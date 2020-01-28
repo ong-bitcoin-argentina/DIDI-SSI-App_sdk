@@ -2,7 +2,7 @@ import Credentials from "uport-credentials/lib/Credentials";
 
 import { SelectiveDisclosureSpecCodec } from "../common/SelectiveDisclosureSpecs";
 
-import { ProposalDocument } from "../../model/DisclosureRequestDocuments";
+import { ProposalDocument } from "../../model/ProposalDocument";
 
 const codec = SelectiveDisclosureSpecCodec("SelectiveDisclosureRequest", "shareReq");
 

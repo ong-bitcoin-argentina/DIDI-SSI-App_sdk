@@ -11,8 +11,9 @@ import TypedArray from "../util/TypedArray";
 
 import { CredentialDocument } from "../model/CredentialDocument";
 import { DisclosureDocument } from "../model/DisclosureDocument";
-import { ProposalDocument, RequestDocument } from "../model/DisclosureRequestDocuments";
 import { EthrDID } from "../model/EthrDID";
+import { ProposalDocument } from "../model/ProposalDocument";
+import { RequestDocument } from "../model/RequestDocument";
 import { SpecialCredentialFlag } from "../model/SpecialCredential";
 
 import { ForwardedRequestCodec } from "./packets/ForwardedRequest";

@@ -26,12 +26,12 @@ const responseCodecs = {
 		privateKeySeed: t.string
 	}),
 
-	validateDni: t.intersection([
-		t.type({ operationId: t.string }),
-		t.union([
-			t.type({ status: t.literal("In Progress") }),
-			t.type({ status: t.literal("Successful") }),
-			t.intersection([t.type({ status: t.literal("Falied") }), t.partial({ errorMessage: t.string })])
+	validateDni: t.union([
+		t.type({ operationId: t.string, status: t.literal("In Progress") }),
+		t.type({ operationId: t.string, status: t.literal("Successful") }),
+		t.intersection([
+			t.type({ operationId: t.string, status: t.literal("Falied") }),
+			t.partial({ errorMessage: t.string })
 		])
 	]),
 

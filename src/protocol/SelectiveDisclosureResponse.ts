@@ -5,11 +5,9 @@ import { VerifiableSpecIssuerSelector } from "./common/SelectiveDisclosureSpecs"
 
 import { ClaimData } from "../model/Claim";
 import { CredentialDocument } from "../model/CredentialDocument";
-import { RequestDocument } from "../model/DisclosureRequestDocuments";
 import { EthrDID } from "../model/EthrDID";
 import { Identity } from "../model/Identity";
-
-import { SelectiveDisclosureRequest } from "./packets/SelectiveDisclosureRequest";
+import { RequestDocument } from "../model/RequestDocument";
 
 const SelectiveDisclosureResponseInnerCodec = t.intersection([
 	t.type({
