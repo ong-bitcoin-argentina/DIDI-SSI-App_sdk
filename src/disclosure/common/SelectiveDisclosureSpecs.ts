@@ -6,22 +6,27 @@ export type VerifiableSpecIssuerSelector = Array<{
 	url?: string;
 }>;
 
-export type VerifiableSpecSelector = {
-	essential?: boolean | undefined;
+export interface VerifiableSpecSelector {
+	essential?: boolean;
 	iss?: VerifiableSpecIssuerSelector;
 	jwt?: string;
 	reason?: string;
-};
+}
 
 export interface SelectiveDisclosureSpecs extends DidiDocument {
+	/** URL a la que enviar la respuesta */
 	callback?: string;
+
+	/** Selector de datos a solicitar */
 	ownClaims: {
-		[x: string]: {
+		[title: string]: {
 			essential?: boolean;
 			reason?: string;
 		};
 	};
+
+	/** Selector de credenciales a solicitar */
 	verifiedClaims: {
-		[x: string]: VerifiableSpecSelector;
+		[title: string]: VerifiableSpecSelector;
 	};
 }

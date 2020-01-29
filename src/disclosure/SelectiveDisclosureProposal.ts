@@ -7,6 +7,9 @@ import { CredentialDocument } from "../model/CredentialDocument";
 import { DidiDocument } from "../model/DidiDocument";
 import { SelectiveDisclosureProposalCodec } from "../parse/packets/SelectiveDisclosureProposalCodec";
 
+/**
+ * Solicita a su destinatario responder con un SelectiveDisclosureRequest determinado
+ */
 export interface SelectiveDisclosureProposal extends SelectiveDisclosureSpecs {
 	type: "SelectiveDisclosureProposal";
 }

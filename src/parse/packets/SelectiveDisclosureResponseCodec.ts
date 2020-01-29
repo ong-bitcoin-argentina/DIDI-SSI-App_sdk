@@ -4,7 +4,6 @@ import { ClaimDataCodec } from "./common/ClaimDataCodec";
 import { EthrDIDCodec } from "./common/EthrDIDCodec";
 
 import { SelectiveDisclosureResponse } from "../../disclosure/SelectiveDisclosureResponse";
-import { WithoutJWT } from "../../model/DidiDocument";
 
 const SelectiveDisclosureResponseInnerCodec = t.intersection([
 	t.type({
@@ -42,6 +41,8 @@ const SelectiveDisclosureResponseOuterCodec = t.intersection([
 	)
 ]);
 type SelectiveDisclosureResponseTransport = typeof SelectiveDisclosureResponseOuterCodec._A;
+
+type WithoutJWT<T> = Omit<T, "jwt">;
 
 export const SelectiveDisclosureResponseCodec = SelectiveDisclosureResponseOuterCodec.pipe(
 	new t.Type<

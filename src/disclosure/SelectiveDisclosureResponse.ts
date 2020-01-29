@@ -10,11 +10,23 @@ import { Identity } from "../model/Identity";
 
 import { SelectiveDisclosureRequest } from "./SelectiveDisclosureRequest";
 
+/**
+ * Mensaje que responde a un SelectiveDisclosureRequest, incluyendo el request
+ * original y los datos solicitados en el mismo (verificados y no)
+ */
 export interface SelectiveDisclosureResponse extends DidiDocument {
 	type: "SelectiveDisclosureResponse";
+
+	/** Destinatario de esta respuesta */
 	subject: EthrDID;
+
+	/** JWT de la peticion */
 	requestToken: string;
+
+	/** Pares clave/valor no verificados solicitados en la peticion */
 	ownClaims: ClaimData;
+
+	/** Array de JWTs solicitados en la peticion */
 	verifiedClaims: string[];
 }
 
@@ -135,6 +147,10 @@ function selectVerifiedClaims(
 export const SelectiveDisclosureResponse = {
 	...DidiDocument,
 
+	/**
+	 * Obtiene los datos a insertar en una respuesta (SelectiveDisclosureResponse.signJWT)
+	 * y los datos requeridos faltantes
+	 */
 	getResponseClaims(
 		ownDid: EthrDID,
 		request: SelectiveDisclosureRequest,
@@ -151,6 +167,9 @@ export const SelectiveDisclosureResponse = {
 		};
 	},
 
+	/**
+	 * Crea un JWT firmado que contiene un SelectiveDisclosureResponse
+	 */
 	async signJWT(
 		credentials: Credentials,
 		request: SelectiveDisclosureRequest,
@@ -165,6 +184,10 @@ export const SelectiveDisclosureResponse = {
 		});
 	},
 
+	/**
+	 * Envia un JWT de SelectiveDisclosureResponse en el formato esperado
+	 * para el transporte REST.
+	 */
 	async submit(args: { callback: string; token: string }) {
 		return fetch(args.callback, {
 			method: "POST",

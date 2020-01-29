@@ -5,8 +5,20 @@ import { HttpLink } from "apollo-link-http";
 import gql from "graphql-tag";
 import Credentials from "uport-credentials/lib/Credentials";
 
+/**
+ * Configuracion de TrustGraphClient
+ */
 export interface TrustGraphClientConfiguration {
+	/**
+	 * URI de la instancia de TrustGraph a usar
+	 * @example "http://mouro.example.com/graphql"
+	 */
 	trustGraphUri: string;
+
+	/**
+	 * Instancia de la clase Credentials de uport-credentials, usada para
+	 * firmar tokens
+	 */
 	credentials: Credentials;
 }
 

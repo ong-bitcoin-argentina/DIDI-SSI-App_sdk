@@ -14,6 +14,9 @@ export interface SelectiveDisclosureRequest extends SelectiveDisclosureSpecs {
 export const SelectiveDisclosureRequest = {
 	...DidiDocument,
 
+	/**
+	 * Convierte un SelectiveDisclosureProposal en su SelectiveDisclosureRequest siguiente
+	 */
 	async fulfilling(credentials: Credentials, proposal: SelectiveDisclosureProposal): Promise<string> {
 		const transport = SelectiveDisclosureRequestCodec.encode({
 			...proposal,

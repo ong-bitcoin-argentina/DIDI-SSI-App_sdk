@@ -7,6 +7,9 @@ import { CommonServiceRequestError } from "./util/CommonServiceRequestError";
 import { EthrDID } from "./model/EthrDID";
 import { IssuerDescriptor } from "./model/IssuerDescriptor";
 
+/**
+ * Configuracion de DidiServerApiClient
+ */
 export interface DidiServerApiClientConfiguration {
 	/**
 	 * URI de la instancia de didi-server a usar
@@ -119,6 +122,7 @@ export class DidiServerApiClient {
 	}
 
 	/**
+	 * Envia un codigo de validacion a un numero de telefono
 	 * @param cellPhoneNumber
 	 * Un numero de telefono con codigo de pais y sin codigo de discado internacional
 	 * @param idCheck
@@ -146,6 +150,7 @@ export class DidiServerApiClient {
 	}
 
 	/**
+	 * Envia un codigo de validacion a un email
 	 * @param email
 	 * @param idCheck
 	 * Si se desea verificar que el email esté asociado a un DID, el DID y password correspondiente
@@ -180,9 +185,20 @@ export class DidiServerApiClient {
 	}
 
 	/**
+	 * @param did
+	 * DID del usuario a asociar a este DNI
+	 * @param data
+	 * Datos extraidos del PDF417/MRZ del documento
 	 * @param pictures
-	 * Imagenes del documento y la persona que se validan, en formato JPG
-	 * y encodeadas base64
+	 * Imagenes del documento y la persona que se validan. Verificar con
+	 * backend/ReNaPer que aceptan, actualmente formato JPG, sin rotacion
+	 * EXIF, encodeadas base64
+	 * @param pictures.front
+	 * Imagen del frente del documento
+	 * @param pictures.back
+	 * Imagen del reverso del documento
+	 * @param pictures.selfie
+	 * Imagen de la persona
 	 */
 	validateDni(
 		did: EthrDID,
@@ -230,19 +246,24 @@ export class DidiServerApiClient {
 		});
 	}
 
-	async getIssuerData(did: EthrDID): Promise<Either<CommonServiceRequestError, IssuerDescriptor>> {
+	/**
+	 * Obtiene datos registrados sobre un emisor de credenciales
+	 * @param issuerDid
+	 * El DID del emisor a consultar
+	 */
+	async getIssuerData(issuerDid: EthrDID): Promise<Either<CommonServiceRequestError, IssuerDescriptor>> {
 		const response = await commonServiceRequest(
 			"GET",
-			`${this.baseUrl}/issuer/${did.did()}`,
+			`${this.baseUrl}/issuer/${issuerDid.did()}`,
 			responseCodecs.issuerName,
 			{}
 		);
 
 		// Distinguish between failure and a successfully received absence of a name
 		if (isRight(response)) {
-			return right({ did, name: response.right });
+			return right({ did: issuerDid, name: response.right });
 		} else if (response.left.type === "SERVER_ERROR" && response.left.error.errorCode === "IS_INVALID") {
-			return right({ did, name: null });
+			return right({ did: issuerDid, name: null });
 		} else {
 			return response;
 		}

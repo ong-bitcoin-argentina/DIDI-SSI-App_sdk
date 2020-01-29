@@ -2,6 +2,9 @@ import * as t from "io-ts";
 
 import { ErrorData } from "../util/ErrorData";
 
+/**
+ * Errores comunes a los metodos de DidiServerApiClient
+ */
 export type CommonServiceRequestError =
 	| { type: "FETCH_ERROR"; error: any }
 	| { type: "JSON_ERROR"; error: any }
