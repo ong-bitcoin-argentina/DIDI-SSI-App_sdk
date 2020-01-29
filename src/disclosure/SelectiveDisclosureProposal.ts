@@ -1,20 +1,15 @@
 import Credentials from "uport-credentials/lib/Credentials";
 
 import TypedObject from "../util/TypedObject";
-import {
-	SelectiveDisclosureSpecs,
-	SelectiveDisclosureSpecsCodec,
-	VerifiableSpecSelector
-} from "./common/SelectiveDisclosureSpecs";
+import { SelectiveDisclosureSpecs, VerifiableSpecSelector } from "./common/SelectiveDisclosureSpecs";
 
 import { CredentialDocument } from "../model/CredentialDocument";
 import { DidiDocument } from "../model/DidiDocument";
+import { SelectiveDisclosureProposalCodec } from "../parse/packets/SelectiveDisclosureProposalCodec";
 
 export interface SelectiveDisclosureProposal extends SelectiveDisclosureSpecs {
 	type: "SelectiveDisclosureProposal";
 }
-
-const codec = SelectiveDisclosureSpecsCodec("SelectiveDisclosureProposal", "shareProposal");
 
 export const SelectiveDisclosureProposal = {
 	...DidiDocument,
@@ -27,14 +22,12 @@ export const SelectiveDisclosureProposal = {
 				iss: [{ did: doc.issuer }]
 			})
 		);
-		const transport = SelectiveDisclosureProposal.codec.encode({
+		const transport = SelectiveDisclosureProposalCodec.encode({
 			type: "SelectiveDisclosureProposal",
 			ownClaims: {},
 			verifiedClaims,
 			issuer: offer[0].subject
 		});
 		return credentials.signJWT(transport);
-	},
-
-	codec
+	}
 };

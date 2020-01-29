@@ -1,52 +1,14 @@
-import * as t from "io-ts";
 import Credentials from "uport-credentials/lib/Credentials";
 
 import { VerifiableSpecIssuerSelector } from "./common/SelectiveDisclosureSpecs";
 
 import { ClaimData } from "../model/Claim";
 import { CredentialDocument } from "../model/CredentialDocument";
-import { DidiDocument, WithoutJWT } from "../model/DidiDocument";
+import { DidiDocument } from "../model/DidiDocument";
 import { EthrDID } from "../model/EthrDID";
 import { Identity } from "../model/Identity";
 
 import { SelectiveDisclosureRequest } from "./SelectiveDisclosureRequest";
-
-const SelectiveDisclosureResponseInnerCodec = t.intersection([
-	t.type({
-		type: t.literal("SelectiveDisclosureResponse"),
-		issuer: EthrDID.codec,
-		subject: EthrDID.codec,
-		requestToken: t.string,
-		ownClaims: ClaimData.codec,
-		verifiedClaims: t.array(t.string)
-	}),
-	t.partial({
-		issuedAt: t.number,
-		expireAt: t.number
-	})
-]);
-
-const SelectiveDisclosureResponseOuterCodec = t.intersection([
-	t.type(
-		{
-			type: t.literal("shareResp"),
-			iss: EthrDID.codec,
-			sub: EthrDID.codec,
-			req: t.string,
-			own: ClaimData.codec,
-			verified: t.array(t.string)
-		},
-		"SelectiveDisclosureResponse"
-	),
-	t.partial(
-		{
-			iat: t.number,
-			exp: t.number
-		},
-		"SelectiveDisclosureResponse"
-	)
-]);
-type SelectiveDisclosureResponseTransport = typeof SelectiveDisclosureResponseOuterCodec._A;
 
 export interface SelectiveDisclosureResponse extends DidiDocument {
 	type: "SelectiveDisclosureResponse";
@@ -55,41 +17,6 @@ export interface SelectiveDisclosureResponse extends DidiDocument {
 	ownClaims: ClaimData;
 	verifiedClaims: string[];
 }
-
-const codec = SelectiveDisclosureResponseOuterCodec.pipe(
-	new t.Type<
-		WithoutJWT<SelectiveDisclosureResponse>,
-		SelectiveDisclosureResponseTransport,
-		SelectiveDisclosureResponseTransport
-	>(
-		"SelectiveDisclosureResponse_In",
-		SelectiveDisclosureResponseInnerCodec.is,
-		(i, c) =>
-			t.success<WithoutJWT<SelectiveDisclosureResponse>>({
-				type: "SelectiveDisclosureResponse",
-				issuer: i.iss,
-				subject: i.sub,
-				requestToken: i.req,
-				ownClaims: i.own,
-				verifiedClaims: i.verified,
-				expireAt: i.exp,
-				issuedAt: i.iat
-			}),
-		a => {
-			return {
-				type: "shareResp",
-				iss: a.issuer,
-				sub: a.subject,
-				req: a.requestToken,
-				own: a.ownClaims,
-				verified: a.verifiedClaims,
-				exp: a.expireAt,
-				iat: a.issuedAt
-			};
-		}
-	),
-	"___"
-);
 
 function selectOwnClaims(
 	request: SelectiveDisclosureRequest,
@@ -168,7 +95,7 @@ function selectOwnClaims(
 	return { ownClaims, missingRequired };
 }
 
-function matchesIssuerSelector(document: CredentialDocument, selector: VerifiableSpecIssuerSelector): boolean {
+function matchesIssuerSelector(document: CredentialDocument, selector?: VerifiableSpecIssuerSelector): boolean {
 	if (selector === undefined) {
 		return true;
 	}
@@ -246,7 +173,5 @@ export const SelectiveDisclosureResponse = {
 			},
 			body: JSON.stringify({ access_token: args.token })
 		});
-	},
-
-	codec
+	}
 };

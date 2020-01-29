@@ -8,7 +8,7 @@ export * from "./src/model/SpecialCredential";
 export * from "./src/DidiServerApiClient";
 export * from "./src/TrustGraphClient";
 
-export * from "./src/protocol/parseJWT";
+export * from "./src/parse/parseJWT";
 
 export * from "./src/disclosure/SelectiveDisclosureProposal";
 export * from "./src/disclosure/SelectiveDisclosureRequest";

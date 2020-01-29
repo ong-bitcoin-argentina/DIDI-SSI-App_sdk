@@ -1,6 +1,3 @@
-import { either } from "fp-ts/lib/Either";
-import * as t from "io-ts";
-
 /**
  * Representa un DID basado en ethereum, evitando confusion entre sus
  * representaciones como direccion ethereum y como DID.
@@ -47,21 +44,4 @@ export class EthrDID {
 		const address = match![0];
 		return new EthrDID(address);
 	}
-
-	/**
-	 * Codificador entre string y EthrDID
-	 */
-	static codec = new t.Type<EthrDID, string, unknown>(
-		"EthrDIDCodec",
-		(x: unknown): x is EthrDID => x instanceof EthrDID,
-		(u, c) =>
-			either.chain(t.string.validate(u, c), s => {
-				try {
-					return t.success(EthrDID.fromDID(s));
-				} catch (e) {
-					return t.failure(u, c, (e as Error).message);
-				}
-			}),
-		a => a.did()
-	);
 }

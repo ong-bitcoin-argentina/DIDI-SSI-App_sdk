@@ -16,8 +16,11 @@ import { CredentialDocument } from "../model/CredentialDocument";
 import { EthrDID } from "../model/EthrDID";
 import { SpecialCredentialFlag } from "../model/SpecialCredential";
 
-import { ForwardedRequestCodec } from "./packets/ForwardedRequest";
-import { VerifiedClaim, VerifiedClaimCodec } from "./packets/VerifiedClaim";
+import { ForwardedRequestCodec } from "./packets/ForwardedRequestCodec";
+import { SelectiveDisclosureProposalCodec } from "./packets/SelectiveDisclosureProposalCodec";
+import { SelectiveDisclosureRequestCodec } from "./packets/SelectiveDisclosureRequestCodec";
+import { SelectiveDisclosureResponseCodec } from "./packets/SelectiveDisclosureResponseCodec";
+import { VerifiedClaim, VerifiedClaimCodec } from "./packets/VerifiedClaimCodec";
 
 // This is required by verifyJWT
 if (typeof Buffer === "undefined") {
@@ -27,9 +30,9 @@ if (typeof Buffer === "undefined") {
 
 const PublicCodec = t.union(
 	[
-		SelectiveDisclosureResponse.codec,
-		SelectiveDisclosureRequest.codec,
-		SelectiveDisclosureProposal.codec,
+		SelectiveDisclosureResponseCodec,
+		SelectiveDisclosureRequestCodec,
+		SelectiveDisclosureProposalCodec,
 		VerifiedClaimCodec
 	],
 	"___"

@@ -1,7 +1,6 @@
 import { Either, isLeft, left, right } from "fp-ts/lib/Either";
 import * as t from "io-ts";
 
-import { ErrorData } from "../util/ErrorData";
 import { JSONObject } from "../util/JSON";
 
 import { CommonServiceRequestError } from "./CommonServiceRequestError";
@@ -14,12 +13,11 @@ function userApiWrapperCodec<M extends t.Mixed>(data: M) {
 			status: t.literal("success"),
 			data
 		}),
-		t.intersection([
-			t.type({
-				status: t.literal("error")
-			}),
-			ErrorData.codec
-		])
+		t.type({
+			status: t.literal("error"),
+			errorCode: t.string,
+			message: t.string
+		})
 	]);
 }
 
