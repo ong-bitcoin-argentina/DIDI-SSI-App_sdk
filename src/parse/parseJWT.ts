@@ -151,7 +151,7 @@ export async function parseJWT(jwt: string, ethrUri: string, audience?: EthrDID)
 		try {
 			const { payload } = await (unverifiedContent.right.type === "CredentialDocument"
 				? verifyCredential(jwt, resolver)
-				: verifyJWT(jwt, { resolver, audience: audience?.did() }));
+				: verifyJWT(jwt, { resolver, audience: audience?.did?.() }));
 
 			const parsed = ParseCodec.decode(payload);
 			if (isLeft(parsed)) {
