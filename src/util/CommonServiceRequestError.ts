@@ -9,4 +9,5 @@ export type CommonServiceRequestError =
 	| { type: "FETCH_ERROR"; error: any }
 	| { type: "JSON_ERROR"; error: any }
 	| { type: "DECODE_ERROR"; error: t.Errors }
-	| { type: "SERVER_ERROR"; error: ErrorData };
+	| { type: "SERVER_ERROR"; error: ErrorData }
+	| { type: "CRYPTO_ERROR"; error: any };

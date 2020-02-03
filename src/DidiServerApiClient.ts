@@ -1,9 +1,10 @@
-import { Either, isLeft, isRight, right } from "fp-ts/lib/Either";
+import { Either, isLeft, isRight, left, right } from "fp-ts/lib/Either";
 import * as t from "io-ts";
 
 import { commonServiceRequest } from "./util/commonServiceRequest";
 import { CommonServiceRequestError } from "./util/CommonServiceRequestError";
 
+import { Encryption } from "./crypto/Encryption";
 import { EthrDID } from "./model/EthrDID";
 import { IssuerDescriptor } from "./model/IssuerDescriptor";
 
@@ -43,6 +44,8 @@ const responseCodecs = {
 
 export type ValidateDniResponseData = typeof responseCodecs.validateDni._A;
 
+export type ApiResult<T> = Promise<Either<CommonServiceRequestError, T>>;
+
 /**
  * Cliente del servidor didi-server, el cual contiene la base de datos de
  * usuarios, emite credenciales relacionadas y contiene el registro de emisores
@@ -55,70 +58,105 @@ export class DidiServerApiClient {
 		this.baseUrl = config.didiServerUri;
 	}
 
-	changeEmail(did: EthrDID, validationCode: string, newEmail: string, password: string) {
+	async changeEmail(
+		did: EthrDID,
+		validationCode: string,
+		newEmail: string,
+		password: string
+	): ApiResult<{ certificate: string }> {
 		return commonServiceRequest("POST", `${this.baseUrl}/changeEmail`, responseCodecs.singleCertificate, {
 			did: did.did(),
 			eMailValidationCode: validationCode,
 			newEMail: newEmail,
-			password
+			password: await Encryption.hash(password)
 		});
 	}
 
-	changePassword(did: EthrDID, oldPassword: string, newPassword: string) {
+	async changePassword(did: EthrDID, oldPassword: string, newPassword: string): ApiResult<{}> {
 		return commonServiceRequest("POST", `${this.baseUrl}/changePassword`, responseCodecs.empty, {
 			did: did.did(),
-			oldPass: oldPassword,
-			newPass: newPassword
+			oldPass: await Encryption.hash(oldPassword),
+			newPass: await Encryption.hash(newPassword)
 		});
 	}
 
-	changePhoneNumber(did: EthrDID, validationCode: string, newPhoneNumber: string, password: string) {
+	async changePhoneNumber(
+		did: EthrDID,
+		validationCode: string,
+		newPhoneNumber: string,
+		password: string
+	): ApiResult<{ certificate: string }> {
 		return commonServiceRequest("POST", `${this.baseUrl}/changePhoneNumber`, responseCodecs.singleCertificate, {
 			did: did.did(),
 			phoneValidationCode: validationCode,
 			newPhoneNumber,
-			password
+			password: await Encryption.hash(password)
 		});
 	}
 
-	checkValidateDni(did: EthrDID, operationId: string) {
+	async checkValidateDni(did: EthrDID, operationId: string): ApiResult<ValidateDniResponseData> {
 		return commonServiceRequest("POST", `${this.baseUrl}/renaper/validateDniState`, responseCodecs.validateDni, {
 			did: did.did(),
 			operationId
 		});
 	}
 
-	recoverAccount(email: string, password: string) {
-		return commonServiceRequest("POST", `${this.baseUrl}/recoverAccount`, responseCodecs.accountRecovery, {
-			eMail: email,
-			password
-		});
+	async recoverAccount(
+		email: string,
+		password: string,
+		privateKeyPassword: string
+	): ApiResult<{ privateKeySeed: string }> {
+		const response = await commonServiceRequest(
+			"POST",
+			`${this.baseUrl}/recoverAccount`,
+			responseCodecs.accountRecovery,
+			{
+				eMail: email,
+				password: await Encryption.hash(password)
+			}
+		);
+		if (isLeft(response)) {
+			return response;
+		}
+
+		try {
+			const privateKeySeed = await Encryption.decrypt(response.right.privateKeySeed, privateKeyPassword);
+			return right({ privateKeySeed });
+		} catch (error) {
+			return left({ type: "CRYPTO_ERROR", error });
+		}
 	}
 
-	recoverPassword(email: string, validationCode: string, newPassword: string) {
+	async recoverPassword(email: string, validationCode: string, newPassword: string): ApiResult<{}> {
 		return commonServiceRequest("POST", `${this.baseUrl}/recoverPassword`, responseCodecs.empty, {
 			eMail: email,
 			eMailValidationCode: validationCode,
-			newPass: newPassword
+			newPass: await Encryption.hash(newPassword)
 		});
 	}
 
-	registerUser(
+	async registerUser(
 		did: EthrDID,
-		data: {
+		privateKeyPassword: string,
+		userData: {
 			email: string;
 			phoneNumber: string;
 			password: string;
 			privateKeySeed: string;
 		}
-	) {
-		return commonServiceRequest("POST", `${this.baseUrl}/registerUser`, responseCodecs.empty, {
-			did: did.did(),
-			eMail: data.email,
-			phoneNumber: data.phoneNumber,
-			password: data.password,
-			privateKeySeed: data.privateKeySeed
-		});
+	): ApiResult<{}> {
+		try {
+			const encryptedPrivateKeySeed = await Encryption.encrypt(userData.privateKeySeed, privateKeyPassword);
+			return commonServiceRequest("POST", `${this.baseUrl}/registerUser`, responseCodecs.empty, {
+				did: did.did(),
+				eMail: userData.email,
+				phoneNumber: userData.phoneNumber,
+				password: await Encryption.hash(userData.password),
+				privateKeySeed: encryptedPrivateKeySeed
+			});
+		} catch (error) {
+			return left({ type: "CRYPTO_ERROR", error });
+		}
 	}
 
 	/**
@@ -133,18 +171,18 @@ export class DidiServerApiClient {
 	 * 	password: "00000000"
 	 * })
 	 */
-	sendSmsValidator(
+	async sendSmsValidator(
 		cellPhoneNumber: string,
 		idCheck?: {
 			did: EthrDID;
 			password: string;
 		}
-	) {
+	): ApiResult<{}> {
 		return commonServiceRequest("POST", `${this.baseUrl}/sendSmsValidator`, responseCodecs.empty, {
 			cellPhoneNumber,
 			...(idCheck && {
 				did: idCheck.did.did(),
-				password: idCheck.password
+				password: await Encryption.hash(idCheck.password)
 			})
 		});
 	}
@@ -160,27 +198,27 @@ export class DidiServerApiClient {
 	 * 	password: "00000000"
 	 * })
 	 */
-	sendMailValidator(
+	async sendMailValidator(
 		email: string,
 		idCheck?: {
 			did: EthrDID;
 			password: string;
 		}
-	) {
+	): ApiResult<{}> {
 		return commonServiceRequest("POST", `${this.baseUrl}/sendMailValidator`, responseCodecs.empty, {
 			eMail: email,
 			...(idCheck && {
 				did: idCheck.did.did(),
-				password: idCheck.password
+				password: await Encryption.hash(idCheck.password)
 			})
 		});
 	}
 
-	userLogin(did: EthrDID, email: string, password: string) {
+	async userLogin(did: EthrDID, email: string, password: string): ApiResult<{}> {
 		return commonServiceRequest("POST", `${this.baseUrl}/userLogin`, responseCodecs.empty, {
 			did: did.did(),
 			eMail: email,
-			password
+			password: await Encryption.hash(password)
 		});
 	}
 
@@ -200,7 +238,7 @@ export class DidiServerApiClient {
 	 * @param pictures.selfie
 	 * Imagen de la persona
 	 */
-	validateDni(
+	async validateDni(
 		did: EthrDID,
 		data: {
 			dni: string;
@@ -215,7 +253,7 @@ export class DidiServerApiClient {
 			back: string;
 			selfie: string;
 		}
-	) {
+	): ApiResult<ValidateDniResponseData> {
 		return commonServiceRequest("POST", `${this.baseUrl}/renaper/validateDni`, responseCodecs.validateDni, {
 			did: did.did(),
 			dni: data.dni,
@@ -230,7 +268,7 @@ export class DidiServerApiClient {
 		});
 	}
 
-	verifyEmailCode(did: EthrDID, validationCode: string, email: string) {
+	async verifyEmailCode(did: EthrDID, validationCode: string, email: string): ApiResult<{ certificate: string }> {
 		return commonServiceRequest("POST", `${this.baseUrl}/verifyMailCode`, responseCodecs.singleCertificate, {
 			did: did.did(),
 			validationCode,
@@ -238,7 +276,7 @@ export class DidiServerApiClient {
 		});
 	}
 
-	verifySmsCode(did: EthrDID, validationCode: string, phoneNumber: string) {
+	async verifySmsCode(did: EthrDID, validationCode: string, phoneNumber: string): ApiResult<{ certificate: string }> {
 		return commonServiceRequest("POST", `${this.baseUrl}/verifySmsCode`, responseCodecs.singleCertificate, {
 			did: did.did(),
 			validationCode,
@@ -251,7 +289,7 @@ export class DidiServerApiClient {
 	 * @param issuerDid
 	 * El DID del emisor a consultar
 	 */
-	async getIssuerData(issuerDid: EthrDID): Promise<Either<CommonServiceRequestError, IssuerDescriptor>> {
+	async getIssuerData(issuerDid: EthrDID): ApiResult<IssuerDescriptor> {
 		const response = await commonServiceRequest(
 			"GET",
 			`${this.baseUrl}/issuer/${issuerDid.did()}`,
