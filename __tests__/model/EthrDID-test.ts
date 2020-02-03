@@ -20,4 +20,14 @@ describe(EthrDID, () => {
 	it("should check length", () => {
 		expect(() => EthrDID.fromKeyAddress("0x123")).toThrow();
 	});
+
+	it("should convert keyAddress to did", () => {
+		const keyAddress = "0x0123456789012345678901234567890123456789";
+		expect(EthrDID.fromKeyAddress(keyAddress).did()).toStrictEqual(`did:ethr:${keyAddress}`);
+	});
+
+	it("should convert did to keyAddress", () => {
+		const keyAddress = "0x0123456789012345678901234567890123456789";
+		expect(EthrDID.fromDID(`did:ethr:${keyAddress}`).keyAddress()).toStrictEqual(keyAddress);
+	});
 });
