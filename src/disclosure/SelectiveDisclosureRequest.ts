@@ -7,6 +7,10 @@ import { SelectiveDisclosureRequestCodec } from "../parse/packets/SelectiveDiscl
 
 import { SelectiveDisclosureProposal } from "./SelectiveDisclosureProposal";
 
+/**
+ * Solicitud a un destinatario, pidiendo el envio de credenciales y datos
+ * especificos a su emisor.
+ */
 export interface SelectiveDisclosureRequest extends SelectiveDisclosureSpecs {
 	type: "SelectiveDisclosureRequest";
 }

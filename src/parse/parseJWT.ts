@@ -132,6 +132,12 @@ export function unverifiedParseJWT(jwt: string): JWTParseResult {
 /**
  * Extrae la data contenida en un JWT en formato didi, verificando que la firma
  * sea correcta y corresponda con el issuer.
+ * @param jwt
+ * @param ethrUri
+ * URI indicando un proveedor RPC de una red ethereum
+ * @param audience
+ * En caso que el token indique un DID en el campo "aud", este parametro debe
+ * coincidir con el valor del mismo.
  * @see unverifiedParseJWT
  */
 export async function parseJWT(jwt: string, ethrUri: string, audience?: EthrDID): Promise<JWTParseResult> {
