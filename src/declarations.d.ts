@@ -21,3 +21,12 @@ declare module "ethr-did-resolver" {
 
 	export function getResolver(conf: ResolverConfiguration): { ethr: DIDResolver };
 }
+
+declare module "react-native-bcrypt" {
+	function genSaltSync(rounds?: number): string;
+
+	function hash(s: string, salt: number | string, callback: (error?: Error, hash?: string) => void): void;
+
+	function encodeBase64(bytes: number[], maxInputLength: number): string;
+	function decodeBase64(encoded: string, maxOutputLength: number): number[];
+}

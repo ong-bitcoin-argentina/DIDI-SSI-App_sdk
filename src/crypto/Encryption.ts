@@ -1,48 +1,44 @@
-import * as crypto from "crypto";
+import * as aesjs from "aes-js";
+import * as bcrypt from "react-native-bcrypt";
 
-const IV_LENGTH = 8;
-const KEYLEN = 16;
-
-const HASH_SALT = "9dbe65e522f6f60490f16705c88afed8";
+const HASH_SALT = "***REMOVED***";
+const KEYLEN = 32;
 
 async function hash(message: string): Promise<string> {
 	return new Promise((resolve, reject) => {
-		crypto.scrypt(message, HASH_SALT, KEYLEN, (err, derivedKey) => {
-			if (err) {
-				reject(err);
+		bcrypt.hash(message, HASH_SALT, (error, result) => {
+			if (error) {
+				reject(error);
 			} else {
-				resolve(derivedKey.toString("hex"));
+				resolve(result);
 			}
 		});
 	});
 }
 
-const encryptionKeyFor = hash;
+async function cipherFor(password: string): Promise<aesjs.ModeOfOperation.ModeOfOperationCTR> {
+	const hashed = await hash(password);
+	const [empty, type, rounds, offBaseKey] = hashed.split("$");
+	const key = bcrypt.decodeBase64(offBaseKey, KEYLEN);
+	return new aesjs.ModeOfOperation.ctr(key);
+}
 
 export const Encryption = {
 	hash,
 
 	async encrypt(plainText: string, password: string): Promise<string> {
-		const iv = crypto.randomBytes(IV_LENGTH).toString("hex");
-		const key = await encryptionKeyFor(password);
+		const cipher = await cipherFor(password);
 
-		const cipher = crypto.createCipheriv("aes-256-cbc", key, iv);
-		let encrypted = cipher.update(plainText);
-
-		encrypted = Buffer.concat([encrypted, cipher.final()]);
-
-		return iv + ":" + encrypted.toString("hex");
+		const textBytes = aesjs.utils.utf8.toBytes(plainText);
+		const encryptedBytes = cipher.encrypt(textBytes);
+		return aesjs.utils.hex.fromBytes(encryptedBytes);
 	},
 
 	async decrypt(message: string, password: string): Promise<string> {
-		const [iv, ...encryptedTextHex] = message.split(":");
-		const key = await encryptionKeyFor(password);
+		const cipher = await cipherFor(password);
 
-		const decipher = crypto.createDecipheriv("aes-256-cbc", key, iv);
-
-		const cipherText = Buffer.from(encryptedTextHex.join(":"), "hex");
-		const decrypted = decipher.update(cipherText);
-
-		return Buffer.concat([decrypted, decipher.final()]).toString();
+		const messageBytes = aesjs.utils.hex.toBytes(message);
+		const decryptedBytes = cipher.decrypt(messageBytes);
+		return aesjs.utils.utf8.fromBytes(decryptedBytes);
 	}
 };

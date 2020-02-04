@@ -1,3 +1,5 @@
+export * from "./src/crypto/Encryption";
+
 export * from "./src/model/Claim";
 export * from "./src/model/CredentialDocument";
 export * from "./src/model/EthrDID";
