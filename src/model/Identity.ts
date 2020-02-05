@@ -1,22 +1,8 @@
-import { ImageSourcePropType } from "react-native";
-
-export interface VisualData {
-	id: string;
-	image: ImageSourcePropType;
-	backgroundImage: ImageSourcePropType;
-	name: string;
-}
-
 export interface PersonalIdentityData {
 	firstNames: string;
 	lastNames: string;
 	document: string;
 	nationality: string;
-}
-
-export interface PersonalData extends PersonalIdentityData {
-	cellPhone: string;
-	email: string;
 }
 
 export interface LegalAddress {
@@ -29,7 +15,29 @@ export interface LegalAddress {
 }
 
 export interface Identity {
-	visual: Partial<VisualData>;
-	personalData: Partial<PersonalData>;
+	image?: {
+		mimetype: string;
+		data: string;
+	};
+	cellPhone?: string;
+	email?: string;
+	personalData: Partial<PersonalIdentityData>;
 	address: Partial<LegalAddress>;
 }
+
+export const Identity = {
+	merge(preferred: Identity, fallback: Identity): Identity {
+		return {
+			...fallback,
+			...preferred,
+			address: {
+				...fallback.address,
+				...preferred.address
+			},
+			personalData: {
+				...fallback.personalData,
+				...preferred.personalData
+			}
+		};
+	}
+};

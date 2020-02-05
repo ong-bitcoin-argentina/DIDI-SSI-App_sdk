@@ -65,7 +65,7 @@ function selectOwnClaims(
 				}
 				break;
 			case "email":
-				insert(key, identity.personalData.email);
+				insert(key, identity.email);
 				break;
 			case "country":
 			case "nationality":
@@ -73,7 +73,7 @@ function selectOwnClaims(
 				break;
 			case "cellphone":
 			case "phone":
-				insert(key, identity.personalData.cellPhone);
+				insert(key, identity.cellPhone);
 				break;
 			case "street":
 			case "streetaddress":
