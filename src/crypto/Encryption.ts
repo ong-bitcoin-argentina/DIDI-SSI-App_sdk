@@ -6,7 +6,7 @@ const KEYLEN = 32;
 
 async function hash(message: string): Promise<string> {
 	return new Promise((resolve, reject) => {
-		bcrypt.hash(message, HASH_SALT, (error, result) => {
+		bcrypt.hash(message, HASH_SALT, (error?: Error, result?: string) => {
 			if (error) {
 				reject(error);
 			} else {
