@@ -20,6 +20,11 @@ export interface DidiDocument {
 	 * Tiempo Unix hasta el que este documento es valido
 	 */
 	expireAt?: number;
+
+	/**
+	 * Entidad que delego la autoridad de emitir este documento al issuer
+	 */
+	delegator?: EthrDID;
 }
 
 export const DidiDocument = {

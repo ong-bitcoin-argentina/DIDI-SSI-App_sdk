@@ -2,6 +2,7 @@ import * as t from "io-ts";
 
 import TypedObject from "../../../util/TypedObject";
 
+import { wrapDidiDocumentCodec } from "./DidiDocumentCodec";
 import { EthrDIDCodec } from "./EthrDIDCodec";
 
 const VerifiableSpecCodec = t.partial({
@@ -16,37 +17,11 @@ const UserInfoSpecCodec = t.partial({
 	reason: t.string
 });
 
-function SelectiveDisclosureSpecsInnerCodec<InnerTypeLabel extends string>(innerType: InnerTypeLabel) {
-	return t.intersection(
-		[
-			t.type(
-				{
-					type: t.literal(innerType),
-					issuer: EthrDIDCodec,
-					verifiedClaims: t.record(t.string, VerifiableSpecCodec),
-					ownClaims: t.record(t.string, UserInfoSpecCodec)
-				},
-				""
-			),
-			t.partial(
-				{
-					issuedAt: t.number,
-					expireAt: t.number,
-					callback: t.string
-				},
-				""
-			)
-		],
-		""
-	);
-}
-
 function SelectiveDisclosureSpecsOuterCodec<OuterTypeLabel extends string>(outerType: OuterTypeLabel) {
 	return t.intersection([
 		t.type(
 			{
-				type: t.literal(outerType),
-				iss: EthrDIDCodec
+				type: t.literal(outerType)
 			},
 			"SelectiveDisclosureSpecs"
 		),
@@ -58,8 +33,6 @@ function SelectiveDisclosureSpecsOuterCodec<OuterTypeLabel extends string>(outer
 				}),
 				requested: t.array(t.string),
 				verified: t.array(t.string),
-				iat: t.number,
-				exp: t.number,
 				callback: t.string
 			},
 			"SelectiveDisclosureSpecs"
@@ -67,47 +40,43 @@ function SelectiveDisclosureSpecsOuterCodec<OuterTypeLabel extends string>(outer
 	]);
 }
 
-export function SelectiveDisclosureSpecsCodec<InnerTypeLabel extends string, OuterTypeLabel extends string>(
-	innerType: InnerTypeLabel,
-	outerType: OuterTypeLabel
-) {
+export function SelectiveDisclosureSpecsCodec<
+	T extends { type: InnerTypeLabel },
+	InnerTypeLabel extends string,
+	OuterTypeLabel extends string
+>(innerType: InnerTypeLabel, outerType: OuterTypeLabel) {
 	const outer = SelectiveDisclosureSpecsOuterCodec(outerType);
-	const inner = SelectiveDisclosureSpecsInnerCodec(innerType);
 
-	return SelectiveDisclosureSpecsOuterCodec(outerType).pipe(
-		new t.Type<typeof inner._A, typeof outer._A, typeof outer._A>(
-			"SelectiveDisclosureSpecs_In",
-			inner.is,
-			(i, c) =>
-				t.success({
-					type: innerType,
-					issuer: i.iss,
-					callback: i.callback,
-					ownClaims: {
-						...TypedObject.fromEntries((i.requested ?? []).map(req => [req, {}])),
-						...TypedObject.mapValues(i.claims?.user_info ?? {}, value => (value === null ? {} : value))
-					},
-					verifiedClaims: {
-						...TypedObject.fromEntries((i.verified ?? []).map(req => [req, {}])),
-						...TypedObject.mapValues(i.claims?.verifiable ?? {}, value => (value === null ? {} : value))
-					},
-					issuedAt: i.iat,
-					expireAt: i.exp
-				}),
-			a => {
-				return {
-					type: outerType,
-					iss: a.issuer,
-					callback: a.callback,
-					claims: {
-						verifiable: a.verifiedClaims,
-						user_info: a.ownClaims
-					},
-					iat: a.issuedAt,
-					exp: a.expireAt
-				};
-			}
-		),
-		"___"
+	return wrapDidiDocumentCodec<T>(
+		outer.pipe(
+			new t.Type(
+				"SelectiveDisclosureSpecs_In",
+				(u): u is any => true,
+				(i: typeof outer._A, c) =>
+					t.success({
+						type: innerType,
+						callback: i.callback,
+						ownClaims: {
+							...TypedObject.fromEntries((i.requested ?? []).map(req => [req, {}])),
+							...TypedObject.mapValues(i.claims?.user_info ?? {}, value => (value === null ? {} : value))
+						},
+						verifiedClaims: {
+							...TypedObject.fromEntries((i.verified ?? []).map(req => [req, {}])),
+							...TypedObject.mapValues(i.claims?.verifiable ?? {}, value => (value === null ? {} : value))
+						}
+					}),
+				(a): typeof outer._A => {
+					return {
+						type: outerType,
+						callback: a.callback,
+						claims: {
+							verifiable: a.verifiedClaims,
+							user_info: a.ownClaims
+						}
+					};
+				}
+			),
+			"___"
+		)
 	);
 }

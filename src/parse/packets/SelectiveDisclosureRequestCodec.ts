@@ -1,3 +1,9 @@
 import { SelectiveDisclosureSpecsCodec } from "./common/SelectiveDisclosureSpecsCodec";
 
-export const SelectiveDisclosureRequestCodec = SelectiveDisclosureSpecsCodec("SelectiveDisclosureRequest", "shareReq");
+import { SelectiveDisclosureRequest } from "../../disclosure/SelectiveDisclosureRequest";
+
+export const SelectiveDisclosureRequestCodec = SelectiveDisclosureSpecsCodec<
+	SelectiveDisclosureRequest,
+	"SelectiveDisclosureRequest",
+	"shareReq"
+>("SelectiveDisclosureRequest", "shareReq");

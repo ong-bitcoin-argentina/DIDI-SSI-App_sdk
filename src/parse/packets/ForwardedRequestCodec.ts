@@ -1,63 +1,44 @@
 import * as t from "io-ts";
 
+import { wrapDidiDocumentCodec } from "./common/DidiDocumentCodec";
 import { EthrDIDCodec } from "./common/EthrDIDCodec";
 
-const ForwardedRequestInnerCodec = t.intersection([
-	t.type({
-		type: t.literal("ForwardedRequest"),
-		issuer: EthrDIDCodec,
-		subject: EthrDIDCodec,
-		forwarded: t.string
-	}),
-	t.partial({
-		issuedAt: t.number,
-		expireAt: t.number
-	})
-]);
-type ForwardedRequest = typeof ForwardedRequestInnerCodec._A;
+import { DidiDocument } from "../../model/DidiDocument";
+import { EthrDID } from "../../model/EthrDID";
 
-const ForwardedRequestOuterCodec = t.intersection([
-	t.type(
-		{
-			iss: EthrDIDCodec,
-			sub: EthrDIDCodec,
-			disclosureRequest: t.string
-		},
-		"ForwardedRequest"
-	),
-	t.partial(
-		{
-			iat: t.number,
-			exp: t.number
-		},
-		"ForwardedRequest"
-	)
-]);
+interface ForwardedRequest extends DidiDocument {
+	type: "ForwardedRequest";
+	subject: EthrDID;
+	forwarded: string;
+}
+
+const ForwardedRequestOuterCodec = t.type(
+	{
+		sub: EthrDIDCodec,
+		disclosureRequest: t.string
+	},
+	"ForwardedRequest"
+);
 type ForwardedRequestTransport = typeof ForwardedRequestOuterCodec._A;
 
-export const ForwardedRequestCodec = ForwardedRequestOuterCodec.pipe(
-	new t.Type<ForwardedRequest, ForwardedRequestTransport, ForwardedRequestTransport>(
-		"ForwardedRequest_In",
-		ForwardedRequestInnerCodec.is,
-		(i, c) =>
-			t.success<ForwardedRequest>({
-				type: "ForwardedRequest",
-				issuer: i.iss,
-				subject: i.sub,
-				expireAt: i.exp,
-				issuedAt: i.iat,
-				forwarded: i.disclosureRequest
-			}),
-		a => {
-			return {
-				type: "shareReq",
-				iss: a.issuer,
-				sub: a.subject,
-				exp: a.expireAt,
-				iat: a.issuedAt,
-				disclosureRequest: a.forwarded
-			};
-		}
-	),
-	"___"
+export const ForwardedRequestCodec = wrapDidiDocumentCodec<ForwardedRequest>(
+	ForwardedRequestOuterCodec.pipe(
+		new t.Type(
+			"ForwardedRequest_In",
+			(u): u is ForwardedRequest => true,
+			(i: ForwardedRequestTransport, c) =>
+				t.success({
+					type: "ForwardedRequest",
+					subject: i.sub,
+					forwarded: i.disclosureRequest
+				}),
+			(a): ForwardedRequestTransport => {
+				return {
+					sub: a.subject,
+					disclosureRequest: a.forwarded
+				};
+			}
+		),
+		"___"
+	)
 );
