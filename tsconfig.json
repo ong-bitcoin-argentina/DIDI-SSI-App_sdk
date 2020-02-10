@@ -16,8 +16,14 @@
 		"strict": true,
 		"target": "es6",
 		"outDir": "dist",
-		"strictFunctionTypes": true
+		"strictFunctionTypes": true,
+		"resolveJsonModule": true
 	},
-	"include": ["src/**/*.ts", "test/**/*.ts", "index.ts", "src/declarations.d.ts"],
+	"include": [
+		"src/**/*.ts",
+		"test/**/*.ts",
+		"index.ts",
+		"src/declarations.d.ts"
+	],
 	"exclude": ["node_modules", "dist"]
 }

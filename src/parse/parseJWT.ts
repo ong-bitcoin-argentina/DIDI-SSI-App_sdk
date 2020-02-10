@@ -22,6 +22,7 @@ import { SelectiveDisclosureProposalCodec } from "./packets/SelectiveDisclosureP
 import { SelectiveDisclosureRequestCodec } from "./packets/SelectiveDisclosureRequestCodec";
 import { SelectiveDisclosureResponseCodec } from "./packets/SelectiveDisclosureResponseCodec";
 import { VerifiedClaim, VerifiedClaimCodec } from "./packets/VerifiedClaimCodec";
+import { DidRegistryClient } from "./verification/DidRegistryClient";
 
 // This is required by verifyJWT
 if (typeof Buffer === "undefined") {
@@ -53,6 +54,11 @@ export type JWTParseError =
 	| {
 			type: "SHAPE_DECODE_ERROR";
 			errorMessage: string;
+	  }
+	| {
+			type: "MISSING_DELEGATION_ERROR";
+			delegator: EthrDID;
+			delegate: EthrDID;
 	  }
 	| {
 			type: "NONCREDENTIAL_WRAP_ERROR";
@@ -131,7 +137,14 @@ export function unverifiedParseJWT(jwt: string): JWTParseResult {
 }
 
 interface VerifyTokenServiceConfiguration {
-	ethrUri: string;
+	identityResolver: {
+		ethrUri: string;
+		registryAddress?: string;
+	};
+	delegation: {
+		ethrUri: string;
+		registryAddress?: string;
+	};
 	audience: EthrDID | undefined;
 }
 async function verifyToken(
@@ -142,7 +155,8 @@ async function verifyToken(
 	try {
 		try {
 			const ethrDidResolver = getResolver({
-				rpcUrl: services.ethrUri
+				rpcUrl: services.identityResolver.ethrUri,
+				registry: services.identityResolver.registryAddress
 			});
 			const resolver = new Resolver({
 				...ethrDidResolver
@@ -189,6 +203,18 @@ export async function parseJWT(jwt: string, services: VerifyTokenServiceConfigur
 	}
 
 	const verified = parsed.right;
+	if (verified.delegator) {
+		const delegationRegistry = new DidRegistryClient(services.delegation.ethrUri, services.delegation.registryAddress);
+		const isDelegationValid = await delegationRegistry.isValidDelegation(verified.delegator, verified.issuer);
+		if (!isDelegationValid) {
+			return left({
+				type: "MISSING_DELEGATION_ERROR",
+				delegator: verified.delegator,
+				delegate: verified.issuer
+			});
+		}
+	}
+
 	switch (verified.type) {
 		case "SelectiveDisclosureResponse":
 			return right({ ...verified, type: "SelectiveDisclosureResponse", jwt });
