@@ -48,7 +48,7 @@ export type JWTParseError =
 			current: number;
 	  }
 	| {
-			type: "JWT_DECODE_ERROR" | "VERIFICATION_ERROR";
+			type: "JWT_DECODE_ERROR" | "VERIFICATION_ERROR" | "DELEGATE_CHECK_ERROR";
 			error: any;
 	  }
 	| {
@@ -204,13 +204,23 @@ export async function parseJWT(jwt: string, services: VerifyTokenServiceConfigur
 
 	const verified = parsed.right;
 	if (verified.delegator) {
-		const delegationRegistry = new DidRegistryClient(services.delegation.ethrUri, services.delegation.registryAddress);
-		const isDelegationValid = await delegationRegistry.isValidDelegation(verified.delegator, verified.issuer);
-		if (!isDelegationValid) {
+		try {
+			const delegationRegistry = new DidRegistryClient(
+				services.delegation.ethrUri,
+				services.delegation.registryAddress
+			);
+			const isDelegationValid = await delegationRegistry.isValidDelegation(verified.delegator, verified.issuer);
+			if (!isDelegationValid) {
+				return left({
+					type: "MISSING_DELEGATION_ERROR",
+					delegator: verified.delegator,
+					delegate: verified.issuer
+				});
+			}
+		} catch (error) {
 			return left({
-				type: "MISSING_DELEGATION_ERROR",
-				delegator: verified.delegator,
-				delegate: verified.issuer
+				type: "DELEGATE_CHECK_ERROR",
+				error
 			});
 		}
 	}
