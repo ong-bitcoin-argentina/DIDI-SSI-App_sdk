@@ -22,6 +22,7 @@ import { SelectiveDisclosureProposalCodec } from "./packets/SelectiveDisclosureP
 import { SelectiveDisclosureRequestCodec } from "./packets/SelectiveDisclosureRequestCodec";
 import { SelectiveDisclosureResponseCodec } from "./packets/SelectiveDisclosureResponseCodec";
 import { VerifiedClaim, VerifiedClaimCodec } from "./packets/VerifiedClaimCodec";
+import { DidRegistryClient } from "./verification/DidRegistryClient";
 
 // This is required by verifyJWT
 if (typeof Buffer === "undefined") {
@@ -47,12 +48,17 @@ export type JWTParseError =
 			current: number;
 	  }
 	| {
-			type: "JWT_DECODE_ERROR" | "VERIFICATION_ERROR";
+			type: "JWT_DECODE_ERROR" | "VERIFICATION_ERROR" | "DELEGATE_CHECK_ERROR";
 			error: any;
 	  }
 	| {
 			type: "SHAPE_DECODE_ERROR";
 			errorMessage: string;
+	  }
+	| {
+			type: "MISSING_DELEGATION_ERROR";
+			delegator: EthrDID;
+			delegate: EthrDID;
 	  }
 	| {
 			type: "NONCREDENTIAL_WRAP_ERROR";
@@ -130,6 +136,45 @@ export function unverifiedParseJWT(jwt: string): JWTParseResult {
 	}
 }
 
+interface VerifyTokenServiceConfiguration {
+	identityResolver: {
+		ethrUri: string;
+		registryAddress?: string;
+	};
+	delegation: {
+		ethrUri: string;
+		registryAddress?: string;
+	};
+	audience: EthrDID | undefined;
+}
+async function verifyToken(
+	jwt: string,
+	type: string,
+	services: VerifyTokenServiceConfiguration
+): Promise<Either<JWTParseError, unknown>> {
+	try {
+		try {
+			const ethrDidResolver = getResolver({
+				rpcUrl: services.identityResolver.ethrUri,
+				registry: services.identityResolver.registryAddress
+			});
+			const resolver = new Resolver({
+				...ethrDidResolver
+			});
+
+			const { payload } =
+				type === "CredentialDocument"
+					? await verifyCredential(jwt, resolver)
+					: await verifyJWT(jwt, { resolver, audience: services.audience?.did?.() });
+			return right(payload);
+		} catch (e) {
+			return left({ type: "VERIFICATION_ERROR", error: e });
+		}
+	} catch (e) {
+		return left({ type: "RESOLVER_CREATION_ERROR" });
+	}
+}
+
 /**
  * Extrae la data contenida en un JWT en formato didi, verificando que la firma
  * sea correcta y corresponda con el issuer.
@@ -141,53 +186,61 @@ export function unverifiedParseJWT(jwt: string): JWTParseResult {
  * coincidir con el valor del mismo.
  * @see unverifiedParseJWT
  */
-export async function parseJWT(jwt: string, ethrUri: string, audience?: EthrDID): Promise<JWTParseResult> {
+export async function parseJWT(jwt: string, services: VerifyTokenServiceConfiguration): Promise<JWTParseResult> {
 	const unverifiedContent = unverifiedParseJWT(jwt);
 	if (isLeft(unverifiedContent)) {
 		return unverifiedContent;
 	}
 
-	try {
-		const ethrDidResolver = getResolver({
-			rpcUrl: ethrUri
-		});
-		const resolver = new Resolver({
-			...ethrDidResolver
-		});
+	const payload = await verifyToken(jwt, unverifiedContent.right.type, services);
+	if (isLeft(payload)) {
+		return payload;
+	}
 
+	const parsed = ParseCodec.decode(payload.right);
+	if (isLeft(parsed)) {
+		return left({ type: "SHAPE_DECODE_ERROR", errorMessage: extractIoError(parsed.left) });
+	}
+
+	const verified = parsed.right;
+	if (verified.delegator) {
 		try {
-			const { payload } = await (unverifiedContent.right.type === "CredentialDocument"
-				? verifyCredential(jwt, resolver)
-				: verifyJWT(jwt, { resolver, audience: audience?.did?.() }));
-
-			const parsed = ParseCodec.decode(payload);
-			if (isLeft(parsed)) {
-				return left({ type: "SHAPE_DECODE_ERROR", errorMessage: extractIoError(parsed.left) });
+			const delegationRegistry = new DidRegistryClient(
+				services.delegation.ethrUri,
+				services.delegation.registryAddress
+			);
+			const isDelegationValid = await delegationRegistry.isValidDelegation(verified.delegator, verified.issuer);
+			if (!isDelegationValid) {
+				return left({
+					type: "MISSING_DELEGATION_ERROR",
+					delegator: verified.delegator,
+					delegate: verified.issuer
+				});
 			}
-
-			const verified = parsed.right;
-			switch (verified.type) {
-				case "SelectiveDisclosureResponse":
-					return right({ ...verified, type: "SelectiveDisclosureResponse", jwt });
-				case "SelectiveDisclosureRequest":
-					return right({ ...verified, type: "SelectiveDisclosureRequest", jwt });
-				case "SelectiveDisclosureProposal":
-					return right({ ...verified, jwt });
-				case "ForwardedRequest":
-					return parseJWT(verified.forwarded, ethrUri, audience);
-				case "VerifiedClaim":
-					const nested = await parseNestedInVerified(verified, ethrUri);
-					if (isLeft(nested)) {
-						return left(nested.left);
-					} else {
-						return right({ ...verified, type: "CredentialDocument", jwt, nested: nested.right });
-					}
-			}
-		} catch (e) {
-			return left({ type: "VERIFICATION_ERROR", error: e });
+		} catch (error) {
+			return left({
+				type: "DELEGATE_CHECK_ERROR",
+				error
+			});
 		}
-	} catch (e) {
-		return left({ type: "RESOLVER_CREATION_ERROR" });
+	}
+
+	switch (verified.type) {
+		case "SelectiveDisclosureResponse":
+			return right({ ...verified, type: "SelectiveDisclosureResponse", jwt });
+		case "SelectiveDisclosureRequest":
+			return right({ ...verified, type: "SelectiveDisclosureRequest", jwt });
+		case "SelectiveDisclosureProposal":
+			return right({ ...verified, jwt });
+		case "ForwardedRequest":
+			return parseJWT(verified.forwarded, services);
+		case "VerifiedClaim":
+			const nested = await parseNestedInVerified(verified, services);
+			if (isLeft(nested)) {
+				return left(nested.left);
+			} else {
+				return right({ ...verified, type: "CredentialDocument", jwt, nested: nested.right });
+			}
 	}
 }
 
@@ -216,10 +269,10 @@ function parseNestedInUnverified(vc: VerifiedClaim): Either<JWTParseError, Crede
 
 async function parseNestedInVerified(
 	vc: VerifiedClaim,
-	ethrUri: string
+	services: VerifyTokenServiceConfiguration
 ): Promise<Either<JWTParseError, CredentialDocument[]>> {
 	const nested = Object.values(vc.wrapped);
-	const parsed = await Promise.all(nested.map(micro => parseJWT(micro, ethrUri)));
+	const parsed = await Promise.all(nested.map(micro => parseJWT(micro, services)));
 	const mix = array.sequence(either)(parsed);
 	if (isLeft(mix)) {
 		return mix;

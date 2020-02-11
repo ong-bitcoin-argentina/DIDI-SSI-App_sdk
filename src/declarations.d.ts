@@ -19,6 +19,13 @@ declare module "ethr-did-resolver" {
 		networks?: NetworkConfiguration[];
 	}
 
+	export const REGISTRY: string;
+
+	export const delegateTypes: {
+		Secp256k1SignatureAuthentication2018: string;
+		Secp256k1VerificationKey2018: string;
+	};
+
 	export function getResolver(conf: ResolverConfiguration): { ethr: DIDResolver };
 }
 
@@ -30,3 +37,7 @@ declare module "react-native-bcrypt" {
 	function encodeBase64(bytes: number[], maxInputLength: number): string;
 	function decodeBase64(encoded: string, maxOutputLength: number): number[];
 }
+
+declare module "ethjs-query";
+declare module "ethjs-contract";
+declare module "ethjs-provider-http";
