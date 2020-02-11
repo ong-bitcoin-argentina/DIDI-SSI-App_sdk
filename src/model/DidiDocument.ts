@@ -47,5 +47,12 @@ export const DidiDocument = {
 	 */
 	isValidNow: (document: DidiDocument): boolean => {
 		return DidiDocument.isValidAt(document, new Date());
+	},
+
+	/**
+	 * Indica que DID mostrar a un usuario como emisor de este documento
+	 */
+	displayedIssuer: (document: DidiDocument): EthrDID => {
+		return document.delegator ?? document.issuer;
 	}
 };
