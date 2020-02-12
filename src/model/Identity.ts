@@ -26,7 +26,7 @@ export interface Identity {
 }
 
 export const Identity = {
-	merge(preferred: Identity, fallback: Identity): Identity {
+	merge(preferred: Partial<Identity>, fallback: Identity): Identity {
 		return {
 			...fallback,
 			...preferred,
