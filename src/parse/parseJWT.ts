@@ -239,7 +239,8 @@ export async function parseJWT(jwt: string, services: VerifyTokenServiceConfigur
 			if (isLeft(nested)) {
 				return left(nested.left);
 			} else {
-				return right({ ...verified, type: "CredentialDocument", jwt, nested: nested.right });
+				const specialFlag = SpecialCredentialFlag.extract(verified.title, verified.data);
+				return right({ ...verified, type: "CredentialDocument", jwt, nested: nested.right, specialFlag });
 			}
 	}
 }
