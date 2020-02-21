@@ -84,13 +84,15 @@ export class DidiServerApiClient {
 		did: EthrDID,
 		validationCode: string,
 		newPhoneNumber: string,
-		password: string
+		password: string,
+		firebaseId?: string
 	): ApiResult<{ certificate: string }> {
 		return commonServiceRequest("POST", `${this.baseUrl}/changePhoneNumber`, responseCodecs.singleCertificate, {
 			did: did.did(),
 			phoneValidationCode: validationCode,
 			newPhoneNumber,
-			password: await Encryption.hash(password)
+			password: await Encryption.hash(password),
+			...(firebaseId ? { firebaseId } : {})
 		});
 	}
 
@@ -104,7 +106,8 @@ export class DidiServerApiClient {
 	async recoverAccount(
 		email: string,
 		password: string,
-		privateKeyPassword: string
+		privateKeyPassword: string,
+		firebaseId?: string
 	): ApiResult<{ privateKeySeed: string }> {
 		const response = await commonServiceRequest(
 			"POST",
@@ -112,7 +115,8 @@ export class DidiServerApiClient {
 			responseCodecs.accountRecovery,
 			{
 				eMail: email,
-				password: await Encryption.hash(password)
+				password: await Encryption.hash(password),
+				...(firebaseId ? { firebaseId } : {})
 			}
 		);
 		if (isLeft(response)) {
@@ -143,7 +147,8 @@ export class DidiServerApiClient {
 			phoneNumber: string;
 			password: string;
 			privateKeySeed: string;
-		}
+		},
+		firebaseId?: string
 	): ApiResult<{}> {
 		try {
 			const encryptedPrivateKeySeed = await Encryption.encrypt(userData.privateKeySeed, privateKeyPassword);
@@ -152,7 +157,8 @@ export class DidiServerApiClient {
 				eMail: userData.email,
 				phoneNumber: userData.phoneNumber,
 				password: await Encryption.hash(userData.password),
-				privateKeySeed: encryptedPrivateKeySeed
+				privateKeySeed: encryptedPrivateKeySeed,
+				...(firebaseId ? { firebaseId } : {})
 			});
 		} catch (error) {
 			return left({ type: "CRYPTO_ERROR", error });
