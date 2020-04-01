@@ -4,6 +4,9 @@ import * as bcrypt from "react-native-bcrypt";
 const HASH_SALT = "***REMOVED***";
 const KEYLEN = 32;
 
+/**
+ * Calcula el hash bcrypt de su argumento usando una sal predeterminada
+ */
 async function hash(message: string): Promise<string> {
 	return new Promise((resolve, reject) => {
 		bcrypt.hash(message, HASH_SALT, (error?: Error, result?: string) => {
@@ -26,6 +29,12 @@ async function cipherFor(password: string): Promise<aesjs.ModeOfOperation.ModeOf
 export const Encryption = {
 	hash,
 
+	/**
+	 * Encripta un mensaje usando AES, modo CTR, derivando su clave de
+	 * la contraseña provista.
+	 * @see Encryption.decrypt
+	 * @see Encryption.hash: Funcion de derivacion de clave
+	 */
 	async encrypt(plainText: string, password: string): Promise<string> {
 		const cipher = await cipherFor(password);
 
@@ -34,6 +43,10 @@ export const Encryption = {
 		return aesjs.utils.hex.fromBytes(encryptedBytes);
 	},
 
+	/**
+	 * Desencripta un mensaje encriptado por Encryption.encrypt
+	 * @see Encryption.encrypt
+	 */
 	async decrypt(message: string, password: string): Promise<string> {
 		const cipher = await cipherFor(password);
 
