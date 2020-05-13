@@ -220,11 +220,12 @@ export class DidiServerApiClient {
 		});
 	}
 
-	async userLogin(did: EthrDID, email: string, password: string): ApiResult<{}> {
+	async userLogin(did: EthrDID, email: string, password: string, firebaseId?: string): ApiResult<{}> {
 		return commonServiceRequest("POST", `${this.baseUrl}/userLogin`, responseCodecs.empty, {
 			did: did.did(),
 			eMail: email,
-			password: await Encryption.hash(password)
+			password: await Encryption.hash(password),
+			...(firebaseId ? { firebaseId } : {})
 		});
 	}
 
