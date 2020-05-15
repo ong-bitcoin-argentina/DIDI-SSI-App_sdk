@@ -1,5 +1,6 @@
 import { Either, isLeft, isRight, left, right } from "fp-ts/lib/Either";
 import * as t from "io-ts";
+import Credentials from "uport-credentials/lib/Credentials";
 
 import { commonServiceRequest } from "./util/commonServiceRequest";
 import { CommonServiceRequestError } from "./util/CommonServiceRequestError";
@@ -226,6 +227,13 @@ export class DidiServerApiClient {
 			eMail: email,
 			password: await Encryption.hash(password),
 			...(firebaseId ? { firebaseId } : {})
+		});
+	}
+
+	async renewFirebaseToken(credentials: Credentials, firebaseId: string): ApiResult<{}> {
+		const token = await credentials.signJWT({ firebaseId }, 100);
+		return commonServiceRequest("POST", `${this.baseUrl}/renewFirebaseToken`, responseCodecs.empty, {
+			token
 		});
 	}
 
