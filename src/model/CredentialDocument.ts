@@ -8,7 +8,7 @@ import { SpecialCredentialFlag } from "./SpecialCredential";
 /**
  * Categoria de una credencial
  */
-export type DocumentFilterType = "education" | "livingPlace" | "finance" | "identity";
+export type DocumentFilterType = "education" | "livingPlace" | "finance" | "identity" | "benefit" | "work";
 
 /**
  * Una credencial didi es una descripcion de un sujeto, creada y firmada por un emisor.
