@@ -18,6 +18,7 @@ export interface DocumentLayout {
 		columns: number;
 	}[];
 	backgroundImage: string;
+	style: string;
 }
 
 /**
