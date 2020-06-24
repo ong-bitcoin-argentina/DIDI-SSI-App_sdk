@@ -11,6 +11,16 @@ import { SpecialCredentialFlag } from "./SpecialCredential";
 export type DocumentFilterType = "education" | "livingPlace" | "finance" | "identity" | "benefit" | "work";
 
 /**
+ * Representa la estructura de la credencial (como se mostrará en la aplicación)
+ */
+export interface DocumentLayout {
+	rows: {
+		columns: number;
+	}[];
+	backgroundImage: string;
+}
+
+/**
  * Una credencial didi es una descripcion de un sujeto, creada y firmada por un emisor.
  */
 export interface CredentialDocument extends DidiDocument {
@@ -35,6 +45,7 @@ export interface CredentialDocument extends DidiDocument {
 		type: number;
 		/** Campos a mostrar */
 		fields: string[];
+		cardLayout?: DocumentLayout;
 	};
 
 	/** Categoria en que se clasifica esta credencial */
