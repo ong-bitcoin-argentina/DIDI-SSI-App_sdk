@@ -23,7 +23,9 @@ const VerifiedClaimOuterCodec = t.type(
 								education: null,
 								livingPlace: null,
 								finance: null,
-								identity: null
+								identity: null,
+								benefit: null,
+								work: null
 							}),
 							preview: t.type({
 								type: t.number,
