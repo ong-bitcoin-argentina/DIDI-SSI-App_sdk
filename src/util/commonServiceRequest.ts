@@ -5,6 +5,8 @@ import { JSONObject } from "../util/JSON";
 
 import { CommonServiceRequestError } from "./CommonServiceRequestError";
 
+const log = console.log;
+
 export type HTTPMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
 function userApiWrapperCodec<M extends t.Mixed>(data: M) {
@@ -37,6 +39,7 @@ export async function commonServiceRequest<A>(
 			...(method !== "GET" && { body: JSON.stringify(parameters) })
 		});
 	} catch (error) {
+		log(error);
 		return left({ type: "FETCH_ERROR", error });
 	}
 
@@ -44,13 +47,16 @@ export async function commonServiceRequest<A>(
 	try {
 		body = await response.json();
 	} catch (error) {
+		log(error);
 		return left({ type: "JSON_ERROR", error });
 	}
 
 	const decoded = userApiWrapperCodec(dataDecoder).decode(body);
 	if (isLeft(decoded)) {
+		log(decoded.left);
 		return left({ type: "DECODE_ERROR", error: decoded.left });
 	} else if (decoded.right.status === "error") {
+		log(decoded.right);
 		return left({
 			type: "SERVER_ERROR",
 			error: {
