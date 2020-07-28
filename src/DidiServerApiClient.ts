@@ -10,6 +10,8 @@ import { EthrDID } from "./model/EthrDID";
 import { IssuerDescriptor } from "./model/IssuerDescriptor";
 import { Prestador, dataResponse, dataMessageResponse } from "./model/SemillasTypes";
 
+const semillasUrl = "http://localhost:8089/api/1.0/didi";
+
 /**
  * Configuracion de DidiServerApiClient
  */
@@ -343,7 +345,7 @@ export class DidiServerApiClient {
 	async getPrestadores(): ApiResult<{ data: Prestador[] }> {
 		const response = await commonServiceRequest(
 			"GET",
-			`${this.baseUrl}/semillas/prestadores`,
+			`${semillasUrl}/semillas/prestadores`,
 			responseCodecs.semillasPrestadores,
 			{}
 		);
@@ -358,7 +360,7 @@ export class DidiServerApiClient {
 	 * Obtiene el listado de prestadores traidos desde semillas
 	 */
 	async shareData(email: string): ApiResult<{ data: string }> {
-		const response = await commonServiceRequest("POST", `${this.baseUrl}/semillas/shareData`, dataResponse, {
+		const response = await commonServiceRequest("POST", `${semillasUrl}/semillas/shareData`, dataResponse, {
 			email
 		});
 
@@ -372,7 +374,7 @@ export class DidiServerApiClient {
 	 * Obtiene el listado de prestadores traidos desde semillas
 	 */
 	async semillasCredentialsRequest(did: EthrDID, dni: string): ApiResult<{ data: { message: string } }> {
-		const response = await commonServiceRequest("POST", `${this.baseUrl}/semillas/credentials`, dataMessageResponse, {
+		const response = await commonServiceRequest("POST", `${semillasUrl}/semillas/credentials`, dataMessageResponse, {
 			did: did.did(),
 			dni: dni
 		});
