@@ -37,6 +37,7 @@ export async function commonServiceRequest<A>(
 			...(method !== "GET" && { body: JSON.stringify(parameters) })
 		});
 	} catch (error) {
+		// TODO: loguear en firebase
 		return left({ type: "FETCH_ERROR", error });
 	}
 
@@ -44,13 +45,16 @@ export async function commonServiceRequest<A>(
 	try {
 		body = await response.json();
 	} catch (error) {
+		// TODO: loguear en firebase
 		return left({ type: "JSON_ERROR", error });
 	}
 
 	const decoded = userApiWrapperCodec(dataDecoder).decode(body);
 	if (isLeft(decoded)) {
+		// TODO: loguear en firebase
 		return left({ type: "DECODE_ERROR", error: decoded.left });
 	} else if (decoded.right.status === "error") {
+		// TODO: loguear en firebase
 		return left({
 			type: "SERVER_ERROR",
 			error: {

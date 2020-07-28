@@ -8,6 +8,7 @@ import { CommonServiceRequestError } from "./util/CommonServiceRequestError";
 import { Encryption } from "./crypto/Encryption";
 import { EthrDID } from "./model/EthrDID";
 import { IssuerDescriptor } from "./model/IssuerDescriptor";
+import { Prestador, dataResponse, dataMessageResponse } from "./model/SemillasTypes";
 
 /**
  * Configuracion de DidiServerApiClient
@@ -40,7 +41,21 @@ const responseCodecs = {
 		])
 	]),
 
-	issuerName: t.string
+	issuerName: t.string,
+
+	semillasPrestadores: t.array(
+		t.type({
+			id: t.number,
+			benefit: t.string,
+			category: t.string,
+			name: t.string,
+			speciality: t.string,
+			phone: t.string
+		})
+	),
+
+	dataResponse,
+	dataMessageResponse
 };
 
 export type ValidateDniResponseData = typeof responseCodecs.validateDni._A;
@@ -320,5 +335,51 @@ export class DidiServerApiClient {
 		} else {
 			return response;
 		}
+	}
+
+	/**
+	 * Obtiene el listado de prestadores traidos desde semillas
+	 */
+	async getPrestadores(): ApiResult<{ data: Prestador[] }> {
+		const response = await commonServiceRequest(
+			"GET",
+			`${this.baseUrl}/semillas/prestadores`,
+			responseCodecs.semillasPrestadores,
+			{}
+		);
+
+		if (isRight(response)) {
+			return right({ data: response.right });
+		}
+		return response;
+	}
+
+	/**
+	 * Obtiene el listado de prestadores traidos desde semillas
+	 */
+	async shareData(email: string): ApiResult<{ data: string }> {
+		const response = await commonServiceRequest("POST", `${this.baseUrl}/semillas/shareData`, dataResponse, {
+			email
+		});
+
+		if (isRight(response)) {
+			return right(response.right);
+		}
+		return response;
+	}
+
+	/**
+	 * Obtiene el listado de prestadores traidos desde semillas
+	 */
+	async semillasCredentialsRequest(did: EthrDID, dni: string): ApiResult<{ data: { message: string } }> {
+		const response = await commonServiceRequest("POST", `${this.baseUrl}/semillas/credentials`, dataMessageResponse, {
+			did: did.did(),
+			dni: dni
+		});
+
+		if (isRight(response)) {
+			return right(response.right);
+		}
+		return response;
 	}
 }
