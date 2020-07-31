@@ -24,6 +24,8 @@ import { SelectiveDisclosureResponseCodec } from "./packets/SelectiveDisclosureR
 import { VerifiedClaim, VerifiedClaimCodec } from "./packets/VerifiedClaimCodec";
 import { DidRegistryClient } from "./verification/DidRegistryClient";
 
+const log = console.log;
+
 // This is required by verifyJWT
 if (typeof Buffer === "undefined") {
 	// tslint:disable-next-line: no-var-requires
@@ -101,6 +103,7 @@ export function unverifiedParseJWT(jwt: string): JWTParseResult {
 		const decoded = JWTDecode(jwt);
 		const parsed = ParseCodec.decode(decoded);
 		if (isLeft(parsed)) {
+			log(parsed.left);
 			return left({ type: "SHAPE_DECODE_ERROR", errorMessage: extractIoError(parsed.left) });
 		}
 
@@ -125,6 +128,7 @@ export function unverifiedParseJWT(jwt: string): JWTParseResult {
 					const nested = parseNestedInUnverified(unverified);
 					const specialFlag = SpecialCredentialFlag.extract(unverified.title, unverified.data);
 					if (isLeft(nested)) {
+						log(nested.left);
 						return nested;
 					} else {
 						return right({ ...unverified, type: "CredentialDocument", jwt, nested: nested.right, specialFlag });
@@ -132,6 +136,7 @@ export function unverifiedParseJWT(jwt: string): JWTParseResult {
 			}
 		}
 	} catch (e) {
+		log(e);
 		return left({ type: "JWT_DECODE_ERROR", error: e });
 	}
 }
@@ -168,9 +173,11 @@ async function verifyToken(
 					: await verifyJWT(jwt, { resolver, audience: services.audience?.did?.() });
 			return right(payload);
 		} catch (e) {
+			log(e);
 			return left({ type: "VERIFICATION_ERROR", error: e });
 		}
 	} catch (e) {
+		log(e);
 		return left({ type: "RESOLVER_CREATION_ERROR" });
 	}
 }
@@ -189,16 +196,19 @@ async function verifyToken(
 export async function parseJWT(jwt: string, services: VerifyTokenServiceConfiguration): Promise<JWTParseResult> {
 	const unverifiedContent = unverifiedParseJWT(jwt);
 	if (isLeft(unverifiedContent)) {
+		log(unverifiedContent.left);
 		return unverifiedContent;
 	}
 
 	const payload = await verifyToken(jwt, unverifiedContent.right.type, services);
 	if (isLeft(payload)) {
+		log(payload.left);
 		return payload;
 	}
 
 	const parsed = ParseCodec.decode(payload.right);
 	if (isLeft(parsed)) {
+		log(parsed.left);
 		return left({ type: "SHAPE_DECODE_ERROR", errorMessage: extractIoError(parsed.left) });
 	}
 
@@ -218,6 +228,7 @@ export async function parseJWT(jwt: string, services: VerifyTokenServiceConfigur
 				});
 			}
 		} catch (error) {
+			log(error);
 			return left({
 				type: "DELEGATE_CHECK_ERROR",
 				error
@@ -237,6 +248,7 @@ export async function parseJWT(jwt: string, services: VerifyTokenServiceConfigur
 		case "VerifiedClaim":
 			const nested = await parseNestedInVerified(verified, services);
 			if (isLeft(nested)) {
+				log(nested.left);
 				return left(nested.left);
 			} else {
 				const specialFlag = SpecialCredentialFlag.extract(verified.title, verified.data);
@@ -262,6 +274,7 @@ function parseNestedInUnverified(vc: VerifiedClaim): Either<JWTParseError, Crede
 	const parsed = nested.map(unverifiedParseJWT);
 	const mix = array.sequence(either)(parsed);
 	if (isLeft(mix)) {
+		log(mix.left);
 		return mix;
 	} else {
 		return extractCredentials(mix.right);
@@ -276,6 +289,7 @@ async function parseNestedInVerified(
 	const parsed = await Promise.all(nested.map(micro => parseJWT(micro, services)));
 	const mix = array.sequence(either)(parsed);
 	if (isLeft(mix)) {
+		log(mix.left);
 		return mix;
 	} else {
 		return extractCredentials(mix.right);

@@ -10,6 +10,8 @@ import { EthrDID } from "./model/EthrDID";
 import { IssuerDescriptor } from "./model/IssuerDescriptor";
 import { Prestador, dataResponse, messageResponse } from "./model/SemillasTypes";
 
+const log = console.log;
+
 /**
  * Configuracion de DidiServerApiClient
  */
@@ -136,6 +138,7 @@ export class DidiServerApiClient {
 			}
 		);
 		if (isLeft(response)) {
+			log(response.left);
 			return response;
 		}
 
@@ -143,6 +146,7 @@ export class DidiServerApiClient {
 			const privateKeySeed = await Encryption.decrypt(response.right.privateKeySeed, privateKeyPassword);
 			return right({ privateKeySeed });
 		} catch (error) {
+			log(error);
 			return left({ type: "CRYPTO_ERROR", error });
 		}
 	}
@@ -177,6 +181,7 @@ export class DidiServerApiClient {
 				...(firebaseId ? { firebaseId } : {})
 			});
 		} catch (error) {
+			log(error);
 			return left({ type: "CRYPTO_ERROR", error });
 		}
 	}
@@ -331,8 +336,10 @@ export class DidiServerApiClient {
 		if (isRight(response)) {
 			return right({ did: issuerDid, name: response.right });
 		} else if (response.left.type === "SERVER_ERROR" && response.left.error.errorCode === "IS_INVALID") {
+			log(response.left);
 			return right({ did: issuerDid, name: null });
 		} else {
+			log(response);
 			return response;
 		}
 	}
