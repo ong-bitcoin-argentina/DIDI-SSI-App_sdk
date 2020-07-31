@@ -5,14 +5,12 @@ export interface Prestador {
 	benefit: string;
 	category: string;
 	name: string;
-	speciality: string;
+	speciality: string | null;
 	phone: string;
 }
 
-export const dataMessageResponse = t.type({
-	data: t.type({
-		message: t.string
-	})
+export const messageResponse = t.type({
+	message: t.string
 });
 
 export const dataResponse = t.type({

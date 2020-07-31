@@ -7,6 +7,10 @@ import { CommonServiceRequestError } from "./CommonServiceRequestError";
 
 export type HTTPMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
+const headers = {
+	"Content-Type": "application/json; charset=utf-8"
+};
+
 function userApiWrapperCodec<M extends t.Mixed>(data: M) {
 	return t.union([
 		t.type({
@@ -31,9 +35,7 @@ export async function commonServiceRequest<A>(
 	try {
 		response = await fetch(url, {
 			method,
-			headers: {
-				"Content-Type": "application/json; charset=utf-8"
-			},
+			headers,
 			...(method !== "GET" && { body: JSON.stringify(parameters) })
 		});
 	} catch (error) {
@@ -66,3 +68,19 @@ export async function commonServiceRequest<A>(
 		return right(decoded.right.data);
 	}
 }
+
+export const simpleCall = (url: string, method: HTTPMethod = "GET", data: any) => {
+	const options = {
+		headers,
+		method,
+		...(data && { body: JSON.stringify(data) })
+	};
+	return new Promise((resolve, reject) => {
+		fetch(url, options)
+			.then(res => {
+				return res.ok ? res.json() : reject(res);
+			})
+			.then(json => resolve(json))
+			.catch(err => reject(err));
+	});
+};

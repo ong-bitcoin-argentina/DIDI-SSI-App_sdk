@@ -2,15 +2,13 @@ import { Either, isLeft, isRight, left, right } from "fp-ts/lib/Either";
 import * as t from "io-ts";
 import Credentials from "uport-credentials/lib/Credentials";
 
-import { commonServiceRequest } from "./util/commonServiceRequest";
+import { commonServiceRequest, simpleCall } from "./util/commonServiceRequest";
 import { CommonServiceRequestError } from "./util/CommonServiceRequestError";
 
 import { Encryption } from "./crypto/Encryption";
 import { EthrDID } from "./model/EthrDID";
 import { IssuerDescriptor } from "./model/IssuerDescriptor";
-import { Prestador, dataResponse, dataMessageResponse } from "./model/SemillasTypes";
-
-const semillasUrl = "http://localhost:8089/api/1.0/didi";
+import { Prestador, dataResponse, messageResponse } from "./model/SemillasTypes";
 
 /**
  * Configuracion de DidiServerApiClient
@@ -51,13 +49,13 @@ const responseCodecs = {
 			benefit: t.string,
 			category: t.string,
 			name: t.string,
-			speciality: t.string,
+			speciality: t.union([t.string, t.null]),
 			phone: t.string
 		})
 	),
 
 	dataResponse,
-	dataMessageResponse
+	messageResponse
 };
 
 export type ValidateDniResponseData = typeof responseCodecs.validateDni._A;
@@ -345,7 +343,7 @@ export class DidiServerApiClient {
 	async getPrestadores(): ApiResult<{ data: Prestador[] }> {
 		const response = await commonServiceRequest(
 			"GET",
-			`${semillasUrl}/semillas/prestadores`,
+			`${this.baseUrl}/semillas/prestadores`,
 			responseCodecs.semillasPrestadores,
 			{}
 		);
@@ -359,22 +357,15 @@ export class DidiServerApiClient {
 	/**
 	 * Obtiene el listado de prestadores traidos desde semillas
 	 */
-	async shareData(email: string): ApiResult<{ data: string }> {
-		const response = await commonServiceRequest("POST", `${semillasUrl}/semillas/shareData`, dataResponse, {
-			email
-		});
-
-		if (isRight(response)) {
-			return right(response.right);
-		}
-		return response;
+	shareData(data: any) {
+		return simpleCall(`${this.baseUrl}/semillas/shareData`, "POST", data);
 	}
 
 	/**
 	 * Obtiene el listado de prestadores traidos desde semillas
 	 */
-	async semillasCredentialsRequest(did: EthrDID, dni: string): ApiResult<{ data: { message: string } }> {
-		const response = await commonServiceRequest("POST", `${semillasUrl}/semillas/credentials`, dataMessageResponse, {
+	async semillasCredentialsRequest(did: EthrDID, dni: string): ApiResult<{ message: string }> {
+		const response = await commonServiceRequest("POST", `${this.baseUrl}/semillas/credentials`, messageResponse, {
 			did: did.did(),
 			dni: dni
 		});
