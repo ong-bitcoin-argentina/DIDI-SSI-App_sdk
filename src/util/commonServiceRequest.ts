@@ -79,7 +79,7 @@ export const simpleCall = (url: string, method: HTTPMethod = "GET", data: any) =
 	};
 	return new Promise((resolve, reject) => {
 		fetch(url, options).then(res => {
-			return res.ok ? res.json() : reject(res);
+			return res.ok ? resolve(res.json()) : reject(res);
 		});
 	});
 };
