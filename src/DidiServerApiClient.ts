@@ -8,7 +8,7 @@ import { CommonServiceRequestError } from "./util/CommonServiceRequestError";
 import { Encryption } from "./crypto/Encryption";
 import { EthrDID } from "./model/EthrDID";
 import { IssuerDescriptor } from "./model/IssuerDescriptor";
-import { Prestador, dataResponse, messageResponse } from "./model/SemillasTypes";
+import { Prestador, dataResponse, messageResponse, SemillasNeedsToValidateDni } from "./model/SemillasTypes";
 
 const log = console.log;
 
@@ -43,6 +43,11 @@ const responseCodecs = {
 		])
 	]),
 
+	validateDniWithSemillas: t.type({
+		message: t.string,
+		data: t.any
+	}),
+
 	issuerName: t.string,
 
 	semillasPrestadores: t.array(
@@ -61,6 +66,7 @@ const responseCodecs = {
 };
 
 export type ValidateDniResponseData = typeof responseCodecs.validateDni._A;
+export type ValidateDniWithSemillasResponseData = typeof responseCodecs.validateDniWithSemillas._A;
 
 export type ApiResult<T> = Promise<Either<CommonServiceRequestError, T>>;
 
@@ -376,6 +382,31 @@ export class DidiServerApiClient {
 			did: did.did(),
 			dni: dni
 		});
+
+		if (isRight(response)) {
+			return right(response.right);
+		}
+		return response;
+	}
+
+	/**
+	 * @param did
+	 * DID del usuario a asociar a este DNI
+	 * @param data
+	 */
+	async validateDniWithSemillas(
+		did: EthrDID,
+		data: SemillasNeedsToValidateDni
+	): ApiResult<ValidateDniWithSemillasResponseData> {
+		const response = await commonServiceRequest(
+			"POST",
+			`${this.baseUrl}/semillas/validateDni`,
+			responseCodecs.validateDniWithSemillas,
+			{
+				did: did.did(),
+				...data
+			}
+		);
 
 		if (isRight(response)) {
 			return right(response.right);
