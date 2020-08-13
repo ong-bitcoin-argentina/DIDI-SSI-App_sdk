@@ -53,11 +53,13 @@ const responseCodecs = {
 	semillasPrestadores: t.array(
 		t.type({
 			id: t.number,
-			benefit: t.string,
-			category: t.string,
+			benefit: t.number,
+			category: t.union([t.string, t.undefined]),
+			email: t.string,
 			name: t.string,
-			speciality: t.union([t.string, t.null]),
-			phone: t.string
+			whatsappNumber: t.string,
+			phone: t.string,
+			speciality: t.union([t.string, t.null])
 		})
 	),
 
