@@ -9,6 +9,14 @@ export interface Prestador {
 	phone: string;
 }
 
+export type SemillasNeedsToValidateDni = {
+	dni: string;
+	email: string;
+	phoneNumber: string;
+	name: string;
+	lastname: string;
+};
+
 export const messageResponse = t.type({
 	message: t.string
 });
