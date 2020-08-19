@@ -8,7 +8,13 @@ import { CommonServiceRequestError } from "./util/CommonServiceRequestError";
 import { Encryption } from "./crypto/Encryption";
 import { EthrDID } from "./model/EthrDID";
 import { IssuerDescriptor } from "./model/IssuerDescriptor";
-import { Prestador, dataResponse, messageResponse, SemillasNeedsToValidateDni } from "./model/SemillasTypes";
+import {
+	Prestador,
+	dataResponse,
+	messageResponse,
+	SemillasNeedsToValidateDni,
+	ShareDataRequest
+} from "./model/SemillasTypes";
 
 const log = console.log;
 
@@ -372,7 +378,7 @@ export class DidiServerApiClient {
 	/**
 	 * Obtiene el listado de prestadores traidos desde semillas
 	 */
-	shareData(data: any) {
+	shareData(data: ShareDataRequest) {
 		return simpleCall(`${this.baseUrl}/semillas/shareData`, "POST", data);
 	}
 
