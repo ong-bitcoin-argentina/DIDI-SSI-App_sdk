@@ -379,7 +379,7 @@ export class DidiServerApiClient {
 	 * Obtiene el listado de prestadores traidos desde semillas
 	 */
 	shareData(data: ShareDataRequest) {
-		return simpleCall(`${this.baseUrl}/semillas/shareData`, "POST", data);
+		return simpleCall(`${this.baseUrl}/semillas/credentialShare`, "POST", data);
 	}
 
 	/**

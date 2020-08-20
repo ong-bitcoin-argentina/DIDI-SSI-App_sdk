@@ -12,10 +12,10 @@ export interface Prestador {
 }
 
 export interface ShareDataRequest {
-	"Dni Beneficiario": string;
+	dni: number;
 	did: string;
 	email: string;
-	phoneNumber: string;
+	phone: string;
 	providerId?: number;
 	customProviderEmail?: string;
 	viewerJWT: string;
