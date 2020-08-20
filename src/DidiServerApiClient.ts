@@ -376,14 +376,14 @@ export class DidiServerApiClient {
 	}
 
 	/**
-	 * Obtiene el listado de prestadores traidos desde semillas
+	 * Comparte datos de titular/familiar para solicitar un prestador
 	 */
 	shareData(data: ShareDataRequest) {
 		return simpleCall(`${this.baseUrl}/semillas/credentialShare`, "POST", data);
 	}
 
 	/**
-	 * Obtiene el listado de prestadores traidos desde semillas
+	 * Solicita las credenciales de semillas
 	 */
 	async semillasCredentialsRequest(did: EthrDID, dni: string): ApiResult<{ message: string }> {
 		const response = await commonServiceRequest("POST", `${this.baseUrl}/semillas/credentials`, messageResponse, {
