@@ -8,7 +8,13 @@ import { CommonServiceRequestError } from "./util/CommonServiceRequestError";
 import { Encryption } from "./crypto/Encryption";
 import { EthrDID } from "./model/EthrDID";
 import { IssuerDescriptor } from "./model/IssuerDescriptor";
-import { Prestador, dataResponse, messageResponse, SemillasNeedsToValidateDni } from "./model/SemillasTypes";
+import {
+	Prestador,
+	dataResponse,
+	messageResponse,
+	SemillasNeedsToValidateDni,
+	ShareDataRequest
+} from "./model/SemillasTypes";
 
 const log = console.log;
 
@@ -370,14 +376,14 @@ export class DidiServerApiClient {
 	}
 
 	/**
-	 * Obtiene el listado de prestadores traidos desde semillas
+	 * Comparte datos de titular/familiar para solicitar un prestador
 	 */
-	shareData(data: any) {
-		return simpleCall(`${this.baseUrl}/semillas/shareData`, "POST", data);
+	shareData(data: ShareDataRequest) {
+		return simpleCall(`${this.baseUrl}/semillas/credentialShare`, "POST", data);
 	}
 
 	/**
-	 * Obtiene el listado de prestadores traidos desde semillas
+	 * Solicita las credenciales de semillas
 	 */
 	async semillasCredentialsRequest(did: EthrDID, dni: string): ApiResult<{ message: string }> {
 		const response = await commonServiceRequest("POST", `${this.baseUrl}/semillas/credentials`, messageResponse, {

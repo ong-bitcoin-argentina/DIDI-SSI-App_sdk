@@ -11,6 +11,16 @@ export interface Prestador {
 	whatsappNumber: string;
 }
 
+export interface ShareDataRequest {
+	dni: number;
+	did: string;
+	email: string;
+	phone: string;
+	providerId?: number;
+	customProviderEmail?: string;
+	viewerJWT: string;
+}
+
 export type SemillasNeedsToValidateDni = {
 	dni: string;
 	email: string;
