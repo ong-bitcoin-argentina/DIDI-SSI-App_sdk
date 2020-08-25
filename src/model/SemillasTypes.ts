@@ -3,12 +3,12 @@ import * as t from "io-ts";
 export interface Prestador {
 	id: number;
 	name: string;
-	benefit: number;
+	benefit?: number;
 	email: string;
 	category?: string;
-	speciality: string | null;
-	phone: string;
-	whatsappNumber: string;
+	speciality?: string;
+	phone?: string;
+	whatsappNumber?: string;
 }
 
 export interface ShareDataRequest {

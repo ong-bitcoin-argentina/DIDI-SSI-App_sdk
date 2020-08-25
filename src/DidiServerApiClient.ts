@@ -56,18 +56,7 @@ const responseCodecs = {
 
 	issuerName: t.string,
 
-	semillasPrestadores: t.array(
-		t.type({
-			id: t.number,
-			benefit: t.number,
-			category: t.union([t.string, t.undefined]),
-			email: t.string,
-			name: t.string,
-			whatsappNumber: t.string,
-			phone: t.string,
-			speciality: t.union([t.string, t.null])
-		})
-	),
+	semillasPrestadores: t.array(t.any),
 
 	dataResponse,
 	messageResponse
