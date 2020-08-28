@@ -71,15 +71,16 @@ export async function commonServiceRequest<A>(
 	}
 }
 
-export const simpleCall = (url: string, method: HTTPMethod = "GET", data: any) => {
+export const simpleCall = async (url: string, method: HTTPMethod = "GET", data: any) => {
 	const options = {
 		headers,
 		method,
 		...(data && { body: JSON.stringify(data) })
 	};
-	return new Promise((resolve, reject) => {
-		fetch(url, options).then(res => {
-			return res.ok ? resolve(res.json()) : reject(res);
-		});
-	});
+	const res = await fetch(url, options);
+	const content = await res.json();
+	if (res.ok) {
+		return content;
+	}
+	throw new Error(content.message);
 };
