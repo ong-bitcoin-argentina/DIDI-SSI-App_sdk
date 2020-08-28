@@ -52,7 +52,7 @@ export class TrustGraphClient {
 		const response = await this.client.query({
 			query: gql`
 			query findEdges($toDID: String, $revoked: Int) {
-				findEdges(toDID: $toDID, revoked: revoked) 
+				findEdges(toDID: $toDID, revoked: $revoked) 
 				{
 					jwt
 					hash
