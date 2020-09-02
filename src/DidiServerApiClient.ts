@@ -49,10 +49,7 @@ const responseCodecs = {
 		])
 	]),
 
-	validateDniWithSemillas: t.type({
-		message: t.string,
-		data: t.any
-	}),
+	validateDniWithSemillas: t.string,
 
 	issuerName: t.string,
 

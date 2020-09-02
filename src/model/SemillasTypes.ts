@@ -24,9 +24,9 @@ export interface ShareDataRequest {
 export type SemillasNeedsToValidateDni = {
 	dni: string;
 	email: string;
-	phoneNumber: string;
+	phone: string;
 	name: string;
-	lastname: string;
+	lastName: string;
 };
 
 export const messageResponse = t.type({
