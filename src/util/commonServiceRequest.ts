@@ -5,7 +5,13 @@ import { JSONObject } from "../util/JSON";
 
 import { CommonServiceRequestError } from "./CommonServiceRequestError";
 
+const log = console.log;
+
 export type HTTPMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+
+const headers = {
+	"Content-Type": "application/json; charset=utf-8"
+};
 
 function userApiWrapperCodec<M extends t.Mixed>(data: M) {
 	return t.union([
@@ -31,12 +37,11 @@ export async function commonServiceRequest<A>(
 	try {
 		response = await fetch(url, {
 			method,
-			headers: {
-				"Content-Type": "application/json; charset=utf-8"
-			},
+			headers,
 			...(method !== "GET" && { body: JSON.stringify(parameters) })
 		});
 	} catch (error) {
+		log(error);
 		return left({ type: "FETCH_ERROR", error });
 	}
 
@@ -44,13 +49,16 @@ export async function commonServiceRequest<A>(
 	try {
 		body = await response.json();
 	} catch (error) {
+		log(error);
 		return left({ type: "JSON_ERROR", error });
 	}
 
 	const decoded = userApiWrapperCodec(dataDecoder).decode(body);
 	if (isLeft(decoded)) {
+		log(decoded.left);
 		return left({ type: "DECODE_ERROR", error: decoded.left });
 	} else if (decoded.right.status === "error") {
+		log(decoded.right);
 		return left({
 			type: "SERVER_ERROR",
 			error: {
@@ -62,3 +70,17 @@ export async function commonServiceRequest<A>(
 		return right(decoded.right.data);
 	}
 }
+
+export const simpleCall = async (url: string, method: HTTPMethod = "GET", data: any) => {
+	const options = {
+		headers,
+		method,
+		...(data && { body: JSON.stringify(data) })
+	};
+	const res = await fetch(url, options);
+	const content = await res.json();
+	if (res.ok) {
+		return content;
+	}
+	throw new Error(content.message);
+};

@@ -2,12 +2,21 @@ import { Either, isLeft, isRight, left, right } from "fp-ts/lib/Either";
 import * as t from "io-ts";
 import Credentials from "uport-credentials/lib/Credentials";
 
-import { commonServiceRequest } from "./util/commonServiceRequest";
+import { commonServiceRequest, simpleCall } from "./util/commonServiceRequest";
 import { CommonServiceRequestError } from "./util/CommonServiceRequestError";
 
 import { Encryption } from "./crypto/Encryption";
 import { EthrDID } from "./model/EthrDID";
 import { IssuerDescriptor } from "./model/IssuerDescriptor";
+import {
+	Prestador,
+	dataResponse,
+	messageResponse,
+	SemillasNeedsToValidateDni,
+	ShareDataRequest
+} from "./model/SemillasTypes";
+
+const log = console.log;
 
 /**
  * Configuracion de DidiServerApiClient
@@ -40,10 +49,18 @@ const responseCodecs = {
 		])
 	]),
 
-	issuerName: t.string
+	validateDniWithSemillas: t.string,
+
+	issuerName: t.string,
+
+	semillasPrestadores: t.array(t.any),
+
+	dataResponse,
+	messageResponse
 };
 
 export type ValidateDniResponseData = typeof responseCodecs.validateDni._A;
+export type ValidateDniWithSemillasResponseData = typeof responseCodecs.validateDniWithSemillas._A;
 
 export type ApiResult<T> = Promise<Either<CommonServiceRequestError, T>>;
 
@@ -121,6 +138,7 @@ export class DidiServerApiClient {
 			}
 		);
 		if (isLeft(response)) {
+			log(response.left);
 			return response;
 		}
 
@@ -128,6 +146,7 @@ export class DidiServerApiClient {
 			const privateKeySeed = await Encryption.decrypt(response.right.privateKeySeed, privateKeyPassword);
 			return right({ privateKeySeed });
 		} catch (error) {
+			log(error);
 			return left({ type: "CRYPTO_ERROR", error });
 		}
 	}
@@ -162,6 +181,7 @@ export class DidiServerApiClient {
 				...(firebaseId ? { firebaseId } : {})
 			});
 		} catch (error) {
+			log(error);
 			return left({ type: "CRYPTO_ERROR", error });
 		}
 	}
@@ -316,9 +336,75 @@ export class DidiServerApiClient {
 		if (isRight(response)) {
 			return right({ did: issuerDid, name: response.right });
 		} else if (response.left.type === "SERVER_ERROR" && response.left.error.errorCode === "IS_INVALID") {
+			log(response.left);
 			return right({ did: issuerDid, name: null });
 		} else {
+			log(response);
 			return response;
 		}
+	}
+
+	/**
+	 * Obtiene el listado de prestadores traidos desde semillas
+	 */
+	async getPrestadores(): ApiResult<{ data: Prestador[] }> {
+		const response = await commonServiceRequest(
+			"GET",
+			`${this.baseUrl}/semillas/prestadores`,
+			responseCodecs.semillasPrestadores,
+			{}
+		);
+
+		if (isRight(response)) {
+			return right({ data: response.right });
+		}
+		return response;
+	}
+
+	/**
+	 * Comparte datos de titular/familiar para solicitar un prestador
+	 */
+	shareData(data: ShareDataRequest) {
+		return simpleCall(`${this.baseUrl}/semillas/credentialShare`, "POST", data);
+	}
+
+	/**
+	 * Solicita las credenciales de semillas
+	 */
+	async semillasCredentialsRequest(did: EthrDID, dni: string): ApiResult<{ message: string }> {
+		const response = await commonServiceRequest("POST", `${this.baseUrl}/semillas/credentials`, messageResponse, {
+			did: did.did(),
+			dni: dni
+		});
+
+		if (isRight(response)) {
+			return right(response.right);
+		}
+		return response;
+	}
+
+	/**
+	 * @param did
+	 * DID del usuario a asociar a este DNI
+	 * @param data
+	 */
+	async validateDniWithSemillas(
+		did: EthrDID,
+		data: SemillasNeedsToValidateDni
+	): ApiResult<ValidateDniWithSemillasResponseData> {
+		const response = await commonServiceRequest(
+			"POST",
+			`${this.baseUrl}/semillas/validateDni`,
+			responseCodecs.validateDniWithSemillas,
+			{
+				did: did.did(),
+				...data
+			}
+		);
+
+		if (isRight(response)) {
+			return right(response.right);
+		}
+		return response;
 	}
 }

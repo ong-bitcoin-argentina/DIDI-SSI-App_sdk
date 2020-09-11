@@ -51,15 +51,17 @@ export class TrustGraphClient {
 	async getJWTs(): Promise<Array<{ jwt: string; hash: string }>> {
 		const response = await this.client.query({
 			query: gql`
-				query findEdges($toDID: String) {
-					findEdges(toDID: $toDID) {
-						jwt
-						hash
-					}
+			query findEdges($toDID: String, $revoked: Int) {
+				findEdges(toDID: $toDID, revoked: $revoked) 
+				{
+					jwt
+					hash
 				}
-			`,
+			}
+		`,
 			variables: {
-				toDID: this.credentials.did
+				toDID: this.credentials.did,
+				revoked: 0
 			}
 		});
 		if (response.errors) {
