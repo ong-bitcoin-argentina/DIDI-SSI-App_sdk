@@ -1,6 +1,7 @@
 {
 	"name": "didi-sdk",
 	"version": "0.0.1",
+	"license": "SEE LICENSE IN LICENSE",
 	"description": "",
 	"main": "index.ts",
 	"types": "dist/index.d.ts",
