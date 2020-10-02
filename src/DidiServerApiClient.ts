@@ -407,4 +407,16 @@ export class DidiServerApiClient {
 		}
 		return response;
 	}
+
+	async userHasRondaAccount(address: string) : ApiResult<any> {
+		const response = await simpleCall(
+			`${this.baseUrl}/userApp/${address}`,
+			"GET",
+			null
+		);
+		if (isRight(response)) {
+			return right(response);
+		}
+		return response;
+	}
 }
