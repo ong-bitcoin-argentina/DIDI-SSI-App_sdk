@@ -167,6 +167,8 @@ export class DidiServerApiClient {
 			phoneNumber: string;
 			password: string;
 			privateKeySeed: string;
+			name: string;
+			lastname: string;
 		},
 		firebaseId?: string
 	): ApiResult<{}> {
@@ -178,6 +180,8 @@ export class DidiServerApiClient {
 				phoneNumber: userData.phoneNumber,
 				password: await Encryption.hash(userData.password),
 				privateKeySeed: encryptedPrivateKeySeed,
+				name: userData.name,
+				lastname: userData.lastname,
 				...(firebaseId ? { firebaseId } : {})
 			});
 		} catch (error) {
@@ -408,12 +412,8 @@ export class DidiServerApiClient {
 		return response;
 	}
 
-	async userHasRondaAccount(address: string) : ApiResult<any> {
-		const response = await simpleCall(
-			`${this.baseUrl}/userApp/${address}`,
-			"GET",
-			null
-		);
+	async userHasRondaAccount(address: string): ApiResult<any> {
+		const response = await simpleCall(`${this.baseUrl}/userApp/${address}`, "GET", null);
 		if (isRight(response)) {
 			return right(response);
 		}
