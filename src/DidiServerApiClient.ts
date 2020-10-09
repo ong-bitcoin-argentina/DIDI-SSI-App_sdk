@@ -50,6 +50,7 @@ const responseCodecs = {
 	]),
 
 	validateDniWithSemillas: t.string,
+	personalData: t.any,
 
 	issuerName: t.string,
 
@@ -61,6 +62,7 @@ const responseCodecs = {
 
 export type ValidateDniResponseData = typeof responseCodecs.validateDni._A;
 export type ValidateDniWithSemillasResponseData = typeof responseCodecs.validateDniWithSemillas._A;
+export type PersonalDataResponseData = typeof responseCodecs.personalData._A;
 
 export type ApiResult<T> = Promise<Either<CommonServiceRequestError, T>>;
 
@@ -412,8 +414,45 @@ export class DidiServerApiClient {
 		return response;
 	}
 
-	async userHasRondaAccount(address: string): ApiResult<any> {
-		const response = await simpleCall(`${this.baseUrl}/userApp/${address}`, "GET", null);
+	/**
+	 * @param did
+	 * DID del usuario a buscar
+	 */
+	async getPersonalData(did: EthrDID, userJWT: string): ApiResult<PersonalDataResponseData> {
+		const response = await commonServiceRequest(
+			"POST",
+			`${this.baseUrl}/user/${did.did()}`,
+			responseCodecs.personalData,
+			{ userJWT }
+		);
+
+		if (isRight(response)) {
+			return right(response.right);
+		}
+		return response;
+	}
+
+	async sendPersonalData(
+		did: EthrDID,
+		name: string,
+		lastname: string,
+		userJWT: string
+	): ApiResult<PersonalDataResponseData> {
+		const response = await commonServiceRequest(
+			"POST",
+			`${this.baseUrl}/user/${did.did()}/edit`,
+			responseCodecs.personalData,
+			{ userJWT, name, lastname }
+		);
+
+		if (isRight(response)) {
+			return right(response.right);
+		}
+		return response;
+	}
+
+	async userHasRondaAccount(did: EthrDID): ApiResult<any> {
+		const response = await simpleCall(`${this.baseUrl}/userApp/${did.did()}`, "GET", null);
 		if (isRight(response)) {
 			return right(response);
 		}
