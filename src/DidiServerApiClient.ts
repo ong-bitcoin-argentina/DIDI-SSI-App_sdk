@@ -416,6 +416,22 @@ export class DidiServerApiClient {
 
 	/**
 	 * @param did
+	 */
+	async getSemillasValidation(did: EthrDID): ApiResult<ValidateDniWithSemillasResponseData> {
+		const response = await commonServiceRequest(
+			"GET",
+			`${this.baseUrl}/semillas/identityValidation/${did.did()}`,
+			responseCodecs.validateDniWithSemillas,
+			{}
+		);
+		if (isRight(response)) {
+			return right(response.right);
+		}
+		return response;
+	}
+
+	/**
+	 * @param did
 	 * DID del usuario a buscar
 	 */
 	async getPersonalData(did: EthrDID, userJWT: string): ApiResult<PersonalDataResponseData> {
