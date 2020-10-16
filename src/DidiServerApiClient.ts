@@ -55,6 +55,7 @@ const responseCodecs = {
 	issuerName: t.string,
 
 	semillasPrestadores: t.array(t.any),
+	semillasIdentityValidation: t.any,
 
 	dataResponse,
 	messageResponse
@@ -62,6 +63,7 @@ const responseCodecs = {
 
 export type ValidateDniResponseData = typeof responseCodecs.validateDni._A;
 export type ValidateDniWithSemillasResponseData = typeof responseCodecs.validateDniWithSemillas._A;
+export type SemillasIdentityValidation = typeof responseCodecs.semillasIdentityValidation._A;
 export type PersonalDataResponseData = typeof responseCodecs.personalData._A;
 
 export type ApiResult<T> = Promise<Either<CommonServiceRequestError, T>>;
@@ -417,11 +419,11 @@ export class DidiServerApiClient {
 	/**
 	 * @param did
 	 */
-	async getSemillasValidation(did: EthrDID): ApiResult<ValidateDniWithSemillasResponseData> {
+	async getSemillasValidation(did: EthrDID): ApiResult<SemillasIdentityValidation> {
 		const response = await commonServiceRequest(
 			"GET",
 			`${this.baseUrl}/semillas/identityValidation/${did.did()}`,
-			responseCodecs.validateDniWithSemillas,
+			responseCodecs.semillasIdentityValidation,
 			{}
 		);
 		if (isRight(response)) {
