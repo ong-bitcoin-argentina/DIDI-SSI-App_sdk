@@ -2,7 +2,7 @@ import { Either, isLeft, isRight, left, right } from "fp-ts/lib/Either";
 import * as t from "io-ts";
 import Credentials from "uport-credentials/lib/Credentials";
 
-import { commonServiceRequest, simpleCall } from "./util/commonServiceRequest";
+import { commonServiceRequest, simpleCall, multipartFormDataRequest } from "./util/commonServiceRequest";
 import { CommonServiceRequestError } from "./util/CommonServiceRequestError";
 
 import { Encryption } from "./crypto/Encryption";
@@ -51,7 +51,7 @@ const responseCodecs = {
 
 	validateDniWithSemillas: t.string,
 	personalData: t.any,
-
+	profileImage: t.any,
 	issuerName: t.string,
 
 	semillasPrestadores: t.array(t.any),
@@ -466,6 +466,24 @@ export class DidiServerApiClient {
 		if (isRight(response)) {
 			return right(response.right);
 		}
+		return response;
+	}
+
+	async sendProfileImage(
+		did: EthrDID,
+		file: any,
+		userJWT: string
+	): ApiResult<PersonalDataResponseData> {
+
+		const response = await multipartFormDataRequest(
+			"POST",
+			`${this.baseUrl}/user/${did.did()}/image`,
+			responseCodecs.profileImage,
+			{ userJWT: userJWT, file: file }
+		);
+
+		console.log('sendProfileImage', response)
+		
 		return response;
 	}
 
