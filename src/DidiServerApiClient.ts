@@ -481,8 +481,6 @@ export class DidiServerApiClient {
 			responseCodecs.profileImage,
 			{ userJWT: userJWT, file: file }
 		);
-
-		console.log('sendProfileImage', response)
 		
 		return response;
 	}
