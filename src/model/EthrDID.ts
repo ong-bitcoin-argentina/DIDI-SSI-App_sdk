@@ -23,9 +23,6 @@ export class EthrDID {
 	 * formada ("0x" + 40 caracteres hexadecimales)
 	 */
 	static fromKeyAddress(address: string): EthrDID {
-		if (address.match("^0x[0-9A-Fa-f]{40}$") === null) {
-			throw new Error(`${address} does not match expected EthrDID address format`);
-		}
 		return new EthrDID(address);
 	}
 
@@ -35,13 +32,9 @@ export class EthrDID {
 	 * ("did:ethr:0x" + 40 caracteres hexadecimales)
 	 */
 	static fromDID(did: string): EthrDID {
-		if (did.match("^did:ethr:0x[0-9A-Fa-f]{40}$") === null) {
-			throw new Error(`${did} does not match expected EthrDID did format`);
-		}
+		const splittedDid = did.split(":");
+		const address = splittedDid.slice(2, 4).join(":");
 
-		const match = did.match("0x[0-9A-Fa-f]{40}");
-		// This has to be here because of the first check
-		const address = match![0];
 		return new EthrDID(address);
 	}
 }

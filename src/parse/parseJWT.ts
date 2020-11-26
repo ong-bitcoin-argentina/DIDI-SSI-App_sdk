@@ -141,6 +141,16 @@ export function unverifiedParseJWT(jwt: string): JWTParseResult {
 	}
 }
 
+type Provider = {
+	name: string;
+	rpcUrl: string;
+	registry: string;
+};
+
+export type ProviderConfig = {
+	networks: Provider[];
+};
+
 interface VerifyTokenServiceConfiguration {
 	identityResolver: {
 		ethrUri: string;
@@ -150,6 +160,7 @@ interface VerifyTokenServiceConfiguration {
 		ethrUri: string;
 		registryAddress?: string;
 	};
+	providerConfig: ProviderConfig;
 	audience: EthrDID | undefined;
 }
 async function verifyToken(
@@ -159,13 +170,8 @@ async function verifyToken(
 ): Promise<Either<JWTParseError, unknown>> {
 	try {
 		try {
-			const ethrDidResolver = getResolver({
-				rpcUrl: services.identityResolver.ethrUri,
-				registry: services.identityResolver.registryAddress
-			});
-			const resolver = new Resolver({
-				...ethrDidResolver
-			});
+			const ethrDidResolver = getResolver(services.providerConfig);
+			const resolver = new Resolver(ethrDidResolver);
 
 			const { payload } =
 				type === "CredentialDocument"
