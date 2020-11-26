@@ -475,11 +475,12 @@ export class DidiServerApiClient {
 		userJWT: string
 	): ApiResult<PersonalDataResponseData> {
 
-		const response = await multipartFormDataRequest(
+		const response = await commonServiceRequest(
 			"POST",
 			`${this.baseUrl}/user/${did.did()}/image`,
 			responseCodecs.profileImage,
-			{ userJWT: userJWT, file: file }
+			{ userJWT: userJWT, file: file },
+			true
 		);
 		
 		return response;

@@ -35,15 +35,31 @@ export async function commonServiceRequest<A>(
 	method: HTTPMethod,
 	url: string,
 	dataDecoder: t.Type<A>,
-	parameters: JSONObject
+	parameters: JSONObject,
+	asFormData: Boolean = false
 ): Promise<Either<CommonServiceRequestError, A>> {
 	let response: Response;
 	try {
-		response = await fetch(url, {
-			method,
-			headers,
-			...(method !== "GET" && { body: JSON.stringify(parameters) })
-		});
+
+		if (asFormData){
+			const formData = new FormData();
+	
+			for (const key in parameters) {
+				formData.append(key, parameters[key])
+			}
+			response = await fetch(url, {
+				method,
+				headers: headersMultipart,
+				body: formData
+			});
+
+		}else{
+			response = await fetch(url, {
+				method,
+				headers,
+				...(method !== "GET" && { body: JSON.stringify(parameters) })
+			});
+		}
 	} catch (error) {
 		log(error);
 		return left({ type: "FETCH_ERROR", error });
@@ -71,7 +87,8 @@ export async function commonServiceRequest<A>(
 			}
 		});
 	} else {
-		return right(decoded.right.data);
+		const data = decoded.right.data ? decoded.right.data : decoded.right
+		return right(data);
 	}
 }
 
@@ -88,52 +105,3 @@ export const simpleCall = async (url: string, method: HTTPMethod = "GET", data: 
 	}
 	throw new Error(content.message);
 };
-
-export async function multipartFormDataRequest <A>(
-	method: HTTPMethod = "POST",
-	url: string,
-	dataDecoder: t.Type<A>,
-	parameters: JSONObject
-): Promise<Either<CommonServiceRequestError, A>>{
-
-	let response: Response;
-	const formData = new FormData();
-	
-	Object.keys(parameters).forEach((key) => (formData.append(key, parameters[key])));
-
-	try {
-		response = await fetch(url, {
-			method,
-			headers: headersMultipart,
-			body: formData
-		});
-	} catch (error) {
-		log(error);
-		return left({ type: "FETCH_ERROR", error });
-	}
-
-	let body: unknown;
-	try {
-		body = await response.json();
-	} catch (error) {
-		log(error);
-		return left({ type: "JSON_ERROR", error });
-	}
-
-	const decoded = userApiWrapperCodec(dataDecoder).decode(body);
-	if (isLeft(decoded)) {
-		log(decoded.left);
-		return left({ type: "DECODE_ERROR", error: decoded.left });
-	} else if (decoded.right.status === "error") {
-		log(decoded.right);
-		return left({
-			type: "SERVER_ERROR",
-			error: {
-				errorCode: decoded.right.errorCode,
-				message: decoded.right.message
-			}
-		});
-	} else {
-		return right(decoded.right);
-	}
-}
