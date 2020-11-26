@@ -13,6 +13,10 @@ const headers = {
 	"Content-Type": "application/json; charset=utf-8"
 };
 
+const headersMultipart = {
+	"Content-Type": "multipart/form-data"
+}
+
 function userApiWrapperCodec<M extends t.Mixed>(data: M) {
 	return t.union([
 		t.type({
@@ -31,15 +35,31 @@ export async function commonServiceRequest<A>(
 	method: HTTPMethod,
 	url: string,
 	dataDecoder: t.Type<A>,
-	parameters: JSONObject
+	parameters: JSONObject,
+	asFormData: Boolean = false
 ): Promise<Either<CommonServiceRequestError, A>> {
 	let response: Response;
 	try {
-		response = await fetch(url, {
-			method,
-			headers,
-			...(method !== "GET" && { body: JSON.stringify(parameters) })
-		});
+
+		if (asFormData){
+			const formData = new FormData();
+	
+			for (const key in parameters) {
+				formData.append(key, parameters[key])
+			}
+			response = await fetch(url, {
+				method,
+				headers: headersMultipart,
+				body: formData
+			});
+
+		}else{
+			response = await fetch(url, {
+				method,
+				headers,
+				...(method !== "GET" && { body: JSON.stringify(parameters) })
+			});
+		}
 	} catch (error) {
 		log(error);
 		return left({ type: "FETCH_ERROR", error });
@@ -67,7 +87,8 @@ export async function commonServiceRequest<A>(
 			}
 		});
 	} else {
-		return right(decoded.right.data);
+		const data = decoded.right.data ? decoded.right.data : decoded.right
+		return right(data);
 	}
 }
 
