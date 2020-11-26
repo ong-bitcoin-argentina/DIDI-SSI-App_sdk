@@ -33,7 +33,7 @@ export class EthrDID {
 	 */
 	static fromDID(did: string): EthrDID {
 		const splittedDid = did.split(":");
-		const address = splittedDid.slice(2, 4).join(":");
+		const address = splittedDid.slice(2).join(":");
 
 		return new EthrDID(address);
 	}
