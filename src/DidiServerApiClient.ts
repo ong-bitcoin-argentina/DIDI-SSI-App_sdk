@@ -2,7 +2,7 @@ import { Either, isLeft, isRight, left, right } from "fp-ts/lib/Either";
 import * as t from "io-ts";
 import Credentials from "uport-credentials/lib/Credentials";
 
-import { commonServiceRequest, simpleCall, multipartFormDataRequest } from "./util/commonServiceRequest";
+import { commonServiceRequest, simpleCall } from "./util/commonServiceRequest";
 import { CommonServiceRequestError } from "./util/CommonServiceRequestError";
 
 import { Encryption } from "./crypto/Encryption";
@@ -56,6 +56,7 @@ const responseCodecs = {
 
 	semillasPrestadores: t.array(t.any),
 	semillasIdentityValidation: t.any,
+	saveShareRequest: t.any,
 
 	dataResponse,
 	messageResponse
@@ -469,12 +470,7 @@ export class DidiServerApiClient {
 		return response;
 	}
 
-	async sendProfileImage(
-		did: EthrDID,
-		file: any,
-		userJWT: string
-	): ApiResult<PersonalDataResponseData> {
-
+	async sendProfileImage(did: EthrDID, file: any, userJWT: string): ApiResult<PersonalDataResponseData> {
 		const response = await commonServiceRequest(
 			"POST",
 			`${this.baseUrl}/user/${did.did()}/image`,
@@ -482,7 +478,7 @@ export class DidiServerApiClient {
 			{ userJWT: userJWT, file: file },
 			true
 		);
-		
+
 		return response;
 	}
 
@@ -492,5 +488,13 @@ export class DidiServerApiClient {
 			return right(response);
 		}
 		return response;
+	}
+
+	/**
+	 * @param sharingJWT
+	 * JWT de las credenciales del usuario que "quiere compartir"
+	 */
+	async saveShareRequest(userJWT: string, sharingJWT: string): ApiResult<any> {
+		return await simpleCall(`${this.baseUrl}/shareRequest`, "POST", { userJWT, jwt: sharingJWT });
 	}
 }
