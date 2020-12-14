@@ -52,6 +52,7 @@ const responseCodecs = {
 	validateDniWithSemillas: t.string,
 	personalData: t.any,
 	profileImage: t.any,
+	presentation: t.any,
 	issuerName: t.string,
 
 	semillasPrestadores: t.array(t.any),
@@ -489,6 +490,23 @@ export class DidiServerApiClient {
 		}
 		return response;
 	}
+
+	async savePresentation(
+		jwts: any
+	): ApiResult<any> {
+
+		const response = await commonServiceRequest(
+			"POST",
+			`${this.baseUrl}/presentation`,
+			responseCodecs.presentation,
+			{ jwts }
+		);
+		
+		if (isRight(response)) {
+			return right(response);
+		}
+		return response;
+  }
 
 	/**
 	 * @param sharingJWT
