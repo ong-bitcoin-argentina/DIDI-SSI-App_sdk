@@ -92,13 +92,18 @@ export async function commonServiceRequest<A>(
 	}
 }
 
-export const simpleCall = async (url: string, method: HTTPMethod = "GET", data: any) => {
+export const simpleCall = async (url: string, method: HTTPMethod = "GET", data: any, responseIsText: Boolean = false) => {
 	const options = {
 		headers,
 		method,
-		...(data && { body: JSON.stringify(data) })
+		...(method !== "GET" && { body: JSON.stringify(data) })
 	};
 	const res = await fetch(url, options);
+
+	if (responseIsText){
+		return res.text();
+	}
+	
 	const content = await res.json();
 	if (res.ok) {
 		return content;

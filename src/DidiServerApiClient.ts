@@ -515,4 +515,10 @@ export class DidiServerApiClient {
 	async saveShareRequest(userJWT: string, sharingJWT: string): ApiResult<any> {
 		return await simpleCall(`${this.baseUrl}/shareRequest`, "POST", { userJWT, jwt: sharingJWT });
 	}
+
+	async getShareRequestFromServer(token: string, idShareRequest: string): ApiResult<any> {
+		const response = await simpleCall(`${this.baseUrl}/shareRequest/${idShareRequest}`, "POST", { userJWT: token}, true);
+
+		return response;
+	};
 }
