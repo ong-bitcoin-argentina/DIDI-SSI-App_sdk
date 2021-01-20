@@ -107,39 +107,16 @@ function selectOwnClaims(
 	return { ownClaims, missingRequired };
 }
 
-function matchesIssuerSelector(document: CredentialDocument, selector?: VerifiableSpecIssuerSelector): boolean {
-	if (selector === undefined) {
-		return true;
-	}
-
-	return selector.find(sel => sel.did.did() === document.issuer.did()) !== undefined;
-}
-
 function selectVerifiedClaims(
 	ownDid: EthrDID,
-	request: SelectiveDisclosureRequest,
-	documents: CredentialDocument[]
+	selectedDocuments: CredentialDocument[]
 ): { verifiedClaims: CredentialDocument[]; missingRequired: string[] } {
-	const verifiedClaims: CredentialDocument[] = [];
-	const missingRequired: string[] = [];
+	let missingRequired: string[] = [];
 
-	Object.entries(request.verifiedClaims).forEach(([title, selector]) => {
-		const candidates = documents
-			.filter(doc => doc.subject.did() === ownDid.did())
-			.map(doc => [doc, ...doc.nested])
-			.reduce((acc, curr) => [...acc, ...curr], []);
-		const selected = candidates.find(
-			document =>
-				title === document.title &&
-				(selector.jwt === undefined || selector.jwt === document.jwt) &&
-				matchesIssuerSelector(document, selector.iss)
-		);
-		if (selected) {
-			verifiedClaims.push(selected);
-		} else if (selector.essential) {
-			missingRequired.push(title);
-		}
-	});
+	const verifiedClaims: CredentialDocument[] = selectedDocuments
+		.filter(doc => doc.subject.did() === ownDid.did())
+		.map(doc => [doc, ...doc.nested])
+		.reduce((acc, curr) => [...acc, ...curr], []);
 
 	return { verifiedClaims, missingRequired };
 }
@@ -154,10 +131,10 @@ export const SelectiveDisclosureResponse = {
 	getResponseClaims(
 		ownDid: EthrDID,
 		request: SelectiveDisclosureRequest,
-		documents: CredentialDocument[],
+		selectedDocuments: CredentialDocument[],
 		identity: Identity
 	): { missingRequired: string[]; ownClaims: ClaimData; verifiedClaims: CredentialDocument[] } {
-		const verified = selectVerifiedClaims(ownDid, request, documents);
+		const verified = selectVerifiedClaims(ownDid, selectedDocuments);
 		const own = selectOwnClaims(request, identity);
 
 		return {
