@@ -213,10 +213,12 @@ export class DidiServerApiClient {
 		idCheck?: {
 			did: EthrDID;
 			password: string;
-		}
+		},
+		unique: boolean = true
 	): ApiResult<{}> {
 		return commonServiceRequest("POST", `${this.baseUrl}/sendSmsValidator`, responseCodecs.empty, {
 			cellPhoneNumber,
+			unique,
 			...(idCheck && {
 				did: idCheck.did.did(),
 				password: await Encryption.hash(idCheck.password)
@@ -236,14 +238,16 @@ export class DidiServerApiClient {
 	 * })
 	 */
 	async sendMailValidator(
-		email: string,
+		eMail: string,
 		idCheck?: {
 			did: EthrDID;
 			password: string;
-		}
+		},
+		unique: boolean = false
 	): ApiResult<{}> {
 		return commonServiceRequest("POST", `${this.baseUrl}/sendMailValidator`, responseCodecs.empty, {
-			eMail: email,
+			eMail,
+			unique,
 			...(idCheck && {
 				did: idCheck.did.did(),
 				password: await Encryption.hash(idCheck.password)
@@ -491,22 +495,16 @@ export class DidiServerApiClient {
 		return response;
 	}
 
-	async savePresentation(
-		jwts: any
-	): ApiResult<any> {
+	async savePresentation(jwts: any): ApiResult<any> {
+		const response = await commonServiceRequest("POST", `${this.baseUrl}/presentation`, responseCodecs.presentation, {
+			jwts
+		});
 
-		const response = await commonServiceRequest(
-			"POST",
-			`${this.baseUrl}/presentation`,
-			responseCodecs.presentation,
-			{ jwts }
-		);
-		
 		if (isRight(response)) {
 			return right(response);
 		}
 		return response;
-  }
+	}
 
 	/**
 	 * @param sharingJWT
@@ -517,8 +515,13 @@ export class DidiServerApiClient {
 	}
 
 	async getShareRequestFromServer(token: string, idShareRequest: string): ApiResult<any> {
-		const response = await simpleCall(`${this.baseUrl}/shareRequest/${idShareRequest}`, "POST", { userJWT: token}, true);
+		const response = await simpleCall(
+			`${this.baseUrl}/shareRequest/${idShareRequest}`,
+			"POST",
+			{ userJWT: token },
+			true
+		);
 
 		return response;
-	};
+	}
 }
