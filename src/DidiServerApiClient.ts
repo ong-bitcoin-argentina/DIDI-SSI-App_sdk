@@ -213,10 +213,12 @@ export class DidiServerApiClient {
 		idCheck?: {
 			did: EthrDID;
 			password: string;
-		}
+		},
+		unique: boolean = true
 	): ApiResult<{}> {
 		return commonServiceRequest("POST", `${this.baseUrl}/sendSmsValidator`, responseCodecs.empty, {
 			cellPhoneNumber,
+			unique,
 			...(idCheck && {
 				did: idCheck.did.did(),
 				password: await Encryption.hash(idCheck.password)
@@ -236,14 +238,16 @@ export class DidiServerApiClient {
 	 * })
 	 */
 	async sendMailValidator(
-		email: string,
+		eMail: string,
 		idCheck?: {
 			did: EthrDID;
 			password: string;
-		}
+		},
+		unique: boolean = false
 	): ApiResult<{}> {
 		return commonServiceRequest("POST", `${this.baseUrl}/sendMailValidator`, responseCodecs.empty, {
-			eMail: email,
+			eMail,
+			unique,
 			...(idCheck && {
 				did: idCheck.did.did(),
 				password: await Encryption.hash(idCheck.password)
