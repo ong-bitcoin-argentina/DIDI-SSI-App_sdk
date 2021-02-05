@@ -440,7 +440,7 @@ export class DidiServerApiClient {
 	 */
 	async getPersonalData(did: EthrDID, userJWT: string): ApiResult<PersonalDataResponseData> {
 		const response = await commonServiceRequest(
-			"POST",
+			"GET",
 			`${this.baseUrl}/user/${did.did()}`,
 			responseCodecs.personalData,
 			{ userJWT }
@@ -491,22 +491,16 @@ export class DidiServerApiClient {
 		return response;
 	}
 
-	async savePresentation(
-		jwts: any
-	): ApiResult<any> {
+	async savePresentation(jwts: any): ApiResult<any> {
+		const response = await commonServiceRequest("POST", `${this.baseUrl}/presentation`, responseCodecs.presentation, {
+			jwts
+		});
 
-		const response = await commonServiceRequest(
-			"POST",
-			`${this.baseUrl}/presentation`,
-			responseCodecs.presentation,
-			{ jwts }
-		);
-		
 		if (isRight(response)) {
 			return right(response);
 		}
 		return response;
-  }
+	}
 
 	/**
 	 * @param sharingJWT
@@ -517,8 +511,13 @@ export class DidiServerApiClient {
 	}
 
 	async getShareRequestFromServer(token: string, idShareRequest: string): ApiResult<any> {
-		const response = await simpleCall(`${this.baseUrl}/shareRequest/${idShareRequest}`, "POST", { userJWT: token}, true);
+		const response = await simpleCall(
+			`${this.baseUrl}/shareRequest/${idShareRequest}`,
+			"POST",
+			{ userJWT: token },
+			true
+		);
 
 		return response;
-	};
+	}
 }
