@@ -386,7 +386,7 @@ export class DidiServerApiClient {
 	 * Solicita las credenciales de semillas
 	 */
 	async semillasCredentialsRequest(did: EthrDID, dni: string): ApiResult<{ message: string }> {
-		const response = await commonServiceRequest("POST", `${this.baseUrl}/semillas/credentials`, messageResponse, {
+		const response = await commonServiceRequest("POST", `${this.baseUrl}/semillas/notifyDniDid`, messageResponse, {
 			did: did.did(),
 			dni: dni
 		});
