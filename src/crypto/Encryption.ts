@@ -1,15 +1,14 @@
 import * as aesjs from "aes-js";
 import * as bcrypt from "react-native-bcrypt";
 
-const HASH_SALT = "***REMOVED***";
 const KEYLEN = 32;
 
 /**
  * Calcula el hash bcrypt de su argumento usando una sal predeterminada
  */
-async function hash(message: string): Promise<string> {
+async function hash(message: string, hash_salt: string): Promise<string> {
 	return new Promise((resolve, reject) => {
-		bcrypt.hash(message, HASH_SALT, (error?: Error, result?: string) => {
+		bcrypt.hash(message, hash_salt, (error?: Error, result?: string) => {
 			if (error) {
 				reject(error);
 			} else {
@@ -20,7 +19,7 @@ async function hash(message: string): Promise<string> {
 }
 
 async function cipherFor(password: string): Promise<aesjs.ModeOfOperation.ModeOfOperationCTR> {
-	const hashed = await hash(password);
+	const hashed = await hash(password, password);
 	const [empty, type, rounds, offBaseKey] = hashed.split("$");
 	const key = bcrypt.decodeBase64(offBaseKey, KEYLEN);
 	return new aesjs.ModeOfOperation.ctr(key);
