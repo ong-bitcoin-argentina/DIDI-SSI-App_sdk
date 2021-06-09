@@ -57,7 +57,7 @@ export async function commonServiceRequest<A>(
 			response = await fetch(url, {
 				method,
 				headers,
-				...({ body: JSON.stringify(parameters) })
+				...(method !== "GET" && { body: JSON.stringify(parameters) })
 			});
 		}
 	} catch (error) {
