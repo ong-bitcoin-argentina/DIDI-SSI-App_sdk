@@ -457,7 +457,7 @@ export class DidiServerApiClient {
 	 */
 	async getPersonalData(did: EthrDID, userJWT: string): ApiResult<PersonalDataResponseData> {
 		const response = await commonServiceRequest(
-			"GET",
+			"POST",
 			`${this.baseUrl}/user/${did.did()}`,
 			responseCodecs.personalData,
 			{ userJWT }
