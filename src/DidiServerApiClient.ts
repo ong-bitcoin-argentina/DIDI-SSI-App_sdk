@@ -52,12 +52,15 @@ const responseCodecs = {
 	validateDniWithSemillas: t.string,
 	personalData: t.any,
 	profileImage: t.any,
+	issuerImage: t.any,
 	presentation: t.any,
 	issuerName: t.string,
 
 	semillasPrestadores: t.array(t.any),
 	semillasIdentityValidation: t.any,
 	saveShareRequest: t.any,
+
+	issuers: t.array(t.any),
 
 	dataResponse,
 	messageResponse
@@ -99,8 +102,8 @@ export class DidiServerApiClient {
 	}
 
 	async changePassword(
-		did: EthrDID, 
-		oldPassword: string, 
+		did: EthrDID,
+		oldPassword: string,
 		newPassword: string
 	): ApiResult<{}> {
 		return commonServiceRequest("POST", `${this.baseUrl}/changePassword`, responseCodecs.empty, {
@@ -163,8 +166,8 @@ export class DidiServerApiClient {
 	}
 
 	async recoverPassword(
-		email: string, 
-		validationCode: string, 
+		email: string,
+		validationCode: string,
 		newPassword: string
 	): ApiResult<{}> {
 		return commonServiceRequest("POST", `${this.baseUrl}/recoverPassword`, responseCodecs.empty, {
@@ -264,9 +267,9 @@ export class DidiServerApiClient {
 	}
 
 	async userLogin(
-		did: EthrDID, 
-		email: string, 
-		password: string, 
+		did: EthrDID,
+		email: string,
+		password: string,
 		firebaseId?: string
 	): ApiResult<{}> {
 		return commonServiceRequest("POST", `${this.baseUrl}/userLogin`, responseCodecs.empty, {
@@ -534,6 +537,24 @@ export class DidiServerApiClient {
 			{ userJWT: token },
 			true
 		);
+
+		return response;
+	}
+
+	/**
+	 * Obtiene el listado de los Issuers
+	 */
+	async getIssuers(limit: number = 0, page: number = 0): ApiResult<{ data: IssuerDescriptor[] }> {
+		const response = await commonServiceRequest(
+			"GET",
+			`${this.baseUrl}/issuer/list?limit=${limit}&page=${page}'`,
+			responseCodecs.issuers,
+			{}
+		);
+
+		if (isRight(response)) {
+			return right({ data: response.right });
+		}
 
 		return response;
 	}
