@@ -7,7 +7,7 @@ import { CommonServiceRequestError } from "./util/CommonServiceRequestError";
 
 import { Encryption } from "./crypto/Encryption";
 import { EthrDID } from "./model/EthrDID";
-import { IssuerDescriptor } from "./model/IssuerDescriptor";
+import { IssuerDescriptor, IssuersDescriptor } from "./model/IssuerDescriptor";
 import {
 	Prestador,
 	dataResponse,
@@ -60,7 +60,7 @@ const responseCodecs = {
 	semillasIdentityValidation: t.any,
 	saveShareRequest: t.any,
 
-	issuers: t.array(t.any),
+	issuers: t.any,
 
 	dataResponse,
 	messageResponse
@@ -544,7 +544,7 @@ export class DidiServerApiClient {
 	/**
 	 * Obtiene el listado de los Issuers
 	 */
-	async getIssuers(limit: number = 0, page: number = 0): ApiResult<{ data: IssuerDescriptor[] }> {
+	async getIssuers(limit: number = 0, page: number = 0): ApiResult<{ data: IssuersDescriptor }> {
 		const response = await commonServiceRequest(
 			"GET",
 			`${this.baseUrl}/issuer/list?limit=${limit}&page=${page}'`,
