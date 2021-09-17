@@ -5,7 +5,7 @@ export interface IssuerDescriptor {
 	name: string | null;
 	description?: string;
 	imageUrl?: string;
-	imageId?: string;
+	expireOn?: Date;
 }
 
 export interface IssuersDescriptor {

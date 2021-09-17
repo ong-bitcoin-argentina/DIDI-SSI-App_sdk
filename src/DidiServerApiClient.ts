@@ -54,7 +54,7 @@ const responseCodecs = {
 	profileImage: t.any,
 	issuerImage: t.any,
 	presentation: t.any,
-	issuerName: t.string,
+	issuerName: t.any,
 
 	semillasPrestadores: t.array(t.any),
 	semillasIdentityValidation: t.any,
@@ -364,7 +364,7 @@ export class DidiServerApiClient {
 
 		// Distinguish between failure and a successfully received absence of a name
 		if (isRight(response)) {
-			return right({ did: issuerDid, name: response.right });
+			return right({ did: issuerDid, name: response.right.name });
 		} else if (response.left.type === "SERVER_ERROR" && response.left.error.errorCode === "IS_INVALID") {
 			log(response.left);
 			return right({ did: issuerDid, name: null });
