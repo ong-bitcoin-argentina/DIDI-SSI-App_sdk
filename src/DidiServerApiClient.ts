@@ -54,7 +54,13 @@ const responseCodecs = {
 	profileImage: t.any,
 	issuerImage: t.any,
 	presentation: t.any,
-	issuerName: t.any,
+	issuerName: t.type({
+		did: t.string,
+		name: t.string,
+		description: t.union([ t.string, t.null ]),
+		imageUrl: t.union([ t.string, t.undefined ]),
+		expireOn: t.union([ t.string, t.null ]),
+	}),
 
 	semillasPrestadores: t.array(t.any),
 	semillasIdentityValidation: t.any,
