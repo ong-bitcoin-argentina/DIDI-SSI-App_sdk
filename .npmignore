@@ -1,0 +1,15 @@
+node_modules
+__tests__
+coverage
+
+.env
+.czrc                                             
+.env.enc                                          
+.env.example                                      
+.eslintrc.js                                      
+.nvmrc                                            
+.prettierrc                                       
+.travis.yml 
+jest.config.js
+prettier.config.js
+import-sorter.json 
