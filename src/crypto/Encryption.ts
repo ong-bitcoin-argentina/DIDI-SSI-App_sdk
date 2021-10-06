@@ -6,12 +6,14 @@ const KEYLEN = 32;
 /**
  * Calcula el hash bcrypt de su argumento usando una sal predeterminada
  */
+// tslint:disable-next-line: variable-name
 async function hash(message: string, hash_salt: string): Promise<string> {
 	return new Promise((resolve, reject) => {
 		bcrypt.hash(message, hash_salt, (error?: Error, result?: string) => {
 			if (error) {
 				reject(error);
 			} else {
+				// @ts-ignore
 				resolve(result);
 			}
 		});
