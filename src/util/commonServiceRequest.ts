@@ -88,6 +88,7 @@ export async function commonServiceRequest<A>(
 		});
 	} else {
 		const data = decoded.right.data ? decoded.right.data : decoded.right
+		// @ts-ignore
 		return right(data);
 	}
 }
