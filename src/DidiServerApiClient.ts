@@ -8,6 +8,7 @@ import { CommonServiceRequestError } from "./util/CommonServiceRequestError";
 import { Encryption } from "./crypto/Encryption";
 import { EthrDID } from "./model/EthrDID";
 import { IssuerDescriptor, IssuersDescriptor } from "./model/IssuerDescriptor";
+import { ApiInfo } from "./model/apiInfo";
 import {
 	Prestador,
 	dataResponse,
@@ -24,7 +25,7 @@ const log = console.log;
 export interface DidiServerApiClientConfiguration {
 	/**
 	 * URI de la instancia de didi-server a usar
-	 * @example "http://didi.example.com/api/1.0/didi"
+	 * @example "http://api.didi.example.com/"
 	 */
 	didiServerUri: string;
 }
@@ -54,6 +55,12 @@ const responseCodecs = {
 	profileImage: t.any,
 	issuerImage: t.any,
 	presentation: t.any,
+	getApiInfo: t.type({
+		aidiVersion: t.string,
+		environment: t.string,
+		name: t.string,
+		version: t.string,
+	}),
 	issuerName: t.type({
 		did: t.string,
 		name: t.string,
@@ -354,6 +361,13 @@ export class DidiServerApiClient {
 			cellPhoneNumber: phoneNumber
 		});
 	}
+
+	/**
+	 * Hace un llamado a la ruta base de la api y devuelve la info del didi-server
+	 */
+		async getApiVersion(): ApiResult<ApiInfo> {
+			return commonServiceRequest("GET", `${this.baseUrl}/`, responseCodecs.getApiInfo, {})
+		}
 
 	/**
 	 * Obtiene datos registrados sobre un emisor de credenciales
