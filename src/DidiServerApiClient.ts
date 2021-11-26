@@ -56,6 +56,7 @@ const responseCodecs = {
 	issuerImage: t.any,
 	presentation: t.any,
 	getApiInfo: t.type({
+		aidiVersion: t.string,
 		environment: t.string,
 		name: t.string,
 		version: t.string,
