@@ -362,7 +362,7 @@ export class DidiServerApiClient {
 	}
 
 	/**
-	 * Hace un llamado a la ruta base de la api y devuelve su versión
+	 * Hace un llamado a la ruta base de la api y devuelve la info del didi-server
 	 */
 		async getApiVersion(): ApiResult<ApiInfo> {
 			return commonServiceRequest("GET", `${this.baseUrl}/`, responseCodecs.getApiInfo, {})
