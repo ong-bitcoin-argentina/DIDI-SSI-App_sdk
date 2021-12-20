@@ -22,7 +22,7 @@ async function hash(message: string, hash_salt: string): Promise<string> {
 
 async function cipherFor(password: string): Promise<aesjs.ModeOfOperation.ModeOfOperationCTR> {
 	const hashed = await hash(password, password);
-	const [empty, type, rounds, offBaseKey] = hashed.split("$");
+	const [offBaseKey] = hashed.split("$");
 	const key = bcrypt.decodeBase64(offBaseKey, KEYLEN);
 	return new aesjs.ModeOfOperation.ctr(key);
 }
