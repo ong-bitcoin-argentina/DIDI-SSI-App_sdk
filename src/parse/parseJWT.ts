@@ -3,12 +3,11 @@ import { verifyCredential } from "did-jwt-vc";
 import { Resolver } from "did-resolver";
 import { getResolver } from "ethr-did-resolver";
 import { array } from "fp-ts/lib/Array";
-import { Either, either, isLeft, isRight, left, right } from "fp-ts/lib/Either";
+import { Either, either, isLeft, left, right } from "fp-ts/lib/Either";
 import * as t from "io-ts";
 import JWTDecode from "jwt-decode";
 
 import TypedArray from "../util/TypedArray";
-import { DidiDocumentCodec } from "./packets/common/DidiDocumentCodec";
 
 import { SelectiveDisclosureProposal } from "../disclosure/SelectiveDisclosureProposal";
 import { SelectiveDisclosureRequest } from "../disclosure/SelectiveDisclosureRequest";

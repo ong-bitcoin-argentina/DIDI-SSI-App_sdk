@@ -1,7 +1,5 @@
 import Credentials from "uport-credentials/lib/Credentials";
 
-import { VerifiableSpecIssuerSelector } from "./common/SelectiveDisclosureSpecs";
-
 import { ClaimData } from "../model/Claim";
 import { CredentialDocument } from "../model/CredentialDocument";
 import { DidiDocument } from "../model/DidiDocument";
