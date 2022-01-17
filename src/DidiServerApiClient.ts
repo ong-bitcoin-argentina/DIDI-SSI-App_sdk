@@ -76,13 +76,26 @@ const responseCodecs = {
 	issuers: t.any,
 
 	dataResponse,
-	messageResponse
+	messageResponse,
+	newOperation: t.type({
+		code: t.number,
+		message: t.string,
+		operationId: t.number
+	}),
 };
+
+// {
+//     "code": 901,
+//     "message": "New operation created",
+//     "operationId": 1,
+//     "operationGuid": "b888c80c-5b95-433b-85e5-f2bf6fbd94c6",
+// }
 
 export type ValidateDniResponseData = typeof responseCodecs.validateDni._A;
 export type ValidateDniWithSemillasResponseData = typeof responseCodecs.validateDniWithSemillas._A;
 export type SemillasIdentityValidation = typeof responseCodecs.semillasIdentityValidation._A;
 export type PersonalDataResponseData = typeof responseCodecs.personalData._A;
+export type NewOperation = typeof responseCodecs.newOperation._A; 
 
 export type ApiResult<T> = Promise<Either<CommonServiceRequestError, T>>;
 
@@ -578,4 +591,31 @@ export class DidiServerApiClient {
 
 		return response;
 	}
+
+	/**
+	* Hace un llamado a la ruta base de la api y devuelve la info del DIDI-SSI-identity-issuer NEW OPERATION
+	*/
+	async NewOperation(
+		userName: string,
+		ipAddress: string,
+		deviceHash: string,
+		rooted: boolean,
+		applicationVersion: string,
+		operativeSystem: string,
+		operativeSystemVersion: string,
+		deviceManufacturer: string,
+		deviceName: string,
+		): ApiResult<NewOperation> {
+			return commonServiceRequest("POST", `${this.baseUrl}/onboarding/newOperation`, responseCodecs.newOperation, {
+				userName,
+				ipAddress,
+				deviceHash,
+				rooted,
+				applicationVersion,
+				operativeSystem,
+				operativeSystemVersion,
+				deviceManufacturer,
+				deviceName,
+			});
+		}
 }
