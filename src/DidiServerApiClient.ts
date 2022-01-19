@@ -1,621 +1,586 @@
-import { Either, isLeft, isRight, left, right } from "fp-ts/lib/Either";
-import * as t from "io-ts";
-import Credentials from "uport-credentials/lib/Credentials";
-
-import { commonServiceRequest, simpleCall } from "./util/commonServiceRequest";
-import { CommonServiceRequestError } from "./util/CommonServiceRequestError";
-
-import { Encryption } from "./crypto/Encryption";
-import { EthrDID } from "./model/EthrDID";
-import { IssuerDescriptor, IssuersDescriptor } from "./model/IssuerDescriptor";
-import { ApiInfo } from "./model/apiInfo";
-import {
-	Prestador,
-	dataResponse,
-	messageResponse,
-	SemillasNeedsToValidateDni,
-	ShareDataRequest
-} from "./model/SemillasTypes";
-
-const log = console.log;
-
-/**
- * Configuracion de DidiServerApiClient
- */
-export interface DidiServerApiClientConfiguration {
+	import { Either, isLeft, isRight, left, right } from "fp-ts/lib/Either";
+	import * as t from "io-ts";
+	import Credentials from "uport-credentials/lib/Credentials";
+	
+	import { commonServiceRequest, simpleCall } from "./util/commonServiceRequest";
+	import { CommonServiceRequestError } from "./util/CommonServiceRequestError";
+	
+	import { Encryption } from "./crypto/Encryption";
+	import { EthrDID } from "./model/EthrDID";
+	import { IssuerDescriptor, IssuersDescriptor } from "./model/IssuerDescriptor";
+	import { ApiInfo } from "./model/apiInfo";
+    import { VUSecurityApiClient } from './VUSecurityApiClient';
+	import {
+		Prestador,
+		dataResponse,
+		messageResponse,
+		SemillasNeedsToValidateDni,
+		ShareDataRequest
+	} from "./model/SemillasTypes";
+	
+	const log = console.log;
+	
 	/**
-	 * URI de la instancia de didi-server a usar
-	 * @example "http://api.didi.example.com/"
+	 * Configuracion de DidiServerApiClient
 	 */
-	didiServerUri: string;
-}
-
-const responseCodecs = {
-	empty: t.type({}),
-
-	singleCertificate: t.type({
-		certificate: t.string
-	}),
-
-	accountRecovery: t.type({
-		privateKeySeed: t.string
-	}),
-
-	validateDni: t.union([
-		t.type({ operationId: t.string, status: t.literal("In Progress") }),
-		t.type({ operationId: t.string, status: t.literal("Successful") }),
-		t.intersection([
-			t.type({ operationId: t.string, status: t.literal("Falied") }),
-			t.partial({ errorMessage: t.string })
-		])
-	]),
-
-	validateDniWithSemillas: t.string,
-	personalData: t.any,
-	profileImage: t.any,
-	issuerImage: t.any,
-	presentation: t.any,
-	getApiInfo: t.type({
-		aidiVersion: t.string,
-		environment: t.string,
-		name: t.string,
-		version: t.string,
-	}),
-	issuerName: t.type({
-		did: t.string,
-		name: t.string,
-		description: t.union([ t.string, t.null ]),
-		imageUrl: t.union([ t.string, t.undefined ]),
-		expireOn: t.union([ t.string, t.null ]),
-	}),
-
-	semillasPrestadores: t.array(t.any),
-	semillasIdentityValidation: t.any,
-	saveShareRequest: t.any,
-
-	issuers: t.any,
-
-	dataResponse,
-	messageResponse,
-	newOperation: t.type({
-		code: t.number,
-		message: t.string,
-		operationId: t.number
-	}),
-};
-
-// {
-//     "code": 901,
-//     "message": "New operation created",
-//     "operationId": 1,
-//     "operationGuid": "b888c80c-5b95-433b-85e5-f2bf6fbd94c6",
-// }
-
-export type ValidateDniResponseData = typeof responseCodecs.validateDni._A;
-export type ValidateDniWithSemillasResponseData = typeof responseCodecs.validateDniWithSemillas._A;
-export type SemillasIdentityValidation = typeof responseCodecs.semillasIdentityValidation._A;
-export type PersonalDataResponseData = typeof responseCodecs.personalData._A;
-export type NewOperation = typeof responseCodecs.newOperation._A; 
-
-export type ApiResult<T> = Promise<Either<CommonServiceRequestError, T>>;
-
-/**
- * Cliente del servidor didi-server, el cual contiene la base de datos de
- * usuarios, emite credenciales relacionadas y contiene el registro de emisores
- * conocidos.
- */
-export class DidiServerApiClient {
-	private baseUrl: string;
-	private privateKeyPassword: string;
-
-	constructor(config: DidiServerApiClientConfiguration, privateKey: string) {
-		this.baseUrl = config.didiServerUri;
-		this.privateKeyPassword = privateKey;
+	export interface DidiServerApiClientConfiguration {
+		/**
+		 * URI de la instancia de didi-server a usar
+		 * @example "http://api.didi.example.com/"
+		 */
+		didiServerUri: string;
 	}
-
-	async changeEmail(
-		did: EthrDID,
-		validationCode: string,
-		newEmail: string,
-		password: string
-	): ApiResult<{ certificate: string }> {
-		return commonServiceRequest("POST", `${this.baseUrl}/changeEmail`, responseCodecs.singleCertificate, {
-			did: did.did(),
-			eMailValidationCode: validationCode,
-			newEMail: newEmail,
-			password: await Encryption.hash(password, this.privateKeyPassword)
-		});
-	}
-
-	async changePassword(
-		did: EthrDID,
-		oldPassword: string,
-		newPassword: string
-	): ApiResult<{}> {
-		return commonServiceRequest("POST", `${this.baseUrl}/changePassword`, responseCodecs.empty, {
-			did: did.did(),
-			oldPass: await Encryption.hash(oldPassword, this.privateKeyPassword),
-			newPass: await Encryption.hash(newPassword, this.privateKeyPassword)
-		});
-	}
-
-	async changePhoneNumber(
-		did: EthrDID,
-		validationCode: string,
-		newPhoneNumber: string,
-		password: string,
-		firebaseId?: string
-	): ApiResult<{ certificate: string }> {
-		return commonServiceRequest("POST", `${this.baseUrl}/changePhoneNumber`, responseCodecs.singleCertificate, {
-			did: did.did(),
-			phoneValidationCode: validationCode,
-			newPhoneNumber,
-			password: await Encryption.hash(password, this.privateKeyPassword),
-			...(firebaseId ? { firebaseId } : {})
-		});
-	}
-
-	async checkValidateDni(did: EthrDID, operationId: string): ApiResult<ValidateDniResponseData> {
-		return commonServiceRequest("POST", `${this.baseUrl}/renaper/validateDniState`, responseCodecs.validateDni, {
-			did: did.did(),
-			operationId
-		});
-	}
-
-	async recoverAccount(
-		email: string,
-		password: string,
-		firebaseId?: string
-	): ApiResult<{ privateKeySeed: string }> {
-		const response = await commonServiceRequest(
-			"POST",
-			`${this.baseUrl}/recoverAccount`,
-			responseCodecs.accountRecovery,
-			{
+	
+	const responseCodecs = {
+		empty: t.type({}),
+	
+		singleCertificate: t.type({
+			certificate: t.string
+		}),
+	
+		accountRecovery: t.type({
+			privateKeySeed: t.string
+		}),
+	
+		validateDni: t.union([
+			t.type({ operationId: t.string, status: t.literal("In Progress") }),
+			t.type({ operationId: t.string, status: t.literal("Successful") }),
+			t.intersection([
+				t.type({ operationId: t.string, status: t.literal("Falied") }),
+				t.partial({ errorMessage: t.string })
+			])
+		]),
+	
+		validateDniWithSemillas: t.string,
+		personalData: t.any,
+		profileImage: t.any,
+		issuerImage: t.any,
+		presentation: t.any,
+		getApiInfo: t.type({
+			aidiVersion: t.string,
+			environment: t.string,
+			name: t.string,
+			version: t.string,
+		}),
+		issuerName: t.type({
+			did: t.string,
+			name: t.string,
+			description: t.union([ t.string, t.null ]),
+			imageUrl: t.union([ t.string, t.undefined ]),
+			expireOn: t.union([ t.string, t.null ]),
+		}),
+	
+		semillasPrestadores: t.array(t.any),
+		semillasIdentityValidation: t.any,
+		saveShareRequest: t.any,
+	
+		issuers: t.any,
+	
+		dataResponse,
+		messageResponse
+	};
+	
+	export type ValidateDniResponseData = typeof responseCodecs.validateDni._A;
+	export type ValidateDniWithSemillasResponseData = typeof responseCodecs.validateDniWithSemillas._A;
+	export type SemillasIdentityValidation = typeof responseCodecs.semillasIdentityValidation._A;
+	export type PersonalDataResponseData = typeof responseCodecs.personalData._A;
+	
+	export type ApiResult<T> = Promise<Either<CommonServiceRequestError, T>>;
+	
+	/**
+	 * Cliente del servidor didi-server, el cual contiene la base de datos de
+	 * usuarios, emite credenciales relacionadas y contiene el registro de emisores
+	 * conocidos.
+	 */
+	export class DidiServerApiClient {
+		private baseUrl: string;
+		private privateKeyPassword: string;
+	
+		constructor(config: DidiServerApiClientConfiguration, privateKey: string) {
+			this.baseUrl = config.didiServerUri;
+			this.privateKeyPassword = privateKey;
+		}
+	
+		async changeEmail(
+			did: EthrDID,
+			validationCode: string,
+			newEmail: string,
+			password: string
+		): ApiResult<{ certificate: string }> {
+			return commonServiceRequest("POST", `${this.baseUrl}/changeEmail`, responseCodecs.singleCertificate, {
+				did: did.did(),
+				eMailValidationCode: validationCode,
+				newEMail: newEmail,
+				password: await Encryption.hash(password, this.privateKeyPassword)
+			});
+		}
+	
+		async changePassword(
+			did: EthrDID,
+			oldPassword: string,
+			newPassword: string
+		): ApiResult<{}> {
+			return commonServiceRequest("POST", `${this.baseUrl}/changePassword`, responseCodecs.empty, {
+				did: did.did(),
+				oldPass: await Encryption.hash(oldPassword, this.privateKeyPassword),
+				newPass: await Encryption.hash(newPassword, this.privateKeyPassword)
+			});
+		}
+	
+		async changePhoneNumber(
+			did: EthrDID,
+			validationCode: string,
+			newPhoneNumber: string,
+			password: string,
+			firebaseId?: string
+		): ApiResult<{ certificate: string }> {
+			return commonServiceRequest("POST", `${this.baseUrl}/changePhoneNumber`, responseCodecs.singleCertificate, {
+				did: did.did(),
+				phoneValidationCode: validationCode,
+				newPhoneNumber,
+				password: await Encryption.hash(password, this.privateKeyPassword),
+				...(firebaseId ? { firebaseId } : {})
+			});
+		}
+	
+		async checkValidateDni(did: EthrDID, operationId: string): ApiResult<ValidateDniResponseData> {
+			return commonServiceRequest("POST", `${this.baseUrl}/renaper/validateDniState`, responseCodecs.validateDni, {
+				did: did.did(),
+				operationId
+			});
+		}
+	
+		async recoverAccount(
+			email: string,
+			password: string,
+			firebaseId?: string
+		): ApiResult<{ privateKeySeed: string }> {
+			const response = await commonServiceRequest(
+				"POST",
+				`${this.baseUrl}/recoverAccount`,
+				responseCodecs.accountRecovery,
+				{
+					eMail: email,
+					password: await Encryption.hash(password, this.privateKeyPassword),
+					...(firebaseId ? { firebaseId } : {})
+				}
+			);
+			if (isLeft(response)) {
+				log(response.left);
+				return response;
+			}
+	
+			try {
+				const privateKeySeed = await Encryption.decrypt(response.right.privateKeySeed, this.privateKeyPassword);
+				return right({ privateKeySeed });
+			} catch (error) {
+				log(error);
+				return left({ type: "CRYPTO_ERROR", error });
+			}
+		}
+	
+		async recoverPassword(
+			email: string,
+			validationCode: string,
+			newPassword: string
+		): ApiResult<{}> {
+			return commonServiceRequest("POST", `${this.baseUrl}/recoverPassword`, responseCodecs.empty, {
+				eMail: email,
+				eMailValidationCode: validationCode,
+				newPass: await Encryption.hash(newPassword, this.privateKeyPassword)
+			});
+		}
+	
+		async registerUser(
+			did: EthrDID,
+			userData: {
+				email: string;
+				phoneNumber: string;
+				password: string;
+				privateKeySeed: string;
+				name: string;
+				lastname: string;
+			},
+			firebaseId?: string
+		): ApiResult<{}> {
+			try {
+				const encryptedPrivateKeySeed = await Encryption.encrypt(userData.privateKeySeed, this.privateKeyPassword);
+				const response = commonServiceRequest("POST", `${this.baseUrl}/registerUser`, responseCodecs.empty, {
+					did: did.did(),
+					eMail: userData.email,
+					phoneNumber: userData.phoneNumber,
+					password: await Encryption.hash(userData.password, this.privateKeyPassword),
+					privateKeySeed: encryptedPrivateKeySeed,
+					name: userData.name,
+					lastname: userData.lastname,
+					...(firebaseId ? { firebaseId } : {})
+				});
+				const vuSecurity =  new VUSecurityApiClient("http://localhost:8089/api/vuSecurity");
+				await vuSecurity.registerUser(did.did(),userData.name,userData.lastname);
+				return response;
+			} catch (error) {
+				log(error);
+				return left({ type: "CRYPTO_ERROR", error });
+			}
+		}
+	
+		/**
+		 * Envia un codigo de validacion a un numero de telefono
+		 * @param cellPhoneNumber
+		 * Un numero de telefono con codigo de pais y sin codigo de discado internacional
+		 * @param idCheck
+		 * Si se desea verificar que cellPhoneNumber esté asociado a un DID, el DID y password correspondiente
+		 * @example
+		 * apiClient.sendSmsValidator("+541100000000", {
+		 * 	did: EthrDID.fromKeyAddress("0x0000000000000000000000000000000000000000"),
+		 * 	password: "00000000"
+		 * })
+		 */
+		async sendSmsValidator(
+			cellPhoneNumber: string,
+			idCheck?: {
+				did: EthrDID;
+				password: string;
+			},
+			unique: boolean = true
+		): ApiResult<{}> {
+			return commonServiceRequest("POST", `${this.baseUrl}/sendSmsValidator`, responseCodecs.empty, {
+				cellPhoneNumber,
+				unique,
+				...(idCheck && {
+					did: idCheck.did.did(),
+					password: await Encryption.hash(idCheck.password, this.privateKeyPassword)
+				})
+			});
+		}
+	
+		/**
+		 * Envia un codigo de validacion a un email
+		 * @param email
+		 * @param idCheck
+		 * Si se desea verificar que el email esté asociado a un DID, el DID y password correspondiente
+		 * @example
+		 * apiClient.sendEmailValidator("existing_user@example.com", {
+		 * 	did: EthrDID.fromKeyAddress("0x0000000000000000000000000000000000000000"),
+		 * 	password: "00000000"
+		 * })
+		 */
+		async sendMailValidator(
+			eMail: string,
+			idCheck?: {
+				did: EthrDID;
+				password: string;
+			},
+			unique: boolean = false,
+		): ApiResult<{}> {
+			return commonServiceRequest("POST", `${this.baseUrl}/sendMailValidator`, responseCodecs.empty, {
+				eMail,
+				unique,
+				...(idCheck && {
+					did: idCheck.did.did(),
+					password: await Encryption.hash(idCheck.password, this.privateKeyPassword)
+				})
+			});
+		}
+	
+		async userLogin(
+			did: EthrDID,
+			email: string,
+			password: string,
+			firebaseId?: string
+		): ApiResult<{}> {
+			return commonServiceRequest("POST", `${this.baseUrl}/userLogin`, responseCodecs.empty, {
+				did: did.did(),
 				eMail: email,
 				password: await Encryption.hash(password, this.privateKeyPassword),
 				...(firebaseId ? { firebaseId } : {})
-			}
-		);
-		if (isLeft(response)) {
-			log(response.left);
-			return response;
-		}
-
-		try {
-			const privateKeySeed = await Encryption.decrypt(response.right.privateKeySeed, this.privateKeyPassword);
-			return right({ privateKeySeed });
-		} catch (error) {
-			log(error);
-			return left({ type: "CRYPTO_ERROR", error });
-		}
-	}
-
-	async recoverPassword(
-		email: string,
-		validationCode: string,
-		newPassword: string
-	): ApiResult<{}> {
-		return commonServiceRequest("POST", `${this.baseUrl}/recoverPassword`, responseCodecs.empty, {
-			eMail: email,
-			eMailValidationCode: validationCode,
-			newPass: await Encryption.hash(newPassword, this.privateKeyPassword)
-		});
-	}
-
-	async registerUser(
-		did: EthrDID,
-		userData: {
-			email: string;
-			phoneNumber: string;
-			password: string;
-			privateKeySeed: string;
-			name: string;
-			lastname: string;
-		},
-		firebaseId?: string
-	): ApiResult<{}> {
-		try {
-			const encryptedPrivateKeySeed = await Encryption.encrypt(userData.privateKeySeed, this.privateKeyPassword);
-			return commonServiceRequest("POST", `${this.baseUrl}/registerUser`, responseCodecs.empty, {
-				did: did.did(),
-				eMail: userData.email,
-				phoneNumber: userData.phoneNumber,
-				password: await Encryption.hash(userData.password, this.privateKeyPassword),
-				privateKeySeed: encryptedPrivateKeySeed,
-				name: userData.name,
-				lastname: userData.lastname,
-				...(firebaseId ? { firebaseId } : {})
-			});
-		} catch (error) {
-			log(error);
-			return left({ type: "CRYPTO_ERROR", error });
-		}
-	}
-
-	/**
-	 * Envia un codigo de validacion a un numero de telefono
-	 * @param cellPhoneNumber
-	 * Un numero de telefono con codigo de pais y sin codigo de discado internacional
-	 * @param idCheck
-	 * Si se desea verificar que cellPhoneNumber esté asociado a un DID, el DID y password correspondiente
-	 * @example
-	 * apiClient.sendSmsValidator("+541100000000", {
-	 * 	did: EthrDID.fromKeyAddress("0x0000000000000000000000000000000000000000"),
-	 * 	password: "00000000"
-	 * })
-	 */
-	async sendSmsValidator(
-		cellPhoneNumber: string,
-		idCheck?: {
-			did: EthrDID;
-			password: string;
-		},
-		unique: boolean = true
-	): ApiResult<{}> {
-		return commonServiceRequest("POST", `${this.baseUrl}/sendSmsValidator`, responseCodecs.empty, {
-			cellPhoneNumber,
-			unique,
-			...(idCheck && {
-				did: idCheck.did.did(),
-				password: await Encryption.hash(idCheck.password, this.privateKeyPassword)
-			})
-		});
-	}
-
-	/**
-	 * Envia un codigo de validacion a un email
-	 * @param email
-	 * @param idCheck
-	 * Si se desea verificar que el email esté asociado a un DID, el DID y password correspondiente
-	 * @example
-	 * apiClient.sendEmailValidator("existing_user@example.com", {
-	 * 	did: EthrDID.fromKeyAddress("0x0000000000000000000000000000000000000000"),
-	 * 	password: "00000000"
-	 * })
-	 */
-	async sendMailValidator(
-		eMail: string,
-		idCheck?: {
-			did: EthrDID;
-			password: string;
-		},
-		unique: boolean = false,
-	): ApiResult<{}> {
-		return commonServiceRequest("POST", `${this.baseUrl}/sendMailValidator`, responseCodecs.empty, {
-			eMail,
-			unique,
-			...(idCheck && {
-				did: idCheck.did.did(),
-				password: await Encryption.hash(idCheck.password, this.privateKeyPassword)
-			})
-		});
-	}
-
-	async userLogin(
-		did: EthrDID,
-		email: string,
-		password: string,
-		firebaseId?: string
-	): ApiResult<{}> {
-		return commonServiceRequest("POST", `${this.baseUrl}/userLogin`, responseCodecs.empty, {
-			did: did.did(),
-			eMail: email,
-			password: await Encryption.hash(password, this.privateKeyPassword),
-			...(firebaseId ? { firebaseId } : {})
-		});
-	}
-
-	async renewFirebaseToken(credentials: Credentials, firebaseId: string): ApiResult<{}> {
-		const token = await credentials.signJWT({ firebaseId }, 100);
-		return commonServiceRequest("POST", `${this.baseUrl}/renewFirebaseToken`, responseCodecs.empty, {
-			token
-		});
-	}
-
-	/**
-	 * @param did
-	 * DID del usuario a asociar a este DNI
-	 * @param data
-	 * Datos extraidos del PDF417/MRZ del documento
-	 * @param pictures
-	 * Imagenes del documento y la persona que se validan. Verificar con
-	 * backend/ReNaPer que aceptan, actualmente formato JPG, sin rotacion
-	 * EXIF, encodeadas base64
-	 * @param pictures.front
-	 * Imagen del frente del documento
-	 * @param pictures.back
-	 * Imagen del reverso del documento
-	 * @param pictures.selfie
-	 * Imagen de la persona
-	 */
-	async validateDni(
-		did: EthrDID,
-		data: {
-			dni: string;
-			gender: string;
-			firstName: string;
-			lastName: string;
-			birthDate: string;
-			order: string;
-		},
-		pictures: {
-			front: string;
-			back: string;
-			selfie: string;
-		}
-	): ApiResult<ValidateDniResponseData> {
-		return commonServiceRequest("POST", `${this.baseUrl}/renaper/validateDni`, responseCodecs.validateDni, {
-			did: did.did(),
-			dni: data.dni,
-			gender: data.gender,
-			name: data.firstName,
-			lastName: data.lastName,
-			birthDate: data.birthDate,
-			order: data.order,
-			selfieImage: pictures.selfie,
-			frontImage: pictures.front,
-			backImage: pictures.back
-		});
-	}
-
-	async verifyEmailCode(did: EthrDID, validationCode: string, email: string): ApiResult<{ certificate: string }> {
-		return commonServiceRequest("POST", `${this.baseUrl}/verifyMailCode`, responseCodecs.singleCertificate, {
-			did: did.did(),
-			validationCode,
-			eMail: email
-		});
-	}
-
-	async verifySmsCode(did: EthrDID, validationCode: string, phoneNumber: string): ApiResult<{ certificate: string }> {
-		return commonServiceRequest("POST", `${this.baseUrl}/verifySmsCode`, responseCodecs.singleCertificate, {
-			did: did.did(),
-			validationCode,
-			cellPhoneNumber: phoneNumber
-		});
-	}
-
-	/**
-	 * Hace un llamado a la ruta base de la api y devuelve la info del didi-server
-	 */
-		async getApiVersion(): ApiResult<ApiInfo> {
-			return commonServiceRequest("GET", `${this.baseUrl}/`, responseCodecs.getApiInfo, {})
-		}
-
-	/**
-	 * Obtiene datos registrados sobre un emisor de credenciales
-	 * @param issuerDid
-	 * El DID del emisor a consultar
-	 */
-	async getIssuerData(issuerDid: EthrDID): ApiResult<IssuerDescriptor> {
-		const response = await commonServiceRequest(
-			"GET",
-			`${this.baseUrl}/issuer/${issuerDid.did()}`,
-			responseCodecs.issuerName,
-			{}
-		);
-
-		// Distinguish between failure and a successfully received absence of a name
-		if (isRight(response)) {
-			return right({ did: issuerDid, name: response.right.name });
-		} else if (response.left.type === "SERVER_ERROR" && response.left.error.errorCode === "IS_INVALID") {
-			log(response.left);
-			return right({ did: issuerDid, name: null });
-		} else {
-			log(response);
-			return response;
-		}
-	}
-
-	/**
-	 * Obtiene el listado de prestadores traidos desde semillas
-	 */
-	async getPrestadores(): ApiResult<{ data: Prestador[] }> {
-		const response = await commonServiceRequest(
-			"GET",
-			`${this.baseUrl}/semillas/prestadores`,
-			responseCodecs.semillasPrestadores,
-			{}
-		);
-
-		if (isRight(response)) {
-			return right({ data: response.right });
-		}
-		return response;
-	}
-
-	/**
-	 * Comparte datos de titular/familiar para solicitar un prestador
-	 */
-	shareData(data: ShareDataRequest) {
-		return simpleCall(`${this.baseUrl}/semillas/credentialShare`, "POST", data);
-	}
-
-	/**
-	 * Solicita las credenciales de semillas
-	 */
-	async semillasCredentialsRequest(did: EthrDID, dni: string): ApiResult<{ message: string }> {
-		const response = await commonServiceRequest("POST", `${this.baseUrl}/semillas/notifyDniDid`, messageResponse, {
-			did: did.did(),
-			dni: dni
-		});
-
-		if (isRight(response)) {
-			return right(response.right);
-		}
-		return response;
-	}
-
-	/**
-	 * @param did
-	 * DID del usuario a asociar a este DNI
-	 * @param data
-	 */
-	async validateDniWithSemillas(
-		did: EthrDID,
-		data: SemillasNeedsToValidateDni
-	): ApiResult<ValidateDniWithSemillasResponseData> {
-		const response = await commonServiceRequest(
-			"POST",
-			`${this.baseUrl}/semillas/validateDni`,
-			responseCodecs.validateDniWithSemillas,
-			{
-				did: did.did(),
-				...data
-			}
-		);
-
-		if (isRight(response)) {
-			return right(response.right);
-		}
-		return response;
-	}
-
-	/**
-	 * @param did
-	 */
-	async getSemillasValidation(did: EthrDID): ApiResult<SemillasIdentityValidation> {
-		const response = await commonServiceRequest(
-			"GET",
-			`${this.baseUrl}/semillas/identityValidation/${did.did()}`,
-			responseCodecs.semillasIdentityValidation,
-			{}
-		);
-		if (isRight(response)) {
-			return right(response.right);
-		}
-		return response;
-	}
-
-	/**
-	 * @param did
-	 * DID del usuario a buscar
-	 */
-	async getPersonalData(did: EthrDID, userJWT: string): ApiResult<PersonalDataResponseData> {
-		const response = await commonServiceRequest(
-			"GET",
-			`${this.baseUrl}/user/${did.did()}`,
-			responseCodecs.personalData,
-			{ userJWT }
-		);
-
-		if (isRight(response)) {
-			return right(response.right);
-		}
-		return response;
-	}
-
-	async sendPersonalData(
-		did: EthrDID,
-		name: string,
-		lastname: string,
-		userJWT: string
-	): ApiResult<PersonalDataResponseData> {
-		const response = await commonServiceRequest(
-			"POST",
-			`${this.baseUrl}/user/${did.did()}/edit`,
-			responseCodecs.personalData,
-			{ userJWT, name, lastname }
-		);
-
-		if (isRight(response)) {
-			return right(response.right);
-		}
-		return response;
-	}
-
-	async sendProfileImage(did: EthrDID, file: any, userJWT: string): ApiResult<PersonalDataResponseData> {
-		const response = await commonServiceRequest(
-			"POST",
-			`${this.baseUrl}/user/${did.did()}/image`,
-			responseCodecs.profileImage,
-			{ userJWT: userJWT, file: file },
-			true
-		);
-
-		return response;
-	}
-
-	async userHasRondaAccount(did: EthrDID): ApiResult<any> {
-		const response = await simpleCall(`${this.baseUrl}/userApp/${did.did()}`, "GET", null);
-		if (isRight(response)) {
-			return right(response);
-		}
-		return response;
-	}
-
-	async savePresentation(jwts: any): ApiResult<any> {
-		const response = await commonServiceRequest("POST", `${this.baseUrl}/presentation`, responseCodecs.presentation, {
-			jwts
-		});
-
-		if (isRight(response)) {
-			return right(response);
-		}
-		return response;
-	}
-
-	/**
-	 * @param sharingJWT
-	 * JWT de las credenciales del usuario que "quiere compartir"
-	 */
-	async saveShareRequest(userJWT: string, sharingJWT: string): ApiResult<any> {
-		return await simpleCall(`${this.baseUrl}/shareRequest`, "POST", { userJWT, jwt: sharingJWT });
-	}
-
-	async getShareRequestFromServer(token: string, idShareRequest: string): ApiResult<any> {
-		const response = await simpleCall(
-			`${this.baseUrl}/shareRequest/${idShareRequest}`,
-			"POST",
-			{ userJWT: token },
-			true
-		);
-
-		return response;
-	}
-
-	/**
-	 * Obtiene el listado de los Issuers
-	 */
-	async getIssuers(limit: number = 0, page: number = 0): ApiResult<{ data: IssuersDescriptor }> {
-		const response = await commonServiceRequest(
-			"GET",
-			`${this.baseUrl}/issuer/list?limit=${limit}&page=${page}'`,
-			responseCodecs.issuers,
-			{}
-		);
-
-		if (isRight(response)) {
-			return right({ data: response.right });
-		}
-
-		return response;
-	}
-
-	/**
-	* Hace un llamado a la ruta base de la api y devuelve la info del DIDI-SSI-identity-issuer NEW OPERATION
-	*/
-	async NewOperation(
-		userName: string,
-		ipAddress: string,
-		deviceHash: string,
-		rooted: boolean,
-		applicationVersion: string,
-		operativeSystem: string,
-		operativeSystemVersion: string,
-		deviceManufacturer: string,
-		deviceName: string,
-		): ApiResult<NewOperation> {
-			return commonServiceRequest("POST", `${this.baseUrl}/onboarding/newOperation`, responseCodecs.newOperation, {
-				userName,
-				ipAddress,
-				deviceHash,
-				rooted,
-				applicationVersion,
-				operativeSystem,
-				operativeSystemVersion,
-				deviceManufacturer,
-				deviceName,
 			});
 		}
-}
+	
+		async renewFirebaseToken(credentials: Credentials, firebaseId: string): ApiResult<{}> {
+			const token = await credentials.signJWT({ firebaseId }, 100);
+			return commonServiceRequest("POST", `${this.baseUrl}/renewFirebaseToken`, responseCodecs.empty, {
+				token
+			});
+		}
+	
+		/**
+		 * @param did
+		 * DID del usuario a asociar a este DNI
+		 * @param data
+		 * Datos extraidos del PDF417/MRZ del documento
+		 * @param pictures
+		 * Imagenes del documento y la persona que se validan. Verificar con
+		 * backend/ReNaPer que aceptan, actualmente formato JPG, sin rotacion
+		 * EXIF, encodeadas base64
+		 * @param pictures.front
+		 * Imagen del frente del documento
+		 * @param pictures.back
+		 * Imagen del reverso del documento
+		 * @param pictures.selfie
+		 * Imagen de la persona
+		 */
+		async validateDni(
+			did: EthrDID,
+			data: {
+				dni: string;
+				gender: string;
+				firstName: string;
+				lastName: string;
+				birthDate: string;
+				order: string;
+			},
+			pictures: {
+				front: string;
+				back: string;
+				selfie: string;
+			}
+		): ApiResult<ValidateDniResponseData> {
+			return commonServiceRequest("POST", `${this.baseUrl}/renaper/validateDni`, responseCodecs.validateDni, {
+				did: did.did(),
+				dni: data.dni,
+				gender: data.gender,
+				name: data.firstName,
+				lastName: data.lastName,
+				birthDate: data.birthDate,
+				order: data.order,
+				selfieImage: pictures.selfie,
+				frontImage: pictures.front,
+				backImage: pictures.back
+			});
+		}
+	
+		async verifyEmailCode(did: EthrDID, validationCode: string, email: string): ApiResult<{ certificate: string }> {
+			return commonServiceRequest("POST", `${this.baseUrl}/verifyMailCode`, responseCodecs.singleCertificate, {
+				did: did.did(),
+				validationCode,
+				eMail: email
+			});
+		}
+	
+		async verifySmsCode(did: EthrDID, validationCode: string, phoneNumber: string): ApiResult<{ certificate: string }> {
+			return commonServiceRequest("POST", `${this.baseUrl}/verifySmsCode`, responseCodecs.singleCertificate, {
+				did: did.did(),
+				validationCode,
+				cellPhoneNumber: phoneNumber
+			});
+		}
+	
+		/**
+		 * Hace un llamado a la ruta base de la api y devuelve la info del didi-server
+		 */
+			async getApiVersion(): ApiResult<ApiInfo> {
+				return commonServiceRequest("GET", `${this.baseUrl}/`, responseCodecs.getApiInfo, {})
+			}
+	
+		/**
+		 * Obtiene datos registrados sobre un emisor de credenciales
+		 * @param issuerDid
+		 * El DID del emisor a consultar
+		 */
+		async getIssuerData(issuerDid: EthrDID): ApiResult<IssuerDescriptor> {
+			const response = await commonServiceRequest(
+				"GET",
+				`${this.baseUrl}/issuer/${issuerDid.did()}`,
+				responseCodecs.issuerName,
+				{}
+			);
+	
+			// Distinguish between failure and a successfully received absence of a name
+			if (isRight(response)) {
+				return right({ did: issuerDid, name: response.right.name });
+			} else if (response.left.type === "SERVER_ERROR" && response.left.error.errorCode === "IS_INVALID") {
+				log(response.left);
+				return right({ did: issuerDid, name: null });
+			} else {
+				log(response);
+				return response;
+			}
+		}
+	
+		/**
+		 * Obtiene el listado de prestadores traidos desde semillas
+		 */
+		async getPrestadores(): ApiResult<{ data: Prestador[] }> {
+			const response = await commonServiceRequest(
+				"GET",
+				`${this.baseUrl}/semillas/prestadores`,
+				responseCodecs.semillasPrestadores,
+				{}
+			);
+	
+			if (isRight(response)) {
+				return right({ data: response.right });
+			}
+			return response;
+		}
+	
+		/**
+		 * Comparte datos de titular/familiar para solicitar un prestador
+		 */
+		shareData(data: ShareDataRequest) {
+			return simpleCall(`${this.baseUrl}/semillas/credentialShare`, "POST", data);
+		}
+	
+		/**
+		 * Solicita las credenciales de semillas
+		 */
+		async semillasCredentialsRequest(did: EthrDID, dni: string): ApiResult<{ message: string }> {
+			const response = await commonServiceRequest("POST", `${this.baseUrl}/semillas/notifyDniDid`, messageResponse, {
+				did: did.did(),
+				dni: dni
+			});
+	
+			if (isRight(response)) {
+				return right(response.right);
+			}
+			return response;
+		}
+	
+		/**
+		 * @param did
+		 * DID del usuario a asociar a este DNI
+		 * @param data
+		 */
+		async validateDniWithSemillas(
+			did: EthrDID,
+			data: SemillasNeedsToValidateDni
+		): ApiResult<ValidateDniWithSemillasResponseData> {
+			const response = await commonServiceRequest(
+				"POST",
+				`${this.baseUrl}/semillas/validateDni`,
+				responseCodecs.validateDniWithSemillas,
+				{
+					did: did.did(),
+					...data
+				}
+			);
+	
+			if (isRight(response)) {
+				return right(response.right);
+			}
+			return response;
+		}
+	
+		/**
+		 * @param did
+		 */
+		async getSemillasValidation(did: EthrDID): ApiResult<SemillasIdentityValidation> {
+			const response = await commonServiceRequest(
+				"GET",
+				`${this.baseUrl}/semillas/identityValidation/${did.did()}`,
+				responseCodecs.semillasIdentityValidation,
+				{}
+			);
+			if (isRight(response)) {
+				return right(response.right);
+			}
+			return response;
+		}
+	
+		/**
+		 * @param did
+		 * DID del usuario a buscar
+		 */
+		async getPersonalData(did: EthrDID, userJWT: string): ApiResult<PersonalDataResponseData> {
+			const response = await commonServiceRequest(
+				"GET",
+				`${this.baseUrl}/user/${did.did()}`,
+				responseCodecs.personalData,
+				{ userJWT }
+			);
+	
+			if (isRight(response)) {
+				return right(response.right);
+			}
+			return response;
+		}
+	
+		async sendPersonalData(
+			did: EthrDID,
+			name: string,
+			lastname: string,
+			userJWT: string
+		): ApiResult<PersonalDataResponseData> {
+			const response = await commonServiceRequest(
+				"POST",
+				`${this.baseUrl}/user/${did.did()}/edit`,
+				responseCodecs.personalData,
+				{ userJWT, name, lastname }
+			);
+	
+			if (isRight(response)) {
+				return right(response.right);
+			}
+			return response;
+		}
+	
+		async sendProfileImage(did: EthrDID, file: any, userJWT: string): ApiResult<PersonalDataResponseData> {
+			const response = await commonServiceRequest(
+				"POST",
+				`${this.baseUrl}/user/${did.did()}/image`,
+				responseCodecs.profileImage,
+				{ userJWT: userJWT, file: file },
+				true
+			);
+	
+			return response;
+		}
+	
+		async userHasRondaAccount(did: EthrDID): ApiResult<any> {
+			const response = await simpleCall(`${this.baseUrl}/userApp/${did.did()}`, "GET", null);
+			if (isRight(response)) {
+				return right(response);
+			}
+			return response;
+		}
+	
+		async savePresentation(jwts: any): ApiResult<any> {
+			const response = await commonServiceRequest("POST", `${this.baseUrl}/presentation`, responseCodecs.presentation, {
+				jwts
+			});
+	
+			if (isRight(response)) {
+				return right(response);
+			}
+			return response;
+		}
+	
+		/**
+		 * @param sharingJWT
+		 * JWT de las credenciales del usuario que "quiere compartir"
+		 */
+		async saveShareRequest(userJWT: string, sharingJWT: string): ApiResult<any> {
+			return await simpleCall(`${this.baseUrl}/shareRequest`, "POST", { userJWT, jwt: sharingJWT });
+		}
+	
+		async getShareRequestFromServer(token: string, idShareRequest: string): ApiResult<any> {
+			const response = await simpleCall(
+				`${this.baseUrl}/shareRequest/${idShareRequest}`,
+				"POST",
+				{ userJWT: token },
+				true
+			);
+	
+			return response;
+		}
+	
+		/**
+		 * Obtiene el listado de los Issuers
+		 */
+		async getIssuers(limit: number = 0, page: number = 0): ApiResult<{ data: IssuersDescriptor }> {
+			const response = await commonServiceRequest(
+				"GET",
+				`${this.baseUrl}/issuer/list?limit=${limit}&page=${page}'`,
+				responseCodecs.issuers,
+				{}
+			);
+	
+			if (isRight(response)) {
+				return right({ data: response.right });
+			}
+	
+			return response;
+		}
+	}
+	
