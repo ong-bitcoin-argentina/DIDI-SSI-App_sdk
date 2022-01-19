@@ -53,4 +53,15 @@ export class VUSecurityApiClient {
 				deviceName,
            });
     }
+
+	async cancelVerification(
+			userName: string,
+			operationId: string,
+        ):  ApiResult<string>{
+            return commonServiceRequest("POST", `${this.baseUrl}/createVerification`, responseCodecs.string,{
+                userName,
+				operationId,
+           });
+    }
+	
 };
