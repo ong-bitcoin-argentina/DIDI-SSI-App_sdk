@@ -21,21 +21,19 @@ export class VUSecurityApiClient {
 	}
 
 	async registerUser(did: string, name: string, lastname: string):  ApiResult<{}> {
-
 		return simpleCall(`${this.baseUrl}/registerUser`, 'POST',{
 			did,
 			name,
 			lastname
-	},true);
+	});
 	}
+
 
     async createVerification(
         did: string,
 		userName: string,
-		ipAddress: string,
 		deviceHash: string,
 		rooted: boolean,
-		applicationVersion: string,
 		operativeSystem: string,
 		operativeSystemVersion: string,
 		deviceManufacturer: string,
@@ -44,14 +42,12 @@ export class VUSecurityApiClient {
 			return simpleCall(`${this.baseUrl}/createVerification`, 'POST',{
                 did,
 				userName,
-				ipAddress,
 				deviceHash,
 				rooted,
-				applicationVersion,
 				operativeSystem,
 				operativeSystemVersion,
 				deviceManufacturer,
 				deviceName,
-           },true)
+           })
     }
 };
