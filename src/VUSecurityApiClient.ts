@@ -1,5 +1,5 @@
 import * as t from "io-ts";
-import { commonServiceRequest } from "./util/commonServiceRequest";
+import { simpleCall } from './util/commonServiceRequest';
 import { ApiResult } from './DidiServerApiClient';
 
 const responseCodecs = {
@@ -21,37 +21,34 @@ export class VUSecurityApiClient {
 	}
 
 	async registerUser(did: string, name: string, lastname: string):  ApiResult<{}> {
-		return commonServiceRequest("POST", `${this.baseUrl}/registerUser`, responseCodecs.empty, {
-				did,
-				name,
-				lastname
-		});
+		return simpleCall(`${this.baseUrl}/registerUser`, 'POST',{
+			did,
+			name,
+			lastname
+	});
 	}
+
 
     async createVerification(
         did: string,
 		userName: string,
-		ipAddress: string,
 		deviceHash: string,
 		rooted: boolean,
-		applicationVersion: string,
 		operativeSystem: string,
 		operativeSystemVersion: string,
 		deviceManufacturer: string,
 		deviceName: string
         ):  ApiResult<string>{
-            return commonServiceRequest("POST", `${this.baseUrl}/createVerification`, responseCodecs.string,{
+			return simpleCall(`${this.baseUrl}/createVerification`, 'POST',{
                 did,
 				userName,
-				ipAddress,
 				deviceHash,
 				rooted,
-				applicationVersion,
 				operativeSystem,
 				operativeSystemVersion,
 				deviceManufacturer,
 				deviceName,
-           });
+           })
     }
 
 	async cancelVerification(

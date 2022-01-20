@@ -205,7 +205,7 @@
 		): ApiResult<{}> {
 			try {
 				const encryptedPrivateKeySeed = await Encryption.encrypt(userData.privateKeySeed, this.privateKeyPassword);
-				const response = commonServiceRequest("POST", `${this.baseUrl}/registerUser`, responseCodecs.empty, {
+				return commonServiceRequest("POST", `${this.baseUrl}/registerUser`, responseCodecs.empty, {
 					did: did.did(),
 					eMail: userData.email,
 					phoneNumber: userData.phoneNumber,
@@ -215,9 +215,6 @@
 					lastname: userData.lastname,
 					...(firebaseId ? { firebaseId } : {})
 				});
-				const vuSecurity =  new VUSecurityApiClient("http://localhost:8089/api/vuSecurity");
-				await vuSecurity.registerUser(did.did(),userData.name,userData.lastname);
-				return response;
 			} catch (error) {
 				log(error);
 				return left({ type: "CRYPTO_ERROR", error });
