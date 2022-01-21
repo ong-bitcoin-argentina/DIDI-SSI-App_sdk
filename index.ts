@@ -10,6 +10,7 @@ export * from "./src/model/SpecialCredential";
 export * from "./src/model/SemillasTypes";
 
 export * from "./src/DidiServerApiClient";
+export * from "./src/VUSecurityApiClient";
 export * from "./src/TrustGraphClient";
 
 export * from "./src/parse/parseJWT";
