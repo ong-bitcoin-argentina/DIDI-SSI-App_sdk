@@ -8,6 +8,7 @@ export * from "./src/model/Identity";
 export * from "./src/model/IssuerDescriptor";
 export * from "./src/model/SpecialCredential";
 export * from "./src/model/SemillasTypes";
+export * from "./src/model/VuSecurity";
 
 export * from "./src/DidiServerApiClient";
 export * from "./src/VUSecurityApiClient";
