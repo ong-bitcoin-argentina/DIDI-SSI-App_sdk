@@ -1,4 +1,3 @@
-import * as t from "io-ts";
 import { authorizationCall, simpleCall } from "./util/commonServiceRequest";
 import { ApiResult } from "./DidiServerApiClient";
 import { ICreateVerificationResponse } from './model/VuSecurity';

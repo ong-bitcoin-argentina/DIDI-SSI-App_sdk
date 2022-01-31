@@ -1,10 +1,8 @@
 require('isomorphic-fetch');
 jest.mock('node-fetch');
 const fetch = jest.fn();
-import { userInfo } from 'os';
 import {VUSecurityApiClient} from '../../src/VUSecurityApiClient';
 
-const responseRegisterUser = {}
 const responseCreateVerification = {"userName": "VU-TEST-SDK-1","operationId": 853}
 const responseCancelVerification = "Operacion cancelada exitosamente";
 const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiJ9.eyJpYXQiOjE2NDMzOTk3NDIsImhvbGEiOiJ0ZXN0IiwiaXNzIjoiZGlkOmV0aHI6MHgzNmY2ZGMwNmQzNGIxNjRhZWM1NDIxYzkwNzFhMGQwNzc2NWQ0ZWUwIn0.MU3ckw90FxwWLXcHNlpLwKvXNzRX70_EIyd65AhH06Gt985HoEOZozNF0YXQ7phaw2efsK6Mx6UV0Pifa9VNIQA';
@@ -53,4 +51,5 @@ describe("VUSecurityApiClient", () => {
       expect(fetch).toHaveBeenCalledTimes(2);
        done();
    }, 60000);
+   
 });
