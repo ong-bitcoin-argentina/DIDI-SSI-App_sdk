@@ -1,6 +1,6 @@
 {
 	"name": "@proyecto-didi/app-sdk",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"license": "SEE LICENSE IN LICENSE",
 	"description": "",
 	"main": "index.ts",
