@@ -1,4 +1,3 @@
-import { string } from 'fp-ts';
 import { Either, isLeft, left, right } from "fp-ts/lib/Either";
 import * as t from "io-ts";
 
@@ -97,28 +96,6 @@ export async function commonServiceRequest<A>(
 export const simpleCall = async (url: string, method: HTTPMethod = "GET", data: any, responseIsText: Boolean = false) => {
 	const options = {
 		headers,
-		method,
-		...(method !== "GET" && { body: JSON.stringify(data) })
-	};
-	const res = await fetch(url, options);
-
-	if (responseIsText){
-		return res.text();
-	}
-	
-	const content = await res.json();
-	if (res.ok) {
-		return content;
-	}
-	throw new Error(content.message);
-};
-
-export const authorizationCall = async (url: string, method: HTTPMethod = "GET", data: any, token: string, responseIsText: Boolean = false) => {
-	const options = {
-		headers:{
-			"Content-Type": "application/json; charset=utf-8",
-	        "Authorization": `Bearer ${token}`,
-		},
 		method,
 		...(method !== "GET" && { body: JSON.stringify(data) })
 	};
