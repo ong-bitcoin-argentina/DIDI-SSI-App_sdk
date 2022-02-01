@@ -116,7 +116,7 @@ export const simpleCall = async (url: string, method: HTTPMethod = "GET", data: 
 export const authorizationCall = async (url: string, method: HTTPMethod = "GET", data: any, token: string, responseIsText: Boolean = false) => {
 	const options = {
 		headers:{
-			"Content-Type": "application/json",
+			"Content-Type": "application/json; charset=utf-8",
 	        "Authorization": `Bearer ${token}`,
 		},
 		method,
