@@ -1,8 +1,8 @@
 import { authorizationCall, simpleCall } from "./util/commonServiceRequest";
 import { ApiResult } from "./DidiServerApiClient";
 import { ICreateVerificationResponse } from './model/VuSecurity';
-
 export class VUSecurityApiClient {
+
 	private baseUrl: string;
 
 	/**
@@ -43,4 +43,31 @@ export class VUSecurityApiClient {
 			operationId
 		},token,true); // verificar si la response es en json o txt; por default es en json y true = es en txt.
 	}
+
+
+	async addFront(userName: string, operationId: string, file: string, token: string): ApiResult<string> {	
+		return authorizationCall(`${this.baseUrl}/frontImage`, "POST", {
+		    operationId,
+			userName,
+			file
+		},token); 
+    }
+
+
+	async addBack(userName: string, operationId: string, file: string, token: string): ApiResult<string> {
+		return authorizationCall(`${this.baseUrl}/backimage`, "POST", {
+		    operationId,
+			userName,
+			file
+		},token); 
+    }
+
+	async addDocumentImage(userName: string, operationId: string, file: string, token: string): ApiResult<string> {
+		return authorizationCall(`${this.baseUrl}/addDocumentImage`, "POST", {
+		    operationId,
+			userName,
+			file
+		},token); 
+    }
+
 }
