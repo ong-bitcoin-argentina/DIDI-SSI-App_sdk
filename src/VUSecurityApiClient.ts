@@ -41,31 +41,16 @@ export class VUSecurityApiClient {
 		return authorizationCall(`${this.baseUrl}/cancelVerification`, "POST", {
 			userName,
 			operationId
-		},token,true); // verificar si la response es en json o txt; por default es en json y true = es en txt.
+		},token); 
 	}
 
 
-	async addFront(userName: string, operationId: string, file: string, token: string): ApiResult<string> {	
-		return authorizationCall(`${this.baseUrl}/frontImage`, "POST", {
-		    operationId,
-			userName,
-			file
-		},token); 
-    }
 
-
-	async addBack(userName: string, operationId: string, file: string, token: string): ApiResult<string> {
-		return authorizationCall(`${this.baseUrl}/backimage`, "POST", {
-		    operationId,
-			userName,
-			file
-		},token); 
-    }
-
-	async addDocumentImage(userName: string, operationId: string, file: string, token: string): ApiResult<string> {
+	async addDocumentImage(userName: string, operationId: string, side: string, file: string, token: string): ApiResult<string> {	
 		return authorizationCall(`${this.baseUrl}/addDocumentImage`, "POST", {
-		    operationId,
+			operationId,
 			userName,
+			side,
 			file
 		},token); 
     }
