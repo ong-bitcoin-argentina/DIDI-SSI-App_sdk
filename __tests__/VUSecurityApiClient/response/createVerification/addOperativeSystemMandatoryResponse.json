@@ -1,0 +1,5 @@
+{
+	"status": "error",
+	"errorCode": "PARAMETER_MISSING",
+	"message": "falta el campo: operativeSystem"
+}
