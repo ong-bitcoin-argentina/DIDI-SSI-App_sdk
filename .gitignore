@@ -1,4 +1,5 @@
-__tests__/img
+__tests__/image/file.json
+__tests__/VUSecurityApiClient/request/config.test.json
 dist
 didi-sdk-*.tgz
 

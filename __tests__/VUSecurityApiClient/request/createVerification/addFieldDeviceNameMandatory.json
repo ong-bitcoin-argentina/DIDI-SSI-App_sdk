@@ -1,10 +1,10 @@
- {
-    "did":"did:ethr:0x36f6dc06d34b164aec5421c9071a0d07765d4ee0",
-    "userName": "VU-TEST-SDK-1",
+{
+    "did":"did:ethr:0x0000000000000000000000000000000000000002",
+    "userName": "VU-TEST-SDK-2",
     "deviceHash": "hash",
     "rooted": false,
     "operativeSystem": "console test",
     "operativeSystemVersion": "11",
     "deviceManufacturer": "Apple",
-    "deviceName": "Iphone"
+    "deviceName": ""
 }
