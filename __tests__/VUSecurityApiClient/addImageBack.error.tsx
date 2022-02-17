@@ -63,4 +63,22 @@ describe("addImageFront", () => {
 		expect(fetch).toHaveBeenCalledTimes(3);
 		done();
 	}, 5000);
+
+	it(`Should THROW ERROR when you want to enter a different photo`, async done => {
+		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
+		// cancel vuSecurity
+		console.log('ENTRANDO PRUEBAAAAA');
+		try {
+			 await vuScurity.addDocumentImage(
+				addFielSideMandatory.userName,
+				addFielSideMandatory.operationId,
+				addFielSideMandatory.side,
+				base64Img.addSendingAnyPhoto,
+				TOKEN
+			);	
+		} catch (error) {
+			expect(error).toEqual(Error("Hubo un error al adherir la imagen documento"));	
+		}
+		done();
+	}, 5000);
 });
