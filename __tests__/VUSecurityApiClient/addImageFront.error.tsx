@@ -19,7 +19,6 @@ describe("addImageFront", () => {
 	it(`Should THROW ERROR when you want to enter a userName with space "" `, async done => {
 		fetch.mockReturnValue(Promise.resolve(addUserNameMandatoryResponse));
 		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
-		// cancel vuSecurity
 		const result = await vuScurity.addDocumentImage(
 			addFieldUserNameMandatory.userName,
 			addFieldUserNameMandatory.operationId,
@@ -35,7 +34,6 @@ describe("addImageFront", () => {
 	it(`Should THROW ERROR when you want to enter a operationId with space "" `, async done => {
 		fetch.mockReturnValue(Promise.resolve(addOperationIdMandatoryResponse));
 		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
-		// cancel vuSecurity
 		const result = await vuScurity.addDocumentImage(
 			addFieldOperationIdMandatory.userName,
 			addFieldOperationIdMandatory.operationId,
@@ -51,7 +49,6 @@ describe("addImageFront", () => {
 	it(`Should THROW ERROR when you want to enter a side with space "" `, async done => {
 		fetch.mockReturnValue(Promise.resolve(addSideMandatoryResponse));
 		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
-		// cancel vuSecurity
 		const result = await vuScurity.addDocumentImage(
 			addFielSideMandatory.userName,
 			addFielSideMandatory.operationId,
@@ -66,8 +63,6 @@ describe("addImageFront", () => {
 
 	it(`Should THROW ERROR when you want to enter a different photo`, async done => {
 		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
-		// cancel vuSecurity
-		console.log('ENTRANDO PRUEBAAAAA');
 		try {
 			 await vuScurity.addDocumentImage(
 				addFielSideMandatory.userName,

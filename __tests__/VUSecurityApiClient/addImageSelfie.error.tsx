@@ -20,7 +20,6 @@ describe("addImageSelfie", () => {
 	it(`Should THROW ERROR when you want to enter a userName with space "" `, async done => {
 		fetch.mockReturnValue(Promise.resolve(addUserNameMandatoryResponse));
 		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
-		// cancel vuSecurity
 		const result = await vuScurity.addDocumentImage(
 			addFieldUserNameMandatory.userName,
 			addFieldUserNameMandatory.operationId,
@@ -36,7 +35,6 @@ describe("addImageSelfie", () => {
 	it(`Should THROW ERROR when you want to enter a operationId with space "" `, async done => {
 		fetch.mockReturnValue(Promise.resolve(addOperationIdMandatoryResponse));
 		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
-		// cancel vuSecurity
 		const result = await vuScurity.addDocumentImage(
 			addFieldOperationIdMandatory.userName,
 			addFieldOperationIdMandatory.operationId,
@@ -52,7 +50,6 @@ describe("addImageSelfie", () => {
 	it(`Should THROW ERROR when you want to enter a side with space "" `, async done => {
 		fetch.mockReturnValue(Promise.resolve(addSideMandatoryResponse));
 		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
-		// cancel vuSecurity
 		const result = await vuScurity.addDocumentImage(
 			addFielSideMandatory.userName,
 			addFielSideMandatory.operationId,
@@ -69,7 +66,6 @@ describe("addImageSelfie", () => {
     it(`Should THROW ERROR when you want to enter a file with space "" `, async done => {
 		fetch.mockReturnValue(Promise.resolve(addfileMandatoryResponse));
 		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
-		// cancel vuSecurity
 		const result = await vuScurity.addDocumentImage(
 			addFielImageMandatory.userName,
 			addFielImageMandatory.operationId,
@@ -84,7 +80,6 @@ describe("addImageSelfie", () => {
 
 	it(`Should THROW ERROR when you want to enter a different photo`, async done => {
 		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
-		// cancel vuSecurity
 		try {
 			 await vuScurity.addDocumentImage(
 				addFielSideMandatory.userName,

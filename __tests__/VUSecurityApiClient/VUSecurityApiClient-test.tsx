@@ -41,7 +41,6 @@ describe("VUSecurityApiClient", () => {
 	it(`cancelVerification`, async done => {
 		fetch.mockReturnValue(Promise.resolve(cancelVerificationResponse));
 		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
-		// new vuSecurity
 		const resultVU = await vuScurity.createVerification(
 			createVerificationforCancelRequest.did,
 			createVerificationforCancelRequest.userName,
@@ -54,7 +53,6 @@ describe("VUSecurityApiClient", () => {
 			TOKEN
 		);
 		expect(Object.values(resultVU)[1]).toEqual("New operation created");
-		// cancel vuSecurity
 		const result = await vuScurity.cancelVerification(
 			`${Object.values(resultVU)[3]}`,
 			`${Object.values(resultVU)[2]}`,
