@@ -17,7 +17,6 @@ describe("cancelVerification", () => {
 	it(`Should THROW ERROR when you want to enter a userName with space "" `, async done => {
 		fetch.mockReturnValue(Promise.resolve(addUserNameMandatoryResponse));
 		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
-		// cancel vuSecurity
 		const result = await vuScurity.cancelVerification(
 			addFieldUserNameMandatory.userName,
 			addFieldUserNameMandatory.operationId,
@@ -31,7 +30,6 @@ describe("cancelVerification", () => {
 	it(`Should THROW ERROR when you want to enter a operationId with space "" `, async done => {
 		fetch.mockReturnValue(Promise.resolve(addOperationIdMandatoryResponse));
 		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
-		// cancel vuSecurity
 		const result = await vuScurity.cancelVerification(
 			addFieldOperationIdMandatory.userName,
 			addFieldOperationIdMandatory.operationId,

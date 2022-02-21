@@ -6,16 +6,17 @@ import { VUSecurityApiClient } from "../../src/VUSecurityApiClient";
 import { URI_VU_SECURITY, TOKEN } from "./request/config.test.json";
 import base64Img from "../image/file.json";
 //request
-import addFieldUserNameMandatory from "./request/addImageBackerror/addFieldUserNameMandatory.json";
-import addFieldOperationIdMandatory from "./request/addImageBackerror/addFieldOperationIdMandatory.json";
-import addFielSideMandatory from "./request/addImageBackerror/addFielSideMandatory.json";
-
+import addFieldUserNameMandatory from "./request/addImageSelfieError/addFieldUserNameMandatory.json";
+import addFieldOperationIdMandatory from "./request/addImageSelfieError/addFieldOperationIdMandatory.json";
+import addFielSideMandatory from "./request/addImageSelfieError/addFielSideMandatory.json";
+import addFielImageMandatory from "./request/addImageSelfieError/addFielImageMandatory.json";
 //response
-import addUserNameMandatoryResponse from "./response/addImageBackerror/addUserNameMandatoryResponse.json";
-import addOperationIdMandatoryResponse from "./response/addImageBackerror/addOperationIdMandatoryResponse.json";
-import addSideMandatoryResponse from "./response/addImageBackerror/addSideMandatoryResponse.json";
+import addUserNameMandatoryResponse from "./response/addImageSelfieError/addUserNameMandatoryResponse.json";
+import addOperationIdMandatoryResponse from "./response/addImageSelfieError/addOperationIdMandatoryResponse.json";
+import addSideMandatoryResponse from "./response/addImageSelfieError/addSideMandatoryResponse.json";
+import addfileMandatoryResponse from "./response/addImageSelfieError/addfileMandatoryResponse.json";
 
-describe("addImageFront", () => {
+describe("addImageSelfie", () => {
 	it(`Should THROW ERROR when you want to enter a userName with space "" `, async done => {
 		fetch.mockReturnValue(Promise.resolve(addUserNameMandatoryResponse));
 		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
@@ -23,7 +24,7 @@ describe("addImageFront", () => {
 			addFieldUserNameMandatory.userName,
 			addFieldUserNameMandatory.operationId,
 			addFieldUserNameMandatory.side,
-			base64Img.addFront,
+			base64Img.addSelfie,
 			TOKEN
 		);
 		expect(Object.values(result)[2]).toEqual((await fetch()).message);
@@ -38,7 +39,7 @@ describe("addImageFront", () => {
 			addFieldOperationIdMandatory.userName,
 			addFieldOperationIdMandatory.operationId,
 			addFieldOperationIdMandatory.side,
-			base64Img.addFront,
+			base64Img.addSelfie,
 			TOKEN
 		);
 		expect(Object.values(result)[2]).toEqual((await fetch()).message);
@@ -53,11 +54,27 @@ describe("addImageFront", () => {
 			addFielSideMandatory.userName,
 			addFielSideMandatory.operationId,
 			addFielSideMandatory.side,
-			base64Img.addEmpty,
+			base64Img.addSelfie,
 			TOKEN
 		);
 		expect(Object.values(result)[2]).toEqual((await fetch()).message);
 		expect(fetch).toHaveBeenCalledTimes(3);
+		done();
+	}, 5000);
+
+
+    it(`Should THROW ERROR when you want to enter a file with space "" `, async done => {
+		fetch.mockReturnValue(Promise.resolve(addfileMandatoryResponse));
+		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
+		const result = await vuScurity.addDocumentImage(
+			addFielImageMandatory.userName,
+			addFielImageMandatory.operationId,
+			addFielImageMandatory.side,
+			base64Img.addEmpty,
+			TOKEN
+		);
+		expect(Object.values(result)[2]).toEqual((await fetch()).message);
+		expect(fetch).toHaveBeenCalledTimes(4);
 		done();
 	}, 5000);
 
@@ -76,4 +93,6 @@ describe("addImageFront", () => {
 		}
 		done();
 	}, 5000);
+
+
 });
