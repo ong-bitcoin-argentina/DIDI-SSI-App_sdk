@@ -1,5 +1,7 @@
 __tests__/image/file.json
+__tests__/image/fileSuccess.json
 __tests__/VUSecurityApiClient/request/config.test.json
+__tests__/VUSecurityApiClient/response/finishOperationResponse.json
 dist
 didi-sdk-*.tgz
 
