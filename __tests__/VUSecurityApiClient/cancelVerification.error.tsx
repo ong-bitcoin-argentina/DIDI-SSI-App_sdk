@@ -22,7 +22,8 @@ describe("cancelVerification", () => {
 			addFieldUserNameMandatory.operationId,
 			TOKEN
 		);
-		expect(Object.values(result)[2]).toEqual((await fetch()).message);
+		expect(result.status).toEqual("error");
+		expect(result.message).toEqual((await fetch()).message);
 		expect(fetch).toHaveBeenCalledTimes(1);
 		done();
 	}, 5000);
@@ -35,7 +36,8 @@ describe("cancelVerification", () => {
 			addFieldOperationIdMandatory.operationId,
 			TOKEN
 		);
-		expect(Object.values(result)[2]).toEqual((await fetch()).message);
+		expect(result.status).toEqual("error");
+		expect(result.message).toEqual((await fetch()).message);
 		expect(fetch).toHaveBeenCalledTimes(2);
 		done();
 	}, 5000);

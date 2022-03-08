@@ -3,22 +3,26 @@ jest.mock("node-fetch");
 const fetch = jest.fn();
 import { VUSecurityApiClient } from "../../src/VUSecurityApiClient";
 import base64Img from "../image/file.json";
+import base64ImgSuccess from "../image/fileSuccess.json"
 //config
-import { URI_VU_SECURITY, TOKEN } from "./request/config.test.json";
+import { URI_VU_SECURITY, TOKEN,TOKEN_GO_TO_CANCEL } from "./request/config.test.json";
 
 //request
 import createVerificationRequest from "./request/createVerificationRequest.json";
 import createVerificationforCancelRequest from "./request/createVerificationforCancelRequest.json";
 import addFrontRequest from "./request/addFrontRequest.json";
 import addBackRequest from "./request/addBackRequest.json";
-
+import addSelfieRequest from "./request/addSelfieRequest.json";
+import createVerificationSuccessRequest from "./request/addUserSuccess/createVerificationRequest.json";
 //response
 import createVerificationResponse from "./response/createVerificationResponse.json";
 import cancelVerificationResponse from "./response/cancelVerificationResponse.json";
 import addFrontResponse from "./response/addFrontResponse.json";
 import addBackResponse from "./response/addBackResponse.json";
-
+import addSelfieResponse from "./response/addSelfieResponse.json";
+import finishOperationResponse from "./response/finishOperationResponse.json";
 describe("VUSecurityApiClient", () => {
+
 	it(`createVerification`, async done => {
 		fetch.mockReturnValue(Promise.resolve(createVerificationResponse));
 		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
@@ -33,7 +37,8 @@ describe("VUSecurityApiClient", () => {
 			createVerificationRequest.deviceName,
 			TOKEN
 		);
-		expect(Object.values(result)[1]).toEqual((await fetch()).message);
+		
+		expect(result.data.message).toEqual((await fetch()).data.message);
 		expect(fetch).toHaveBeenCalledTimes(1);
 		done();
 	}, 5000);
@@ -50,15 +55,15 @@ describe("VUSecurityApiClient", () => {
 			createVerificationforCancelRequest.operativeSystemVersion,
 			createVerificationforCancelRequest.deviceManufacturer,
 			createVerificationforCancelRequest.deviceName,
-			TOKEN
+			TOKEN_GO_TO_CANCEL,
 		);
-		expect(Object.values(resultVU)[1]).toEqual("New operation created");
-		const result = await vuScurity.cancelVerification(
-			`${Object.values(resultVU)[3]}`,
-			`${Object.values(resultVU)[2]}`,
-			TOKEN
+		expect(resultVU.data.message).toEqual("New operation created");
+		const resultCancel = await vuScurity.cancelVerification(
+			resultVU.data.userName,
+			`${resultVU.data.operationId}`,
+			TOKEN_GO_TO_CANCEL
 		);
-		expect(Object.values(result)[1]).toEqual(await fetch());
+		expect(resultCancel.data.message).toEqual((await fetch()).data.message);
 		expect(fetch).toHaveBeenCalledTimes(2);
 		done();
 	}, 5000);
@@ -66,9 +71,20 @@ describe("VUSecurityApiClient", () => {
 	it(`addFront`, async done => {
 		fetch.mockReturnValue(Promise.resolve(addFrontResponse));
 		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
+		const resultVerification = await vuScurity.createVerification(
+			createVerificationRequest.did,
+			createVerificationRequest.userName,
+			createVerificationRequest.deviceHash,
+			createVerificationRequest.rooted,
+			createVerificationRequest.operativeSystem,
+			createVerificationRequest.operativeSystemVersion,
+			createVerificationRequest.deviceManufacturer,
+			createVerificationRequest.deviceName,
+			TOKEN
+		);
 		const result = await vuScurity.addDocumentImage(
-			addFrontRequest.userName,
-			addFrontRequest.operationId,
+			resultVerification.data.userName,
+			`${resultVerification.data.operationId}`,
 			addFrontRequest.side,
 			base64Img.addFront,
 			TOKEN
@@ -76,14 +92,34 @@ describe("VUSecurityApiClient", () => {
 		expect(result).toEqual(await fetch());
 		expect(fetch).toHaveBeenCalledTimes(3);
 		done();
-	}, 5000);
+	}, 8000);
 
 	it(`addBack`, async done => {
 		fetch.mockReturnValue(Promise.resolve(addBackResponse));
 		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
+		const resultVerification = await vuScurity.createVerification(
+			createVerificationRequest.did,
+			createVerificationRequest.userName,
+			createVerificationRequest.deviceHash,
+			createVerificationRequest.rooted,
+			createVerificationRequest.operativeSystem,
+			createVerificationRequest.operativeSystemVersion,
+			createVerificationRequest.deviceManufacturer,
+			createVerificationRequest.deviceName,
+			TOKEN
+		);
+
+		 await vuScurity.addDocumentImage(
+			resultVerification.data.userName,
+			`${resultVerification.data.operationId}`,
+			addFrontRequest.side,
+			base64Img.addFront,
+			TOKEN
+		);
+
 		const result = await vuScurity.addDocumentImage(
-			addBackRequest.userName,
-			addBackRequest.operationId,
+			resultVerification.data.userName,
+			`${resultVerification.data.operationId}`,
 			addBackRequest.side,
 			base64Img.addBack,
 			TOKEN
@@ -91,5 +127,99 @@ describe("VUSecurityApiClient", () => {
 		expect(result).toEqual(await fetch());
 		expect(fetch).toHaveBeenCalledTimes(4);
 		done();
-	}, 5000);
+	}, 11000);
+
+
+	//addSelfie
+	it(`addSelfie`, async done => {
+		fetch.mockReturnValue(Promise.resolve(addSelfieResponse));
+		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
+		const resultVerification = await vuScurity.createVerification(
+			createVerificationRequest.did,
+			createVerificationRequest.userName,
+			createVerificationRequest.deviceHash,
+			createVerificationRequest.rooted,
+			createVerificationRequest.operativeSystem,
+			createVerificationRequest.operativeSystemVersion,
+			createVerificationRequest.deviceManufacturer,
+			createVerificationRequest.deviceName,
+			TOKEN
+		);
+
+		 await vuScurity.addDocumentImage(
+			resultVerification.data.userName,
+			`${resultVerification.data.operationId}`,
+			addFrontRequest.side,
+			base64Img.addFront,
+			TOKEN
+		);
+
+		await vuScurity.addDocumentImage(
+			resultVerification.data.userName,
+			`${resultVerification.data.operationId}`,
+			addBackRequest.side,
+			base64Img.addBack,
+			TOKEN
+		);
+
+		const result = await vuScurity.addDocumentImage(
+			resultVerification.data.userName,
+			`${resultVerification.data.operationId}`,
+			addSelfieRequest.side,
+			base64Img.addSelfie,
+			TOKEN
+		);
+
+		expect(result).toEqual(await fetch());
+		expect(fetch).toHaveBeenCalledTimes(5);
+		done();
+	}, 14000);
+
+
+
+	it(`finishOperation`, async done => {
+		let addNewUser = await Math.random();
+		fetch.mockReturnValue(Promise.resolve(finishOperationResponse));
+		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
+		const resultVerification = await vuScurity.createVerification(
+			createVerificationSuccessRequest.did,
+			createVerificationSuccessRequest.userName+addNewUser,
+			createVerificationSuccessRequest.deviceHash,
+			createVerificationSuccessRequest.rooted,
+			createVerificationSuccessRequest.operativeSystem,
+			createVerificationSuccessRequest.operativeSystemVersion,
+			createVerificationSuccessRequest.deviceManufacturer,
+			createVerificationSuccessRequest.deviceName,
+			TOKEN
+		);
+		await vuScurity.addDocumentImage(
+			resultVerification.data.userName,
+			`${resultVerification.data.operationId}`,
+			addFrontRequest.side,
+			base64ImgSuccess.addFrontSuccess,
+			TOKEN
+		);
+		await vuScurity.addDocumentImage(
+			resultVerification.data.userName,
+			`${resultVerification.data.operationId}`,
+			addBackRequest.side,
+			base64ImgSuccess.addBackSuccess,
+			TOKEN
+		);
+		await vuScurity.addDocumentImage(
+			resultVerification.data.userName,
+			`${resultVerification.data.operationId}`,
+			addSelfieRequest.side,
+			base64ImgSuccess.addSelfieSuccess,
+			TOKEN
+		);	
+		const resultFinishOperation = await vuScurity.finishOperation(
+			resultVerification.data.userName,
+			`${resultVerification.data.operationId}`,
+			TOKEN
+		);
+		expect(resultFinishOperation).toEqual(await fetch());
+		expect(fetch).toHaveBeenCalledTimes(6);
+		done();
+	}, 17000);
 });
