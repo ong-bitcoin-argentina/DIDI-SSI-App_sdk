@@ -13,6 +13,7 @@ interface IReturnError {
 type IReturn = IReturnError & IVerification ; 
 type IReturnCancel = IReturnError & ICancel ; 
 type IReturnImage = IReturnError & IDocumentImage;
+type IReturnFinish = IReturnError & IReturnFinishOperation;
 export class VUSecurityApiClient {
 
 	private baseUrl: string;
@@ -68,7 +69,7 @@ export class VUSecurityApiClient {
     }
 
 
-	async finishOperation(userName: string, operationId: string, token: string): Promise<IReturnFinishOperation>{
+	async finishOperation(userName: string, operationId: string, token: string): Promise<IReturnFinish>{
 		return authorizationCall(`${this.baseUrl}/finishOperation`, "POST", {
 			operationId,
 			userName
