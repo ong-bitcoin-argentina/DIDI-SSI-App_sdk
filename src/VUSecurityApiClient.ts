@@ -1,4 +1,4 @@
-import { authorizationCall} from "./util/commonServiceRequest";
+import { authorizationCall } from "./util/commonServiceRequest";
 import { IReturnFinishOperation } from './model/FinishOperation';
 import { IVerification } from './model/CreateVerification';
 import { ICancel } from './model/CancelVerification';
