@@ -1,0 +1,9 @@
+{
+	"status": "success",
+	"data": {
+		"code": 901,
+		"message": "New operation created",
+		"operationId": 2556,
+		"userName": "VU-TEST-SDK-12"
+	}
+}
