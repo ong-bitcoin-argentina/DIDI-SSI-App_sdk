@@ -2,8 +2,8 @@ require("isomorphic-fetch");
 jest.mock("node-fetch");
 import { VUSecurityApiClient } from "../../src/VUSecurityApiClient";
 
-import { URI_VU_SECURITY, TOKEN_EMPTY, TOKEN_INCORRECT } from "./request/config.test.json";
-import cancelVerification from "./request/cancelVerification.json";
+import { URI_VU_SECURITY, TOKEN_EMPTY, TOKEN_INCORRECT } from "../config/config.test.json";
+import cancelVerification from "./request/addTokenError/cancelVerification.json";
 
 describe("cancelVerification", () => {
 	it(`Should THROW ERROR when you want to enter a Token with space "" `, async done => {

@@ -4,7 +4,7 @@ const fetch = jest.fn();
 import { VUSecurityApiClient } from "../../src/VUSecurityApiClient";
 
 //config
-import { URI_VU_SECURITY, TOKEN } from "./request/config.test.json";
+import { URI_VU_SECURITY, TOKEN } from "../config/config.test.json";
 
 //request
 import addFieldDidiMandatory from "./request/createVerification/addFieldDidiMandatory.json";

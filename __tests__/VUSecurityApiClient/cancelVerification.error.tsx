@@ -3,7 +3,7 @@ jest.mock("node-fetch");
 const fetch = jest.fn();
 import { VUSecurityApiClient } from "../../src/VUSecurityApiClient";
 //config
-import { URI_VU_SECURITY, TOKEN } from "./request/config.test.json";
+import { URI_VU_SECURITY, TOKEN } from "../config/config.test.json";
 
 //request
 import addFieldUserNameMandatory from "./request/cancelVerification/addFieldUserNameMandatory.json";

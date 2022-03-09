@@ -2,25 +2,25 @@ require("isomorphic-fetch");
 jest.mock("node-fetch");
 const fetch = jest.fn();
 import { VUSecurityApiClient } from "../../src/VUSecurityApiClient";
-import base64Img from "../image/file.json";
-import base64ImgSuccess from "../image/fileSuccess.json"
+import base64Img from "../config/image/file.json";
+import base64ImgSuccess from "../config/image/fileSuccess.json"
 //config
-import { URI_VU_SECURITY, TOKEN,TOKEN_GO_TO_CANCEL } from "./request/config.test.json";
+import { URI_VU_SECURITY, TOKEN,TOKEN_GO_TO_CANCEL } from "../config/config.test.json";
 
 //request
-import createVerificationRequest from "./request/createVerificationRequest.json";
-import createVerificationforCancelRequest from "./request/createVerificationforCancelRequest.json";
-import addFrontRequest from "./request/addFrontRequest.json";
-import addBackRequest from "./request/addBackRequest.json";
-import addSelfieRequest from "./request/addSelfieRequest.json";
+import createVerificationRequest from "./request/addCreateVerificationSuccess/createVerificationRequest.json";
+import createVerificationforCancelRequest from "./request/addCancelVerificationSuccess/createVerificationforCancelRequest.json";
+import addFrontRequest from "./request/addFrontSuccess/addFrontRequest.json";
+import addBackRequest from "./request/addBackSuccess/addBackRequest.json";
+import addSelfieRequest from "./request/addSelfieSuccess/addSelfieRequest.json";
 import createVerificationSuccessRequest from "./request/addUserSuccess/createVerificationRequest.json";
 //response
-import createVerificationResponse from "./response/createVerificationResponse.json";
-import cancelVerificationResponse from "./response/cancelVerificationResponse.json";
-import addFrontResponse from "./response/addFrontResponse.json";
-import addBackResponse from "./response/addBackResponse.json";
-import addSelfieResponse from "./response/addSelfieResponse.json";
-import finishOperationResponse from "./response/finishOperationResponse.json";
+import createVerificationResponse from "./response/addCreateVerificationSuccess/createVerificationResponse.json";
+import cancelVerificationResponse from "./response/addCancelVerificationSuccess/cancelVerificationResponse.json";
+import addFrontResponse from "./response/addFrontSuccess/addFrontResponse.json";
+import addBackResponse from "./response/addBackSuccess/addBackResponse.json";
+import addSelfieResponse from "./response/addSelfieSuccess/addSelfieResponse.json";
+import finishOperationResponse from "./response/addFinishOperationSuccess/finishOperationResponse.json";
 describe("VUSecurityApiClient", () => {
 
 	it(`createVerification`, async done => {

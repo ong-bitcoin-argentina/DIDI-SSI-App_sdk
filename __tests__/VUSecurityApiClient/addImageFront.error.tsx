@@ -3,17 +3,17 @@ jest.mock("node-fetch");
 const fetch = jest.fn();
 import { VUSecurityApiClient } from "../../src/VUSecurityApiClient";
 //config
-import { URI_VU_SECURITY, TOKEN } from "./request/config.test.json";
-import base64Img from "../image/file.json";
+import { URI_VU_SECURITY, TOKEN } from "../config/config.test.json";
+import base64Img from "../config/image/file.json";
 //request
-import addFieldUserNameMandatory from "./request/addImageFronterror/addFieldUserNameMandatory.json";
-import addFieldOperationIdMandatory from "./request/addImageFronterror/addFieldOperationIdMandatory.json";
-import addFielSideMandatory from "./request/addImageFronterror/addFielSideMandatory.json";
+import addFieldUserNameMandatory from "./request/addImageFrontError/addFieldUserNameMandatory.json";
+import addFieldOperationIdMandatory from "./request/addImageFrontError/addFieldOperationIdMandatory.json";
+import addFielSideMandatory from "./request/addImageFrontError/addFielSideMandatory.json";
 
 //response
-import addUserNameMandatoryResponse from "./response/addImageFronterror/addUserNameMandatoryResponse.json";
-import addOperationIdMandatoryResponse from "./response/addImageFronterror/addOperationIdMandatoryResponse.json";
-import addSideMandatoryResponse from "./response/addImageFronterror/addSideMandatoryResponse.json";
+import addUserNameMandatoryResponse from "./response/addImageFrontError/addUserNameMandatoryResponse.json";
+import addOperationIdMandatoryResponse from "./response/addImageFrontError/addOperationIdMandatoryResponse.json";
+import addSideMandatoryResponse from "./response/addImageFrontError/addSideMandatoryResponse.json";
 
 describe("addImageFront", () => {
 	it(`Should THROW ERROR when you want to enter a userName with space "" `, async done => {
