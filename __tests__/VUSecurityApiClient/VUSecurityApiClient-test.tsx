@@ -178,7 +178,7 @@ describe("VUSecurityApiClient", () => {
 
 
 	it(`finishOperation`, async done => {
-		let addNewUser = await Math.random();
+		let addNewUser = Math.random();
 		fetch.mockReturnValue(Promise.resolve(finishOperationResponse));
 		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
 		const resultVerification = await vuScurity.createVerification(
