@@ -1,6 +1,18 @@
-import { authorizationCall, simpleCall } from "./util/commonServiceRequest";
-import { ApiResult } from "./DidiServerApiClient";
-import { ICreateVerificationResponse } from './model/VuSecurity';
+import { authorizationCall} from "./util/commonServiceRequest";
+import { IReturnFinishOperation } from './model/FinishOperation';
+import { IVerification } from './model/CreateVerification';
+import { ICancel } from './model/CancelVerification';
+import { IDocumentImage } from './model/DocumentImage';
+
+interface IReturnError {
+    status:    string;
+    errorCode: string;
+    message:   string;
+}
+
+type IReturn = IReturnError & IVerification ; 
+type IReturnCancel = IReturnError & ICancel ; 
+type IReturnImage = IReturnError & IDocumentImage;
 export class VUSecurityApiClient {
 
 	private baseUrl: string;
@@ -24,7 +36,7 @@ export class VUSecurityApiClient {
 		deviceManufacturer: string,
 		deviceName: string,
 		token: string
-	): ApiResult<ICreateVerificationResponse> {
+	): Promise<IReturn> {
 		return authorizationCall(`${this.baseUrl}/createVerification`, "POST", {
 			did,
 			userName,
@@ -37,16 +49,16 @@ export class VUSecurityApiClient {
 		},token);
 	}
 
-	async cancelVerification(userName: string, operationId: string, token: string): ApiResult<string> {
+	async cancelVerification(userName: string, operationId: string, token: string): Promise<IReturnCancel>{
 		return authorizationCall(`${this.baseUrl}/cancelVerification`, "POST", {
 			userName,
 			operationId
-		},token); 
+			},token);
 	}
 
 
 
-	async addDocumentImage(userName: string, operationId: string, side: string, file: string, token: string): ApiResult<string> {	
+	async addDocumentImage(userName: string, operationId: string, side: string, file: string, token: string): Promise<IReturnImage>{	
 		return authorizationCall(`${this.baseUrl}/addDocumentImage`, "POST", {
 			operationId,
 			userName,
@@ -54,5 +66,15 @@ export class VUSecurityApiClient {
 			file
 		},token); 
     }
+
+
+	async finishOperation(userName: string, operationId: string, token: string): Promise<IReturnFinishOperation>{
+		return authorizationCall(`${this.baseUrl}/finishOperation`, "POST", {
+			operationId,
+			userName
+			},token);
+	}
+
+	
 
 }
