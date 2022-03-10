@@ -21,7 +21,9 @@ import addFrontResponse from "./response/addFrontSuccess/addFrontResponse.json";
 import addBackResponse from "./response/addBackSuccess/addBackResponse.json";
 import addSelfieResponse from "./response/addSelfieSuccess/addSelfieResponse.json";
 import finishOperationResponse from "./response/addFinishOperationSuccess/finishOperationResponse.json";
-const userRandom = global.Math.random();
+
+
+
 describe("VUSecurityApiClient", () => {
 
 	it(`createVerification`, async done => {
@@ -179,6 +181,7 @@ describe("VUSecurityApiClient", () => {
 
 	
 	it(`finishOperation`, async done => {
+		let userRandom = require('crypto').randomBytes((new Uint32Array(1)).length)[0]; 
 		fetch.mockReturnValue(Promise.resolve(finishOperationResponse));
 		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
 		const resultVerification = await vuScurity.createVerification(
