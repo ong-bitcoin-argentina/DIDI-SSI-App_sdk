@@ -21,6 +21,7 @@ import addFrontResponse from "./response/addFrontSuccess/addFrontResponse.json";
 import addBackResponse from "./response/addBackSuccess/addBackResponse.json";
 import addSelfieResponse from "./response/addSelfieSuccess/addSelfieResponse.json";
 import finishOperationResponse from "./response/addFinishOperationSuccess/finishOperationResponse.json";
+const userRandom = global.Math.random();
 describe("VUSecurityApiClient", () => {
 
 	it(`createVerification`, async done => {
@@ -37,7 +38,7 @@ describe("VUSecurityApiClient", () => {
 			createVerificationRequest.deviceName,
 			TOKEN
 		);
-		
+
 		expect(result.data.message).toEqual((await fetch()).data.message);
 		expect(fetch).toHaveBeenCalledTimes(1);
 		done();
@@ -176,14 +177,13 @@ describe("VUSecurityApiClient", () => {
 	}, 14000);
 
 
-
+	
 	it(`finishOperation`, async done => {
-		let addNewUser = Math.random();
 		fetch.mockReturnValue(Promise.resolve(finishOperationResponse));
 		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
 		const resultVerification = await vuScurity.createVerification(
 			createVerificationSuccessRequest.did,
-			createVerificationSuccessRequest.userName+addNewUser,
+			createVerificationSuccessRequest.userName+userRandom,
 			createVerificationSuccessRequest.deviceHash,
 			createVerificationSuccessRequest.rooted,
 			createVerificationSuccessRequest.operativeSystem,
