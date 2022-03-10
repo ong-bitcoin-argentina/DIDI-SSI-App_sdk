@@ -1,4 +1,3 @@
-import { string } from 'fp-ts';
 import { Either, isLeft, left, right } from "fp-ts/lib/Either";
 import * as t from "io-ts";
 

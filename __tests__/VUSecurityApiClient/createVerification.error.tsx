@@ -4,7 +4,7 @@ const fetch = jest.fn();
 import { VUSecurityApiClient } from "../../src/VUSecurityApiClient";
 
 //config
-import { URI_VU_SECURITY, TOKEN } from "./request/config.test.json";
+import { URI_VU_SECURITY, TOKEN } from "../config/config.test.json";
 
 //request
 import addFieldDidiMandatory from "./request/createVerification/addFieldDidiMandatory.json";
@@ -39,8 +39,8 @@ describe("createVerification", () => {
 			addFieldDidiMandatory.deviceName,
 			TOKEN
 		);
-		expect(Object.values(result)[0]).toEqual("error");
-		expect(Object.values(result)[2]).toEqual((await fetch()).message);
+		expect(result.status).toEqual("error");
+		expect(result.message).toEqual((await fetch()).message);
 		expect(fetch).toHaveBeenCalledTimes(1);
 		done();
 	}, 5000);
@@ -59,8 +59,8 @@ describe("createVerification", () => {
 			addFieldUserNameMandatory.deviceName,
 			TOKEN
 		);
-		expect(Object.values(result)[0]).toEqual("error");
-		expect(Object.values(result)[2]).toEqual((await fetch()).message);
+		expect(result.status).toEqual("error");
+		expect(result.message).toEqual((await fetch()).message);
 		expect(fetch).toHaveBeenCalledTimes(2);
 		done();
 	}, 5000);
@@ -79,8 +79,8 @@ describe("createVerification", () => {
 			addFielDeviceHashMandatory.deviceName,
 			TOKEN
 		);
-		expect(Object.values(result)[0]).toEqual("error");
-		expect(Object.values(result)[2]).toEqual((await fetch()).message);
+		expect(result.status).toEqual("error");
+		expect(result.message).toEqual((await fetch()).message);
 		expect(fetch).toHaveBeenCalledTimes(3);
 		done();
 	}, 5000);
@@ -99,8 +99,8 @@ describe("createVerification", () => {
 			addFieldOperativeSystemMandatory.deviceName,
 			TOKEN
 		);
-		expect(Object.values(result)[0]).toEqual("error");
-		expect(Object.values(result)[2]).toEqual((await fetch()).message);
+		expect(result.status).toEqual("error");
+		expect(result.message).toEqual((await fetch()).message);
 		expect(fetch).toHaveBeenCalledTimes(4);
 		done();
 	}, 5000);
@@ -119,8 +119,8 @@ describe("createVerification", () => {
 			addFieldOperativeSystemVersionMandatory.deviceName,
 			TOKEN
 		);
-		expect(Object.values(result)[0]).toEqual("error");
-		expect(Object.values(result)[2]).toEqual((await fetch()).message);
+		expect(result.status).toEqual("error");
+		expect(result.message).toEqual((await fetch()).message);
 		expect(fetch).toHaveBeenCalledTimes(5);
 		done();
 	}, 5000);
@@ -139,8 +139,8 @@ describe("createVerification", () => {
 			addFieldDeviceManufacturerMandatory.deviceName,
 			TOKEN
 		);
-		expect(Object.values(result)[0]).toEqual("error");
-		expect(Object.values(result)[2]).toEqual((await fetch()).message);
+		expect(result.status).toEqual("error");
+		expect(result.message).toEqual((await fetch()).message);
 		expect(fetch).toHaveBeenCalledTimes(6);
 		done();
 	}, 5000);
@@ -159,8 +159,8 @@ describe("createVerification", () => {
 			addFieldDeviceNameMandatory.deviceName,
 			TOKEN
 		);
-		expect(Object.values(result)[0]).toEqual("error");
-		expect(Object.values(result)[2]).toEqual((await fetch()).message);
+		expect(result.status).toEqual("error");
+		expect(result.message).toEqual((await fetch()).message);
 		expect(fetch).toHaveBeenCalledTimes(7);
 		done();
 	}, 5000);

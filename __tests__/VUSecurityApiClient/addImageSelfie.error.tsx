@@ -3,8 +3,8 @@ jest.mock("node-fetch");
 const fetch = jest.fn();
 import { VUSecurityApiClient } from "../../src/VUSecurityApiClient";
 //config
-import { URI_VU_SECURITY, TOKEN } from "./request/config.test.json";
-import base64Img from "../image/file.json";
+import { URI_VU_SECURITY, TOKEN } from "../config/config.test.json";
+import base64Img from "../config/image/file.json";
 //request
 import addFieldUserNameMandatory from "./request/addImageSelfieError/addFieldUserNameMandatory.json";
 import addFieldOperationIdMandatory from "./request/addImageSelfieError/addFieldOperationIdMandatory.json";
@@ -27,7 +27,8 @@ describe("addImageSelfie", () => {
 			base64Img.addSelfie,
 			TOKEN
 		);
-		expect(Object.values(result)[2]).toEqual((await fetch()).message);
+		expect(result.status).toEqual("error");
+		expect(result.message).toEqual((await fetch()).message);
 		expect(fetch).toHaveBeenCalledTimes(1);
 		done();
 	}, 5000);
@@ -42,7 +43,8 @@ describe("addImageSelfie", () => {
 			base64Img.addSelfie,
 			TOKEN
 		);
-		expect(Object.values(result)[2]).toEqual((await fetch()).message);
+		expect(result.status).toEqual("error");
+		expect(result.message).toEqual((await fetch()).message);
 		expect(fetch).toHaveBeenCalledTimes(2);
 		done();
 	}, 5000);
@@ -57,7 +59,8 @@ describe("addImageSelfie", () => {
 			base64Img.addSelfie,
 			TOKEN
 		);
-		expect(Object.values(result)[2]).toEqual((await fetch()).message);
+		expect(result.status).toEqual("error");
+		expect(result.message).toEqual((await fetch()).message);
 		expect(fetch).toHaveBeenCalledTimes(3);
 		done();
 	}, 5000);
@@ -73,7 +76,8 @@ describe("addImageSelfie", () => {
 			base64Img.addEmpty,
 			TOKEN
 		);
-		expect(Object.values(result)[2]).toEqual((await fetch()).message);
+		expect(result.status).toEqual("error");
+		expect(result.message).toEqual((await fetch()).message);
 		expect(fetch).toHaveBeenCalledTimes(4);
 		done();
 	}, 5000);
@@ -89,7 +93,7 @@ describe("addImageSelfie", () => {
 				TOKEN
 			);	
 		} catch (error) {
-			expect(error).toEqual(Error("Hubo un error al adherir la imagen documento"));	
+			expect(error).toEqual(Error("Hubo un error al adherir la imagen. Inténtelo nuevamente más tarde."));	
 		}
 		done();
 	}, 5000);

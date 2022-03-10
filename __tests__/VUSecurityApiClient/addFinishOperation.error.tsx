@@ -6,18 +6,18 @@ import { VUSecurityApiClient } from "../../src/VUSecurityApiClient";
 import { URI_VU_SECURITY, TOKEN } from "../config/config.test.json";
 
 //request
-import addFieldUserNameMandatory from "./request/cancelVerification/addFieldUserNameMandatory.json";
-import addFieldOperationIdMandatory from "./request/cancelVerification/addFieldOperationIdMandatory.json";
+import addFieldUserNameMandatory from "./request/addFinishOperationError/addFieldUserNameMandatory.json";
+import addFieldOperationIdMandatory from "./request/addFinishOperationError/addFieldOperationIdMandatory.json";
 
 //response
-import addUserNameMandatoryResponse from "./response/cancelVerification/addUserNameMandatoryResponse.json";
+import addUserNameMandatoryResponse from "./response/addFinishOperationError/addUserNameMandatoryResponse.json";
 import addOperationIdMandatoryResponse from "./response/cancelVerification/addOperationIdMandatoryResponse.json";
 
-describe("cancelVerification", () => {
+describe("finishOperation", () => {
 	it(`Should THROW ERROR when you want to enter a userName with space "" `, async done => {
 		fetch.mockReturnValue(Promise.resolve(addUserNameMandatoryResponse));
 		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
-		const result = await vuScurity.cancelVerification(
+		const result = await vuScurity.finishOperation(
 			addFieldUserNameMandatory.userName,
 			addFieldUserNameMandatory.operationId,
 			TOKEN
@@ -31,7 +31,7 @@ describe("cancelVerification", () => {
 	it(`Should THROW ERROR when you want to enter a operationId with space "" `, async done => {
 		fetch.mockReturnValue(Promise.resolve(addOperationIdMandatoryResponse));
 		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
-		const result = await vuScurity.cancelVerification(
+		const result = await vuScurity.finishOperation(
 			addFieldOperationIdMandatory.userName,
 			addFieldOperationIdMandatory.operationId,
 			TOKEN

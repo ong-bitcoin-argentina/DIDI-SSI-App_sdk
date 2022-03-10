@@ -1,5 +1,9 @@
-__tests__/image/file.json
-__tests__/VUSecurityApiClient/request/config.test.json
+__tests__/config
+__tests__/VUSecurityApiClient/response/addFinishOperationSuccess
+__tests__/VUSecurityApiClient/request/addCancelVerificationSuccess
+__tests__/VUSecurityApiClient/request/addUserSuccess
+
+
 dist
 didi-sdk-*.tgz
 
