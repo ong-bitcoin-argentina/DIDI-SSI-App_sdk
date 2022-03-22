@@ -45,7 +45,7 @@ export async function commonServiceRequest<A>(
 			const formData = new FormData();
 	
 			for (const key in parameters) {
-				formData.append(key, parameters[key])
+				formData.append(key, parameters[key] as string)
 			}
 			response = await fetch(url, {
 				method,
