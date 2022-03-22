@@ -10,6 +10,12 @@ export * from "./src/model/SpecialCredential";
 export * from "./src/model/SemillasTypes";
 export * from "./src/model/VuSecurity";
 
+export * from "./src/model/DocumentImage";
+export * from "./src/model/CancelVerification";
+export * from "./src/model/CreateVerification";
+export * from "./src/model/FinishOperation";
+export * from "./src/model/GetInformation";
+
 export * from "./src/DidiServerApiClient";
 export * from "./src/VUSecurityApiClient";
 export * from "./src/TrustGraphClient";
