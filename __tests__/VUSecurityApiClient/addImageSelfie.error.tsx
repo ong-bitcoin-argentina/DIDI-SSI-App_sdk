@@ -93,7 +93,7 @@ describe("addImageSelfie", () => {
 				TOKEN
 			);	
 		} catch (error) {
-			expect(error).toEqual(Error("Hubo un error al adherir la imagen. Inténtelo nuevamente más tarde."));	
+			expect(error).toEqual(Error("Add front fail"));	
 		}
 		done();
 	}, 5000);
