@@ -21,6 +21,7 @@ import addFrontResponse from "./response/addFrontSuccess/addFrontResponse.json";
 import addBackResponse from "./response/addBackSuccess/addBackResponse.json";
 import addSelfieResponse from "./response/addSelfieSuccess/addSelfieResponse.json";
 import finishOperationResponse from "./response/addFinishOperationSuccess/finishOperationResponse.json";
+import getInformation from "./response/getInformation/getInformation.json";
 
 
 
@@ -179,7 +180,48 @@ describe("VUSecurityApiClient", () => {
 	}, 14000);
 
 
-	
+
+	it(`getInformation`, async done => {
+		let userRandom = require('crypto').randomBytes((new Uint32Array(1)).length)[0]; 
+		fetch.mockReturnValue(Promise.resolve(getInformation));
+		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
+		const resultVerification = await vuScurity.createVerification(
+			createVerificationSuccessRequest.did,
+			createVerificationSuccessRequest.userName+userRandom,
+			createVerificationSuccessRequest.deviceHash,
+			createVerificationSuccessRequest.rooted,
+			createVerificationSuccessRequest.operativeSystem,
+			createVerificationSuccessRequest.operativeSystemVersion,
+			createVerificationSuccessRequest.deviceManufacturer,
+			createVerificationSuccessRequest.deviceName,
+			TOKEN
+		);
+		await vuScurity.addDocumentImage(
+			resultVerification.data.userName,
+			`${resultVerification.data.operationId}`,
+			addFrontRequest.side,
+			base64ImgSuccess.addFrontSuccess,
+			TOKEN
+		);
+		await vuScurity.addDocumentImage(
+			resultVerification.data.userName,
+			`${resultVerification.data.operationId}`,
+			addBackRequest.side,
+			base64ImgSuccess.addBackSuccess,
+			TOKEN
+		);
+
+		const resultInformation = await vuScurity.getInformation(
+			resultVerification.data.userName,
+			`${resultVerification.data.operationId}`,
+			TOKEN
+		);
+		const response = await fetch();
+		expect(resultInformation.status).toEqual(response.status);
+		expect(fetch).toHaveBeenCalledTimes(6);
+		done();
+	}, 17000);
+		
 	it(`finishOperation`, async done => {
 		let userRandom = require('crypto').randomBytes((new Uint32Array(1)).length)[0]; 
 		fetch.mockReturnValue(Promise.resolve(finishOperationResponse));
@@ -222,7 +264,7 @@ describe("VUSecurityApiClient", () => {
 			TOKEN
 		);
 		expect(resultFinishOperation).toEqual(await fetch());
-		expect(fetch).toHaveBeenCalledTimes(6);
+		expect(fetch).toHaveBeenCalledTimes(7);
 		done();
 	}, 17000);
 });
