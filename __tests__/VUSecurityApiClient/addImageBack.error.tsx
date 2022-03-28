@@ -75,7 +75,7 @@ describe("addImageFront", () => {
 				TOKEN
 			);	
 		} catch (error) {
-			expect(error).toEqual(Error("Hubo un error al adherir la imagen. Inténtelo nuevamente más tarde."));	
+			expect(error).toEqual(Error("Add back fail"));	
 		}
 		done();
 	}, 5000);

@@ -3,6 +3,7 @@ import { IReturnFinishOperation } from './model/FinishOperation';
 import { IVerification } from './model/CreateVerification';
 import { ICancel } from './model/CancelVerification';
 import { IDocumentImage } from './model/DocumentImage';
+import { IGetInformation } from './model/GetInformation';
 
 interface IReturnError {
     status:    string;
@@ -14,6 +15,7 @@ type IReturn = IReturnError & IVerification ;
 type IReturnCancel = IReturnError & ICancel ; 
 type IReturnImage = IReturnError & IDocumentImage;
 type IReturnFinish = IReturnError & IReturnFinishOperation;
+type IReturnInformation= IReturnError & IGetInformation;
 export class VUSecurityApiClient {
 
 	private baseUrl: string;
@@ -68,6 +70,12 @@ export class VUSecurityApiClient {
 		},token); 
     }
 
+	async getInformation(userName: string, operationId: string, token: string): Promise<IReturnInformation>{
+		return authorizationCall(`${this.baseUrl}/getInformation`, "POST", {
+			operationId,
+			userName
+			},token);
+	}
 
 	async finishOperation(userName: string, operationId: string, token: string): Promise<IReturnFinish>{
 		return authorizationCall(`${this.baseUrl}/finishOperation`, "POST", {

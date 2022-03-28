@@ -1,0 +1,20 @@
+{
+    "status": "success",
+    "data": {
+        "code": 990,
+        "message": "Get document information success",
+        "ocr": {
+            "lastNames": "reserved",
+            "gender": "reserved",
+            "birthdate": "reserved",
+            "names": "reserved",
+            "number": "reserved",
+            "extra": ["Object"]
+        },
+        "barcode": {
+            "contains": true, 
+            "readed": true, 
+            "data": ["Object"]
+        }
+    }
+}
