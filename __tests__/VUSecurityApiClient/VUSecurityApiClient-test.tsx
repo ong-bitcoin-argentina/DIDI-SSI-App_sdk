@@ -264,13 +264,13 @@ describe("VUSecurityApiClient", () => {
 			addSelfieRequest.side,
 			base64ImgSuccess.addSelfieSuccess,
 			TOKEN
-		);	
+		); 
 		const resultFinishOperation = await vuScurity.finishOperation(
 			resultVerification.data.userName,
 			`${resultVerification.data.operationId}`,
 			TOKEN
 		);
-		expect(resultFinishOperation).toEqual(await fetch());
+		expect(resultFinishOperation.status).toEqual((await fetch()).status);
 		expect(fetch).toHaveBeenCalledTimes(7);
 		done();
 	}, 17000);
