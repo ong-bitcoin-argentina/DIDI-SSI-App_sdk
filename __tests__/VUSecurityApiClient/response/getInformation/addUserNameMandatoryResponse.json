@@ -1,5 +1,4 @@
 {
-    "status": "error",
-    "errorCode": "PARAMETER_MISSING",
-    "message": "falta el campo: userName"
+    "status": "success",
+    "data": {}
 }

@@ -6,5 +6,6 @@
     "operativeSystem": "console test",
     "operativeSystemVersion": "11",
     "deviceManufacturer": "Apple",
-    "deviceName": ""
+    "deviceName": "",
+    "ipAddress": "123.12.12.12"
 }
