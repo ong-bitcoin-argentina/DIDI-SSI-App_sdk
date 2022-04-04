@@ -33,18 +33,22 @@ describe("addImageFront", () => {
 	}, 5000);
 
 	it(`Should THROW ERROR when you want to enter a operationId with space "" `, async done => {
-		fetch.mockReturnValue(Promise.resolve(addOperationIdMandatoryResponse));
+		fetch.mockReturnValue(Promise.resolve(Error(addOperationIdMandatoryResponse.message)));
 		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
-		const result = await vuScurity.addDocumentImage(
-			addFieldOperationIdMandatory.userName,
-			addFieldOperationIdMandatory.operationId,
-			addFieldOperationIdMandatory.side,
-			base64Img.addFront,
-			TOKEN
-		);		
-		expect(result.status).toEqual("error");
-		expect(result.message).toEqual((await fetch()).message);
-		expect(fetch).toHaveBeenCalledTimes(2);
+		try {		
+			 await vuScurity.addDocumentImage(
+				addFieldOperationIdMandatory.userName,
+				addFieldOperationIdMandatory.operationId,
+				addFieldOperationIdMandatory.side,
+				base64Img.addFront,
+				TOKEN
+			);		
+				
+		} catch (error) {
+			expect(error).toEqual(await fetch());
+			expect(fetch).toHaveBeenCalledTimes(2);
+            done();	
+		}
 		done();
 	}, 5000);
 
