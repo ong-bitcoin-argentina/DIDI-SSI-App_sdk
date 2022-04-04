@@ -39,6 +39,7 @@ describe("VUSecurityApiClient", () => {
 			createVerificationRequest.operativeSystemVersion,
 			createVerificationRequest.deviceManufacturer,
 			createVerificationRequest.deviceName,
+			createVerificationRequest.ipAddress,
 			TOKEN
 		);
 
@@ -59,6 +60,7 @@ describe("VUSecurityApiClient", () => {
 			createVerificationforCancelRequest.operativeSystemVersion,
 			createVerificationforCancelRequest.deviceManufacturer,
 			createVerificationforCancelRequest.deviceName,
+			createVerificationRequest.ipAddress,
 			TOKEN_GO_TO_CANCEL,
 		);
 		expect(resultVU.data.message).toEqual("New operation created");
@@ -84,6 +86,7 @@ describe("VUSecurityApiClient", () => {
 			createVerificationRequest.operativeSystemVersion,
 			createVerificationRequest.deviceManufacturer,
 			createVerificationRequest.deviceName,
+			createVerificationRequest.ipAddress,
 			TOKEN
 		);
 		const result = await vuScurity.addDocumentImage(
@@ -96,7 +99,7 @@ describe("VUSecurityApiClient", () => {
 		expect(result).toEqual(await fetch());
 		expect(fetch).toHaveBeenCalledTimes(3);
 		done();
-	}, 8000);
+	}, 9000);
 
 	it(`addBack`, async done => {
 		fetch.mockReturnValue(Promise.resolve(addBackResponse));
@@ -110,6 +113,7 @@ describe("VUSecurityApiClient", () => {
 			createVerificationRequest.operativeSystemVersion,
 			createVerificationRequest.deviceManufacturer,
 			createVerificationRequest.deviceName,
+			createVerificationRequest.ipAddress,
 			TOKEN
 		);
 
@@ -147,6 +151,7 @@ describe("VUSecurityApiClient", () => {
 			createVerificationRequest.operativeSystemVersion,
 			createVerificationRequest.deviceManufacturer,
 			createVerificationRequest.deviceName,
+			createVerificationRequest.ipAddress,
 			TOKEN
 		);
 
@@ -194,6 +199,7 @@ describe("VUSecurityApiClient", () => {
 			createVerificationSuccessRequest.operativeSystemVersion,
 			createVerificationSuccessRequest.deviceManufacturer,
 			createVerificationSuccessRequest.deviceName,
+			createVerificationRequest.ipAddress,
 			TOKEN
 		);
 		await vuScurity.addDocumentImage(
@@ -235,6 +241,7 @@ describe("VUSecurityApiClient", () => {
 			createVerificationSuccessRequest.operativeSystemVersion,
 			createVerificationSuccessRequest.deviceManufacturer,
 			createVerificationSuccessRequest.deviceName,
+			createVerificationRequest.ipAddress,
 			TOKEN
 		);
 		await vuScurity.addDocumentImage(
