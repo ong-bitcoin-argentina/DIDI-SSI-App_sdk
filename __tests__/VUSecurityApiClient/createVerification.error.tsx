@@ -37,6 +37,7 @@ describe("createVerification", () => {
 			addFieldDidiMandatory.operativeSystemVersion,
 			addFieldDidiMandatory.deviceManufacturer,
 			addFieldDidiMandatory.deviceName,
+			addFieldDidiMandatory.ipAddress,
 			TOKEN
 		);
 		expect(result.status).toEqual("error");
@@ -57,6 +58,7 @@ describe("createVerification", () => {
 			addFieldUserNameMandatory.operativeSystemVersion,
 			addFieldUserNameMandatory.deviceManufacturer,
 			addFieldUserNameMandatory.deviceName,
+			addFieldUserNameMandatory.ipAddress,
 			TOKEN
 		);
 		expect(result.status).toEqual("error");
@@ -77,6 +79,7 @@ describe("createVerification", () => {
 			addFielDeviceHashMandatory.operativeSystemVersion,
 			addFielDeviceHashMandatory.deviceManufacturer,
 			addFielDeviceHashMandatory.deviceName,
+			addFielDeviceHashMandatory.ipAddress,
 			TOKEN
 		);
 		expect(result.status).toEqual("error");
@@ -97,6 +100,7 @@ describe("createVerification", () => {
 			addFieldOperativeSystemMandatory.operativeSystemVersion,
 			addFieldOperativeSystemMandatory.deviceManufacturer,
 			addFieldOperativeSystemMandatory.deviceName,
+			addFieldOperativeSystemMandatory.ipAddress,
 			TOKEN
 		);
 		expect(result.status).toEqual("error");
@@ -117,6 +121,7 @@ describe("createVerification", () => {
 			addFieldOperativeSystemVersionMandatory.operativeSystemVersion,
 			addFieldOperativeSystemVersionMandatory.deviceManufacturer,
 			addFieldOperativeSystemVersionMandatory.deviceName,
+			addFieldOperativeSystemVersionMandatory.ipAddress,
 			TOKEN
 		);
 		expect(result.status).toEqual("error");
@@ -137,6 +142,7 @@ describe("createVerification", () => {
 			addFieldDeviceManufacturerMandatory.operativeSystemVersion,
 			addFieldDeviceManufacturerMandatory.deviceManufacturer,
 			addFieldDeviceManufacturerMandatory.deviceName,
+			addFieldDeviceManufacturerMandatory.ipAddress,
 			TOKEN
 		);
 		expect(result.status).toEqual("error");
@@ -157,6 +163,7 @@ describe("createVerification", () => {
 			addFieldDeviceNameMandatory.operativeSystemVersion,
 			addFieldDeviceNameMandatory.deviceManufacturer,
 			addFieldDeviceNameMandatory.deviceName,
+			addFieldDeviceNameMandatory.ipAddress,
 			TOKEN
 		);
 		expect(result.status).toEqual("error");
