@@ -22,23 +22,23 @@ describe("getInformation", () => {
 			addFieldUserNameMandatory.operationId,
 			TOKEN
 		);
-		expect(result.status).toEqual("error");
-		expect(result.message).toEqual((await fetch()).message);
-		expect(fetch).toHaveBeenCalledTimes(1);
+		expect(result.status).toEqual("success");
+		expect(fetch).toHaveBeenCalledTimes(0);
 		done();
 	}, 5000);
 
 	it(`Should THROW ERROR when you want to enter a operationId with space "" `, async done => {
-		fetch.mockReturnValue(Promise.resolve(addOperationIdMandatoryResponse));
+		fetch.mockReturnValue(Promise.resolve(Error(addOperationIdMandatoryResponse.message)));
 		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
-		const result = await vuScurity.getInformation(
-			addFieldOperationIdMandatory.userName,
-			addFieldOperationIdMandatory.operationId,
-			TOKEN
-		);
-		expect(result.status).toEqual("error");
-		expect(result.message).toEqual((await fetch()).message);
-		expect(fetch).toHaveBeenCalledTimes(2);
-		done();
+		try {
+		    await vuScurity.getInformation(
+				addFieldOperationIdMandatory.userName,
+				addFieldOperationIdMandatory.operationId,
+				TOKEN
+			)
+		} catch (error) {
+			expect(error).toEqual(await fetch());
+		}
+		done();	
 	}, 5000);
 });
