@@ -31,14 +31,15 @@ describe("finishOperation", () => {
 	it(`Should THROW ERROR when you want to enter a operationId with space "" `, async done => {
 		fetch.mockReturnValue(Promise.resolve(addOperationIdMandatoryResponse));
 		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
-		const result = await vuScurity.finishOperation(
-			addFieldOperationIdMandatory.userName,
-			addFieldOperationIdMandatory.operationId,
-			TOKEN
-		);
-		expect(result.status).toEqual("error");
-		expect(result.message).toEqual((await fetch()).message);
-		expect(fetch).toHaveBeenCalledTimes(2);
+		try {
+			const result =	await vuScurity.finishOperation(
+				addFieldOperationIdMandatory.userName,
+				addFieldOperationIdMandatory.operationId,
+				TOKEN
+			);
+		} catch (error) {
+			expect(error).toEqual(Error((await fetch()).message));
+		}
 		done();
 	}, 5000);
 });

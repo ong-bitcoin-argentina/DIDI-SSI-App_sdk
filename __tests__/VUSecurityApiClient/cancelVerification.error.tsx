@@ -29,7 +29,7 @@ describe("cancelVerification", () => {
 	}, 5000);
 
 	it(`Should THROW ERROR when you want to enter a operationId with space "" `, async done => {
-		fetch.mockReturnValue(Promise.resolve(addOperationIdMandatoryResponse));
+		fetch.mockReturnValue(Promise.resolve({message:"falta el campo: operationId"}));
 		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
 		const result = await vuScurity.cancelVerification(
 			addFieldOperationIdMandatory.userName,

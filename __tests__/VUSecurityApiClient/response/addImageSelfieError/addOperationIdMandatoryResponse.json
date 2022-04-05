@@ -1,5 +1,5 @@
 {
     "status": "error",
-    "errorCode": "PARAMETER_MISSING",
-    "message": "falta el campo: operationId"
+    "errorCode": "INVALID_ROUTE",
+    "message": "La ruta no existe."
 }
