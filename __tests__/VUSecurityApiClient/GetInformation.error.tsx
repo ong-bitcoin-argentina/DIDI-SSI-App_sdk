@@ -15,15 +15,17 @@ import addOperationIdMandatoryResponse from "./response/cancelVerification/addOp
 
 describe("getInformation", () => {
 	it(`Should THROW ERROR when you want to enter a userName with space "" `, async done => {
-		fetch.mockReturnValue(Promise.resolve(addUserNameMandatoryResponse));
-		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
-		const result = await vuScurity.getInformation(
-			addFieldUserNameMandatory.userName,
-			addFieldUserNameMandatory.operationId,
-			TOKEN
-		);
-		expect(result.status).toEqual("error");
-		expect(fetch).toHaveBeenCalledTimes(0);
+		try {
+			fetch.mockReturnValue(Promise.resolve(addUserNameMandatoryResponse));
+			const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
+			await vuScurity.getInformation(
+				addFieldUserNameMandatory.userName,
+				addFieldUserNameMandatory.operationId,
+				TOKEN
+			);	
+		} catch (error) {
+			expect(error).toEqual(Error('No se encontró ningun usuario con el did ingresado. Inténtelo nuevamente más tarde.'))
+		}
 		done();
 	}, 5000);
 

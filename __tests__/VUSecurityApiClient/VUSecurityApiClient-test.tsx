@@ -28,7 +28,6 @@ import getInformation from "./response/getInformation/getInformation.json";
 describe("VUSecurityApiClient", () => {
 
 	it(`createVerification`, async done => {
-		let userRandom = require('crypto').randomBytes((new Uint32Array(1)).length)[0]; 
 		fetch.mockReturnValue(Promise.resolve(createVerificationResponse));
 		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
 		const result = await vuScurity.createVerification(
@@ -100,7 +99,7 @@ describe("VUSecurityApiClient", () => {
 		expect(result).toEqual(await fetch());
 		expect(fetch).toHaveBeenCalledTimes(3);
 		done();
-	}, 15000);
+	}, 20000);
 
 	it(`addBack`, async done => {
 		fetch.mockReturnValue(Promise.resolve(addBackResponse));
@@ -274,5 +273,5 @@ describe("VUSecurityApiClient", () => {
 		expect(resultFinishOperation.status).toEqual((await fetch()).status);
 		expect(fetch).toHaveBeenCalledTimes(7);
 		done();
-	}, 17000);
+	}, 22000);
 });

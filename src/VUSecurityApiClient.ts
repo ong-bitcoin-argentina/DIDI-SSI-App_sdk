@@ -4,6 +4,7 @@ import { IVerification } from './model/CreateVerification';
 import { ICancel } from './model/CancelVerification';
 import { IDocumentImage } from './model/DocumentImage';
 import { IGetInformation } from './model/GetInformation';
+import { ICheckValidateDni } from './model/CheckValidateDni';
 
 interface IReturnError {
     status:    string;
@@ -16,6 +17,7 @@ type IReturnCancel = IReturnError & ICancel ;
 type IReturnImage = IReturnError & IDocumentImage;
 type IReturnFinish = IReturnError & IReturnFinishOperation;
 type IReturnInformation= IReturnError & IGetInformation;
+type IReturnCheckValidateDni = IReturnError & ICheckValidateDni;
 export class VUSecurityApiClient {
 
 	private baseUrl: string;
@@ -81,4 +83,7 @@ export class VUSecurityApiClient {
 			},token);
 	}
 
+	async checkValidateDni(did: string, token: string): Promise<IReturnCheckValidateDni>{
+		return authorizationCall(`${this.baseUrl}/verification/${did}`, "GET",{},token);
+	}
 }

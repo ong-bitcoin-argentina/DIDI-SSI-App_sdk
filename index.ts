@@ -9,7 +9,7 @@ export * from "./src/model/IssuerDescriptor";
 export * from "./src/model/SpecialCredential";
 export * from "./src/model/SemillasTypes";
 export * from "./src/model/VuSecurity";
-
+export * from "./src/model/CheckValidateDni";
 export * from "./src/model/DocumentImage";
 export * from "./src/model/CancelVerification";
 export * from "./src/model/CreateVerification";

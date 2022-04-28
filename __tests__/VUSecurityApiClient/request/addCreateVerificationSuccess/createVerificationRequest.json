@@ -1,11 +1,11 @@
 {
 	"did": "did:ethr:0x76c9907031f479cbfa0ab25e4b8451c2a1a81743",
-	"userName": "FabioVU ArpiresVU",
+	"userName": "_VU _SecurityVU",
 	"deviceHash": "hash",
 	"rooted": false,
 	"operativeSystem": "console test",
 	"operativeSystemVersion": "11",
 	"deviceManufacturer": "Apple",
 	"deviceName": "Iphone",
-"ipAddress": "123.12.12.12"
+	"ipAddress": "123.12.12.12"
 }
