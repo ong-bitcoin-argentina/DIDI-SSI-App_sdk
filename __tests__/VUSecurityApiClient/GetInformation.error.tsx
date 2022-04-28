@@ -22,7 +22,7 @@ describe("getInformation", () => {
 			addFieldUserNameMandatory.operationId,
 			TOKEN
 		);
-		expect(result.status).toEqual("success");
+		expect(result.status).toEqual("error");
 		expect(fetch).toHaveBeenCalledTimes(0);
 		done();
 	}, 5000);

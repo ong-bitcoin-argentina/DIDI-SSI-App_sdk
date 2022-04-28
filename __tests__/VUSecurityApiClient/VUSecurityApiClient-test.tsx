@@ -28,6 +28,7 @@ import getInformation from "./response/getInformation/getInformation.json";
 describe("VUSecurityApiClient", () => {
 
 	it(`createVerification`, async done => {
+		let userRandom = require('crypto').randomBytes((new Uint32Array(1)).length)[0]; 
 		fetch.mockReturnValue(Promise.resolve(createVerificationResponse));
 		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
 		const result = await vuScurity.createVerification(
@@ -99,7 +100,7 @@ describe("VUSecurityApiClient", () => {
 		expect(result).toEqual(await fetch());
 		expect(fetch).toHaveBeenCalledTimes(3);
 		done();
-	}, 9000);
+	}, 15000);
 
 	it(`addBack`, async done => {
 		fetch.mockReturnValue(Promise.resolve(addBackResponse));
@@ -135,16 +136,17 @@ describe("VUSecurityApiClient", () => {
 		expect(result).toEqual(await fetch());
 		expect(fetch).toHaveBeenCalledTimes(4);
 		done();
-	}, 11000);
+	}, 20000);
 
 
 	//addSelfie
 	it(`addSelfie`, async done => {
+		let userRandom = require('crypto').randomBytes((new Uint32Array(1)).length)[0]; 
 		fetch.mockReturnValue(Promise.resolve(addSelfieResponse));
 		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
 		const resultVerification = await vuScurity.createVerification(
 			createVerificationRequest.did,
-			createVerificationRequest.userName,
+			createVerificationRequest.userName+userRandom,
 			createVerificationRequest.deviceHash,
 			createVerificationRequest.rooted,
 			createVerificationRequest.operativeSystem,
@@ -182,17 +184,16 @@ describe("VUSecurityApiClient", () => {
 		expect(result).toEqual(await fetch());
 		expect(fetch).toHaveBeenCalledTimes(5);
 		done();
-	}, 14000);
+	}, 21000);
 
 
 
 	it(`getInformation`, async done => {
-		let userRandom = require('crypto').randomBytes((new Uint32Array(1)).length)[0]; 
 		fetch.mockReturnValue(Promise.resolve(getInformation));
 		const vuScurity = new VUSecurityApiClient(URI_VU_SECURITY);
 		const resultVerification = await vuScurity.createVerification(
 			createVerificationSuccessRequest.did,
-			createVerificationSuccessRequest.userName+userRandom,
+			createVerificationSuccessRequest.userName,
 			createVerificationSuccessRequest.deviceHash,
 			createVerificationSuccessRequest.rooted,
 			createVerificationSuccessRequest.operativeSystem,
@@ -226,7 +227,7 @@ describe("VUSecurityApiClient", () => {
 		expect(resultInformation.status).toEqual(response.status);
 		expect(fetch).toHaveBeenCalledTimes(6);
 		done();
-	}, 17000);
+	}, 21000);
 		
 	it(`finishOperation`, async done => {
 		let userRandom = require('crypto').randomBytes((new Uint32Array(1)).length)[0]; 
