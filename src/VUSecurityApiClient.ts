@@ -43,7 +43,7 @@ export class VUSecurityApiClient {
 		ipAddress: string,
 		token: string
 	): Promise<IReturn> {
-		return authorizationCall(`${this.baseUrl}/verification`, "POST", {
+		return authorizationCall(`${this.baseUrl}/verifications`, "POST", {
 			did,
 			userName,
 			deviceHash,
@@ -57,7 +57,7 @@ export class VUSecurityApiClient {
 	}
 
 	async cancelVerification(userName: string, operationId: string, token: string): Promise<IReturnCancel>{
-		return authorizationCall(`${this.baseUrl}/verification`, "DELETE", {
+		return authorizationCall(`${this.baseUrl}/verifications`, "DELETE", {
 			userName,
 			operationId
 			},token);
@@ -66,7 +66,7 @@ export class VUSecurityApiClient {
 
 
 	async addDocumentImage(userName: string, operationId: string, side: string, file: string, token: string): Promise<IReturnImage>{	
-		return authorizationCall(`${this.baseUrl}/${operationId}/documentImage`, "POST", {
+		return authorizationCall(`${this.baseUrl}/verifications/${operationId}/documentImage`, "POST", {
 			userName,
 			side,
 			file
@@ -74,16 +74,16 @@ export class VUSecurityApiClient {
     }
 
 	async getInformation(userName: string, operationId: string, token: string): Promise<IReturnInformation>{
-		return authorizationCall(`${this.baseUrl}/verification/${operationId}/${userName}`, "GET",{},token);
+		return authorizationCall(`${this.baseUrl}/verifications/${operationId}/${userName}`, "GET",{},token);
 	}
 
 	async finishOperation(userName: string, operationId: string, token: string): Promise<IReturnFinish>{
-		return authorizationCall(`${this.baseUrl}/verification/${operationId}`, "PATCH", {
+		return authorizationCall(`${this.baseUrl}/verifications/${operationId}`, "PATCH", {
 			userName
 			},token);
 	}
 
 	async checkValidateDni(did: string, token: string): Promise<IReturnCheckValidateDni>{
-		return authorizationCall(`${this.baseUrl}/verification/${did}`, "GET",{},token);
+		return authorizationCall(`${this.baseUrl}/verifications/${did}`, "GET",{},token);
 	}
 }
