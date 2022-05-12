@@ -6,6 +6,7 @@ export interface IssuerDescriptor {
 	description?: string;
 	imageUrl?: string;
 	expireOn?: Date;
+	shareRequests?:string[]; 
 }
 
 export interface IssuersDescriptor {
