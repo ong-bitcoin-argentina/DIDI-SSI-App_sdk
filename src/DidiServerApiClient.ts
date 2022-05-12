@@ -583,7 +583,7 @@
 		 * Obtiene los shareRequest por id
 		 */
 		 async getShareRequestFromId(idShareRequest: string): Promise<IIssuerShareRequest>{ 
-			return await simpleCall(
+			return simpleCall(
 				`${this.baseUrl}/issuer/shareRequest/${idShareRequest}`,
 				"GET",
 				{}
