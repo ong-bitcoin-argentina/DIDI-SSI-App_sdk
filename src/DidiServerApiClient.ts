@@ -7,9 +7,9 @@
 	
 	import { Encryption } from "./crypto/Encryption";
 	import { EthrDID } from "./model/EthrDID";
+	import { IIssuerShareRequest } from './model/ShareRequests';
 	import { IssuerDescriptor, IssuersDescriptor } from "./model/IssuerDescriptor";
 	import { ApiInfo } from "./model/apiInfo";
-    import { VUSecurityApiClient } from './VUSecurityApiClient';
 	import {
 		Prestador,
 		dataResponse,
@@ -579,5 +579,18 @@
 	
 			return response;
 		}
+		/**
+		 * Obtiene los shareRequest por id
+		 */
+		 async getShareRequestFromId(idShareRequest: string): Promise<IIssuerShareRequest>{ 
+			const response = await simpleCall(
+				`${this.baseUrl}/issuer/shareRequest/${idShareRequest}`,
+				"GET",
+				{}
+			);
+			return response;
+		}
+
+
 	}
 	
