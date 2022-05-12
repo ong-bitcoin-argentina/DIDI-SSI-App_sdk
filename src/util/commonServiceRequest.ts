@@ -116,7 +116,7 @@ export const authorizationCall = async (url: string, method: HTTPMethod = "GET",
 	const options = {
 		headers:{
 			"Content-Type": "application/json",
-	        "Authorization": `${token}`,
+	        "AuthorizationToken": `${token}`,
 		},
 		method,
 		...(method !== "GET" && { body: JSON.stringify(data) })

@@ -27,7 +27,7 @@ describe("checkValidateDni", () => {
         expect(result.data.status).toEqual((await fetch()).data.status);
 		expect(fetch).toHaveBeenCalledTimes(1);
 		done();
-	}, 1500);
+	}, 2000);
 
     it(`In Progress`, async done => {
 		fetch.mockReturnValue(Promise.resolve(inProgressResponse));
