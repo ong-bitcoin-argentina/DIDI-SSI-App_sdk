@@ -1,6 +1,6 @@
 require("isomorphic-fetch");
 jest.mock("node-fetch");
-import { isRight, left, right } from 'fp-ts/lib/Either';
+import { isRight } from 'fp-ts/lib/Either';
 import { DidiServerApiClient } from '../../src/DidiServerApiClient';
 import {DIDI_SERVER_URI,PRIVATE_KEY} from '../config/config.test.json';
 describe("DIDI-SSI-SERVER", () => {
