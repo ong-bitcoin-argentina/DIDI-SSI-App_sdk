@@ -134,7 +134,7 @@ export const authorizationCall = async (url: string, method: HTTPMethod = "GET",
 	throw new Error(content.message);
 };
 
-export const authorizationToken = async (url: string, method: HTTPMethod = "GET", data: any, token: string, responseIsText: Boolean = false) => {
+export const authorizationToken = async (url: string, method: HTTPMethod, data: any, token: string) => {
 	const options = {
 		headers:{
 			"Content-Type": "application/json",
@@ -145,10 +145,6 @@ export const authorizationToken = async (url: string, method: HTTPMethod = "GET"
 	};
 	const res = await fetch(url, options);
 
-	if (responseIsText){
-		return res.text();
-	}
-	
 	const content = await res.json();
 	if (res.ok) {
 		return content;
