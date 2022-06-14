@@ -19,6 +19,7 @@ export * from "./src/model/GetInformation";
 export * from "./src/DidiServerApiClient";
 export * from "./src/VUSecurityApiClient";
 export * from "./src/TrustGraphClient";
+export * from "./src/IssuerApiClient";
 
 export * from "./src/parse/parseJWT";
 
