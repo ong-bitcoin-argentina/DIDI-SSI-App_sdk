@@ -3,7 +3,7 @@ __tests__/VUSecurityApiClient/response/addFinishOperationSuccess
 __tests__/VUSecurityApiClient/request/addCancelVerificationSuccess
 __tests__/VUSecurityApiClient/request/addUserSuccess
 __tests__/VUSecurityApiClient/request/addCreateVerificationSuccess
-
+__tests__/Issuers/request/addShareResponse
 
 dist
 didi-sdk-*.tgz
