@@ -19,8 +19,14 @@ interface Claims {
 
 interface Verifiable {
     nationalId: NationalID;
+    mobilePhone: MobilePhone;
 }
 
+interface MobilePhone {
+    reason:   string;
+    issuers:  Issuer[];
+    required: boolean;
+}
 interface NationalID {
     reason:   string;
     issuers:  Issuer[];

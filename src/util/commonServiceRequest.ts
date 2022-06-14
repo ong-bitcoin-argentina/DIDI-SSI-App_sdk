@@ -133,3 +133,21 @@ export const authorizationCall = async (url: string, method: HTTPMethod = "GET",
 	}
 	throw new Error(content.message);
 };
+
+export const authorizationToken = async (url: string, method: HTTPMethod, data: any, token: string) => {
+	const options = {
+		headers:{
+			"Content-Type": "application/json",
+	        token,
+		},
+		method,
+		...(method !== "GET" && { body: JSON.stringify(data) })
+	};
+	const res = await fetch(url, options);
+
+	const content = await res.json();
+	if (res.ok) {
+		return content;
+	}
+	throw new Error(content.message);
+};
