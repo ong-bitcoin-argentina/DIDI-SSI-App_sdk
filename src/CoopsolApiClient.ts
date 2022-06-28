@@ -18,11 +18,11 @@ export class CoopsolApiClient {
 	/**
 	* enviar los Identidad validada
 	*/
-	async dniIdentity(jwt: string, token: string): Promise<IShareResp>{ 
+	async dniIdentity(jwt: string): Promise<IShareResp>{ 
 		return authorizationCall(`${this.baseUrl}/dni-identity`,"POST",{
 			credential: jwt,
 			},
-			token,
+			"token",
 		);
 	}
 

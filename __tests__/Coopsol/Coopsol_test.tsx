@@ -7,11 +7,10 @@ import {COOPSOL_URI} from '../config/config.test.json';
 
 describe("DIDI-SSI-SERVER", () => {
 
-    it(`dniIdentity`, async done => {        
+    it(`dniIdentity `, async done => {        
         const CoopsolClient = new CoopsolApiClient(COOPSOL_URI);
         const result = await CoopsolClient.dniIdentity(
-            addUserDniIdentity.credential,
-            addUserDniIdentity.token
+            addUserDniIdentity.credential
         );
         expect(result.did).toEqual(addUserDniIdentityResponse.did);
         done()
