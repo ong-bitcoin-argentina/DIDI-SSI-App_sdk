@@ -1,6 +1,6 @@
 
 import { IShareResp } from './model/DniIdnetity';
-import { authorizationToken } from './util/commonServiceRequest';
+import { authorizationCall } from './util/commonServiceRequest';
 
 export class CoopsolApiClient {
 
@@ -18,11 +18,11 @@ export class CoopsolApiClient {
 	/**
 	* enviar los Identidad validada
 	*/
-	async dniIdentity(jwt: string): Promise<IShareResp>{ 
-		return authorizationToken(`${this.baseUrl}/dni-identity`,"POST",{
+	async dniIdentity(jwt: string, token: string): Promise<IShareResp>{ 
+		return authorizationCall(`${this.baseUrl}/dni-identity`,"POST",{
 			credential: jwt,
 			},
-			"",
+			token,
 		);
 	}
 

@@ -10,7 +10,8 @@ describe("DIDI-SSI-SERVER", () => {
     it(`dniIdentity`, async done => {        
         const CoopsolClient = new CoopsolApiClient(COOPSOL_URI);
         const result = await CoopsolClient.dniIdentity(
-            addUserDniIdentity.credential
+            addUserDniIdentity.credential,
+            addUserDniIdentity.token
         );
         expect(result.did).toEqual(addUserDniIdentityResponse.did);
         done()
