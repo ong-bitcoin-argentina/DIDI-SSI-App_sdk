@@ -15,11 +15,13 @@ export * from "./src/model/CancelVerification";
 export * from "./src/model/CreateVerification";
 export * from "./src/model/FinishOperation";
 export * from "./src/model/GetInformation";
+export * from "./src/model/DniIdnetity";
 
 export * from "./src/DidiServerApiClient";
 export * from "./src/VUSecurityApiClient";
 export * from "./src/TrustGraphClient";
 export * from "./src/IssuerApiClient";
+export * from "./src/CoopsolApiClient";
 
 export * from "./src/parse/parseJWT";
 

@@ -4,6 +4,8 @@ __tests__/VUSecurityApiClient/request/addCancelVerificationSuccess
 __tests__/VUSecurityApiClient/request/addUserSuccess
 __tests__/VUSecurityApiClient/request/addCreateVerificationSuccess
 __tests__/Issuers/request/addShareResponse
+__tests__/Coopsol/request
+__tests__/Coopsol/response
 
 dist
 didi-sdk-*.tgz
