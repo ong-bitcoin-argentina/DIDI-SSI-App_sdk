@@ -17,9 +17,10 @@ export class IssuerApiClient {
 	/**
 	* enviar los shareResponse
 	*/
-	async shareResponse(did: string, jwt: string, token : string): Promise<IShareResp>{ 
+	async shareResponse(did: string, jwt: string, shareRequestId: string, token : string): Promise<IShareResp>{ 
 		return authorizationToken(`${this.baseUrl}/shareResponse/${did}`,"POST",{
 			jwt,
+			shareRequestId
 			},
 			token
 		);

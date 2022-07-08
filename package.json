@@ -1,6 +1,6 @@
 {
 	"name": "@proyecto-didi/app-sdk",
-	"version": "0.3.0",
+	"version": "0.4.1",
 	"license": "SEE LICENSE IN LICENSE",
 	"description": "",
 	"main": "index.ts",
@@ -33,7 +33,7 @@
 		"io-ts": "^2.0.0",
 		"isomorphic-fetch": "^3.0.0",
 		"jwt-decode": "^2.2.0",
-		"node-fetch": "^2.6.7",
+		"node-fetch": "^3.2.6",
 		"react": ">= 16.5.0",
 		"react-native": ">= 0.60.5",
 		"react-native-bcrypt": "^2.4.0",
