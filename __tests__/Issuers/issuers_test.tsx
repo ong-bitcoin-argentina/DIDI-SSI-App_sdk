@@ -12,6 +12,7 @@ describe("DIDI-SSI-Issuer-module-backend", () => {
     const result = await IssuerClient.shareResponse(
         shareResponse.did,
         shareResponse.jwt,
+        shareResponse.shareRequestId,
         AUTHORIZATIONTOKEN)
     expect(result.status).toEqual('success');    
     done();
@@ -22,6 +23,7 @@ describe("DIDI-SSI-Issuer-module-backend", () => {
         const result = await IssuerClient.shareResponse(
             addFielJwtMandatory.did,
             addFielJwtMandatory.jwt,
+            shareResponse.shareRequestId,
             AUTHORIZATIONTOKEN)
         expect(result.status).toEqual('error');
         expect(result.data.message).toEqual('Falta el campo: jwt')
@@ -30,15 +32,17 @@ describe("DIDI-SSI-Issuer-module-backend", () => {
     })
 
     it('Should THROW ERROR when you want to enter a token with space ""', async done =>{
+        try {
         const IssuerClient = new IssuerApiClient(URI_ISSUER_MODULE_BACKEND);
-        const result = await IssuerClient.shareResponse(
+        await IssuerClient.shareResponse(
             shareResponse.did,
             shareResponse.jwt,
-            AUTHORIZATIONTOKEN_EMPTY)
-        expect(result.status).toEqual('error');
-        expect(result.data.message).toEqual('Falta el campo: token')
+            shareResponse.shareRequestId,
+            AUTHORIZATIONTOKEN_EMPTY)   
+        } catch (error) {
+        expect(error).toEqual(Error(`falta el campo: jwt`));
+        }
         done();
-    
     })
 
 });
