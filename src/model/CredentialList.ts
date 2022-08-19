@@ -1,9 +1,9 @@
-export type ICredentialList = Credentia | IError;
+export type ICredentialList = Credentia & IError;
 
 interface IError {
     status: string;
-    errorCode: string;
-    message: string;
+    errorCode?: string;
+    message?: string;
 }
 
 
@@ -13,14 +13,5 @@ interface Credentia {
 }
 
 interface Data {
-    credential_categories: CredentialCategories;
-}
-
-interface CredentialCategories {
-    emailMain: string;
-    mobilePhone: string;
-    nationalId: string;
-    legalAddress: string;
-    realAddress: string;
-    livingPlace: string;
+    credential_categories: any;
 }

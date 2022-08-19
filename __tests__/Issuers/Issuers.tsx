@@ -37,6 +37,7 @@ describe("DIDI-SSI-SERVER", () => {
                 const DidiServerClient = new DidiServerApiClient({ didiServerUri: DIDI_SERVER_URI }, PRIVATE_KEY);
                 const result = await DidiServerClient.credentialList();
                 expect(result.status).toEqual('success');
+                expect(result.data.credential_categories['mobilePhone']).toEqual('Telefono');
                 done()
         });
 
