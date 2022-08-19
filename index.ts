@@ -16,6 +16,7 @@ export * from "./src/model/CreateVerification";
 export * from "./src/model/FinishOperation";
 export * from "./src/model/GetInformation";
 export * from "./src/model/DniIdnetity";
+export * from "./src/model/CredentialList";
 
 export * from "./src/DidiServerApiClient";
 export * from "./src/VUSecurityApiClient";

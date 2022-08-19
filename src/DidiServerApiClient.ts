@@ -17,6 +17,7 @@
 		SemillasNeedsToValidateDni,
 		ShareDataRequest
 	} from "./model/SemillasTypes";
+import { ICredentialList } from "./model/CredentialList";
 	
 	const log = console.log;
 	
@@ -585,6 +586,17 @@
 		 async getShareRequestFromId(idShareRequest: string): Promise<IIssuerShareRequest>{ 
 			return simpleCall(
 				`${this.baseUrl}/issuer/shareRequest/${idShareRequest}`,
+				"GET",
+				{}
+			);
+		}
+
+		/**
+		 * obtiene el lista de credenciales desde didi server
+		 */
+		 async credentialList(): Promise<ICredentialList>{ 
+			return simpleCall(
+				`${this.baseUrl}/translate`,
 				"GET",
 				{}
 			);
