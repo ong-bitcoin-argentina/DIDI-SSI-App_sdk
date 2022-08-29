@@ -90,7 +90,7 @@ export const CredentialDocument = {
 	/**
 	 * Cantidad de columnas en las que mostrar la vista previa de un documento
 	 */
-	numberOfColumns(doc: CredentialDocument): 1 | 2 | 3 {
+	numberOfColumns(doc: CredentialDocument): 1 | 2 | 3 | 5 {
 		if (!doc.preview) {
 			return 1;
 		}
@@ -98,6 +98,7 @@ export const CredentialDocument = {
 			case 1:
 			case 2:
 			case 3:
+			case 5:
 				return doc.preview.type;
 			default:
 				return 1;
