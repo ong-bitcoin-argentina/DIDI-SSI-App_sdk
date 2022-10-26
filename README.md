@@ -94,4 +94,4 @@ insertJWT(jwt: string)
 **NOTE 1** : EthrDID represents an ethereum-based DID, avoiding confusion between its representations such as ethereum address and as DID.
 
 ## Project Endpoints
-For more information, see the [documentation](https://docs.didi.org.ar/docs/developers/solucion/descripcion-tecnica/arquitectura-issuer)
+For more information, see the [documentation](https://docs.didi.org.ar/docs/aidi/aidi-descripcion)
